@@ -4,6 +4,8 @@ import { addDays, format, setHours, setMinutes } from "date-fns";
 
 export function getMockCalendarAgenda(): CalendarAgenda {
   const now = new Date();
+  const todayKey = format(now, "yyyy-MM-dd");
+  const tomorrowKey = format(addDays(now, 1), "yyyy-MM-dd");
 
   const todayEvents: CalendarEvent[] = [
     {
@@ -119,10 +121,18 @@ export function getMockCalendarAgenda(): CalendarAgenda {
     },
   ];
 
+  const byDate: Record<string, CalendarEvent[]> = {
+    [todayKey]: todayEvents,
+    [tomorrowKey]: tomorrowEvents,
+    [format(addDays(now, 2), "yyyy-MM-dd")]: upcoming[0].events,
+    [format(addDays(now, 3), "yyyy-MM-dd")]: upcoming[1].events,
+  };
+
   return {
     today: todayEvents,
     tomorrow: tomorrowEvents,
     upcoming,
+    byDate,
     lastUpdated: new Date().toISOString(),
   };
 }

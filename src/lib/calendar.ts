@@ -13,12 +13,12 @@ import ical from "node-ical";
 // Default color palette for multiple calendars
 const CALENDAR_COLORS = [
   "#3b82f6", // blue
+  "#f97316", // orange
   "#10b981", // green
   "#8b5cf6", // purple
-  "#f59e0b", // amber
   "#ec4899", // pink
   "#06b6d4", // cyan
-  "#f97316", // orange
+  "#f59e0b", // amber
   "#14b8a6", // teal
 ];
 
@@ -64,7 +64,6 @@ export function parseCalendarSourcesFromEnv(): CalendarSource[] {
     rawUrls.forEach((rawUrl, idx) => {
       const cleaned = sanitizeIcsUrl(rawUrl);
       if (cleaned && (cleaned.startsWith("http://") || cleaned.startsWith("https://"))) {
-        // avoid duplicating if already in sources
         if (!sources.some((s) => s.icsUrl === cleaned)) {
           const color =
             idx === 0 && process.env.GOOGLE_CALENDAR_COLOR
@@ -107,8 +106,9 @@ export async function fetchCalendarAgenda(): Promise<CalendarAgenda> {
     return mock;
   }
 
-  const rangeStart = startOfDay(now);
-  const rangeEnd = endOfDay(addDays(now, 14));
+  // Support 60 days in the past and 60 days in the future for rich timeline browsing
+  const rangeStart = startOfDay(addDays(now, -60));
+  const rangeEnd = endOfDay(addDays(now, 60));
   const allEvents: CalendarEvent[] = [];
 
   // Fetch all calendar feeds in parallel
@@ -190,10 +190,11 @@ export async function fetchCalendarAgenda(): Promise<CalendarAgenda> {
   // Chronologically sort all aggregated events
   allEvents.sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
 
-  // Segment events into Today, Tomorrow, and Upcoming
+  // Index events into byDate map for all past and future dates
   const todayStr = format(now, "yyyy-MM-dd");
   const tomorrowStr = format(addDays(now, 1), "yyyy-MM-dd");
 
+  const byDate: Record<string, CalendarEvent[]> = {};
   const todayEvents: CalendarEvent[] = [];
   const tomorrowEvents: CalendarEvent[] = [];
   const upcomingMap: Record<string, CalendarEvent[]> = {};
@@ -201,6 +202,11 @@ export async function fetchCalendarAgenda(): Promise<CalendarAgenda> {
   allEvents.forEach((event) => {
     const eventDate = new Date(event.start);
     const dateKey = format(eventDate, "yyyy-MM-dd");
+
+    if (!byDate[dateKey]) {
+      byDate[dateKey] = [];
+    }
+    byDate[dateKey].push(event);
 
     if (dateKey === todayStr) {
       todayEvents.push(event);
@@ -216,7 +222,7 @@ export async function fetchCalendarAgenda(): Promise<CalendarAgenda> {
 
   const upcoming = Object.keys(upcomingMap)
     .sort()
-    .slice(0, 7)
+    .slice(0, 14)
     .map((dateKey) => {
       const parsedDate = new Date(dateKey + "T00:00:00");
       return {
@@ -230,6 +236,7 @@ export async function fetchCalendarAgenda(): Promise<CalendarAgenda> {
     today: todayEvents,
     tomorrow: tomorrowEvents,
     upcoming,
+    byDate,
     lastUpdated: new Date().toISOString(),
   };
 

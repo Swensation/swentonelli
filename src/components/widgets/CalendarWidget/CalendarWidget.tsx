@@ -22,14 +22,8 @@ export function CalendarWidget() {
   const selectedDateStr = format(selectedDate, "yyyy-MM-dd");
   const formattedDayTitle = format(selectedDate, "EEEE, MMMM d, yyyy");
 
-  // Determine active events matching master selected date
-  let activeEvents = data?.today || [];
-  if (isTomorrow) {
-    activeEvents = data?.tomorrow || [];
-  } else if (!isToday) {
-    const upcomingMatch = data?.upcoming?.find((u) => u.date === selectedDateStr);
-    activeEvents = upcomingMatch ? upcomingMatch.events : [];
-  }
+  // Determine active events matching master selected date (supports past and future)
+  const activeEvents = data?.byDate?.[selectedDateStr] || [];
 
   return (
     <div className="glass-card p-6 flex flex-col h-full">

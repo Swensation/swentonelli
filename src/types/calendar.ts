@@ -29,6 +29,6 @@ export interface CalendarAgenda {
     dateFormatted: string;
     events: CalendarEvent[];
   }[];
+  byDate: Record<string, CalendarEvent[]>;
   lastUpdated: string;
 }
-

@@ -1,6 +1,6 @@
 # Spec: Google Calendar Live Agenda Widget
 
-> **Status**: Approved / In Progress  
+> **Status**: Approved / Active  
 > **Author**: Dad (Andrew)  
 > **Last Updated**: 2026-08-24  
 
@@ -8,20 +8,20 @@
 
 ## 1. Purpose & User Story
 - **As a** parent or kid in the family,
-- **I want to** see our family's schedule for the selected day in real-time,
-- **So that** everyone knows what's happening without asking.
+- **I want to** see our family's schedule for any selected day (past, present, or future) in real-time,
+- **So that** we can look up what happened earlier in the week/month or see what is coming up.
 
 ---
 
 ## 2. Visual & Display Design
-- **Header**: Icon + Title **"Family Calendar"** ONLY (no subtitles, no view switcher buttons).
+- **Header**: Icon + Title **"Family Calendar"** ONLY.
 - **Content Area**:
-  - Displays the timeline / agenda for the **Master Selected Date** from the top header.
+  - Displays the timeline / agenda for the **Master Selected Date** from the top header (`selectedDate`).
+  - Supports historical browsing (past days) as well as future days (+/- 60 day range).
   - Left colored border stripe matching each family member's calendar color.
   - Event time range chip with font-mono digital clock styling.
   - Location chip with map pin icon if an address/room is specified.
   - Live pulsing blue badge for events that are **"NOW"** (happening right now).
-  - Countdown chip ("Starts in 15m") for events starting within the hour.
 - **Empty State**: Cheerful empty state if no events are scheduled for that selected date.
 
 ---
@@ -43,13 +43,25 @@ export interface CalendarEvent {
   isHappeningNow?: boolean;
   minutesUntilStart?: number;
 }
+
+export interface CalendarAgenda {
+  today: CalendarEvent[];
+  tomorrow: CalendarEvent[];
+  upcoming: {
+    date: string;
+    dateFormatted: string;
+    events: CalendarEvent[];
+  }[];
+  byDate: Record<string, CalendarEvent[]>; // YYYY-MM-DD -> events (supports past & future)
+  lastUpdated: string;
+}
 ```
 
 ---
 
 ## 4. Acceptance Criteria Checklist
+- [x] Supports past date navigation (displays historical events when stepping backward in time).
 - [x] Header contains ONLY Icon + Title (zero internal date toggles or tabs).
 - [x] Subscribes strictly to master date from `useDashboard()`.
 - [x] SWR polls every 30 seconds for live updates.
-- [x] Multi-calendar color badges and live "NOW" pulse badges render properly.
 - [x] `npm test` passes with zero failures.

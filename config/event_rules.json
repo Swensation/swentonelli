@@ -39,7 +39,7 @@
     "id": "brighton-field-hockey",
     "childId": "brighton",
     "childName": "Brighton",
-    "childColor": "#f97316",
+    "childColor": "#f472b6",
     "category": "Field Hockey",
     "badgeText": "Holliston FH",
     "iconUrl": "/icons/teams/brighton_field_hockey.png",
@@ -60,7 +60,17 @@
     "iconUrl": "/icons/schools/miller.png",
     "summaryPatterns": [
       "miller",
-      "katie pellegri"
+      "4th grade",
+      "fourth grade",
+      "grade 4",
+      "5th grade",
+      "fifth grade",
+      "grade 5",
+      "3rd grade",
+      "third grade",
+      "grade 3",
+      "katie pellegri",
+      "pellegri"
     ],
     "descriptionPatterns": [
       "miller elementary school",

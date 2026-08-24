@@ -16,8 +16,10 @@ import {
   ExternalLink,
   FileText,
   Globe,
+  GraduationCap,
   HeartPulse,
   HelpCircle,
+  Home,
   Image as ImageIcon,
   Layers,
   Link2,
@@ -31,6 +33,7 @@ import {
   Trophy,
   Upload,
   User,
+  Users,
   Utensils,
   Wifi,
 } from "lucide-react";
@@ -39,7 +42,7 @@ import { format, parseISO } from "date-fns";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-type AdminTab = "general" | "calendar" | "lunch";
+type AdminTab = "general" | "calendar" | "lunch" | "children";
 
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<AdminTab>("general");
@@ -70,53 +73,74 @@ export default function AdminPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          id: item.suggestion?.id || item.summaryGroup,
-          category: item.suggestion?.category || item.summaryGroup,
-          badgeText: item.suggestion?.badgeText || item.summaryGroup,
+          summaryGroup: item.summaryGroup,
           iconUrl,
-          summaryPatterns: item.suggestion?.summaryPatterns || [item.summaryGroup.toLowerCase()],
+          category: item.suggestion?.category || item.summaryGroup,
+          badgeText: item.suggestion?.badgeText || item.summaryGroup.slice(0, 12),
           childName: item.childName,
+          ruleId: item.suggestion?.id || `rule-${item.id}`,
         }),
       });
 
       const result = await res.json();
-      if (!res.ok) {
-        throw new Error(result.error || "Failed to approve icon");
+      if (res.ok && result.success) {
+        showToast(`✅ Approved & applied icon for "${item.summaryGroup}"!`);
+        mutate();
+      } else {
+        alert(`Failed to approve icon: ${result.error || "Unknown error"}`);
       }
-
-      showToast(`✅ Approved icon for "${item.summaryGroup}"!`);
-      await mutate();
     } catch (err: any) {
-      console.error("Failed to approve icon:", err);
-      alert(`Error approving icon: ${err.message}`);
+      alert(`Network error approving icon: ${err.message}`);
     } finally {
       setApprovingId(null);
     }
   };
 
-  return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 p-4 md:p-8 bg-ambient font-sans">
-      <div className="max-w-6xl mx-auto space-y-6">
-        {/* Toast Notification */}
-        {toastMessage && (
-          <div className="fixed top-5 right-5 z-50 p-4 rounded-2xl bg-emerald-600 text-white shadow-2xl font-bold text-sm flex items-center gap-2 animate-bounce">
-            <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
-            <span>{toastMessage}</span>
-          </div>
-        )}
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center p-6">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="w-8 h-8 text-amber-400 animate-spin" />
+          <p className="text-sm font-bold text-slate-300">Loading Dashboard Diagnostics & Housekeeping...</p>
+        </div>
+      </div>
+    );
+  }
 
-        {/* Top Header Ribbon */}
-        <header className="w-full py-4 px-6 glass-card flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3.5">
-            <div className="h-12 w-12 rounded-2xl overflow-hidden border-2 border-amber-500/50 shadow-md flex-shrink-0 bg-amber-500/20 flex items-center justify-center">
-              <img
-                src="/scout.jpeg"
-                alt="Scout"
-                className="h-full w-full object-cover"
-                onError={(e) => {
-                  (e.target as HTMLElement).style.display = "none";
-                }}
-              />
+  if (error || !data) {
+    return (
+      <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center p-6">
+        <div className="glass-card p-6 max-w-md text-center">
+          <AlertCircle className="w-10 h-10 text-rose-400 mx-auto mb-3" />
+          <h2 className="text-lg font-black text-white">Diagnostics Unavailable</h2>
+          <p className="text-xs text-slate-400 mt-2 mb-4">Could not retrieve system housekeeping state.</p>
+          <button
+            onClick={() => mutate()}
+            className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs"
+          >
+            Retry Connection
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-slate-950 text-slate-100 p-4 md:p-8 font-sans">
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className="fixed top-5 right-5 z-50 px-4 py-3 rounded-2xl bg-emerald-500 text-slate-950 font-black text-sm shadow-2xl flex items-center gap-2 animate-bounce">
+          <CheckCircle2 className="w-5 h-5" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
+
+      <div className="max-w-6xl mx-auto space-y-6">
+        {/* Top Header */}
+        <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 to-amber-300 flex items-center justify-center text-slate-950 font-black shadow-lg">
+              ⚙️
             </div>
             <div>
               <div className="flex items-center gap-2">
@@ -128,7 +152,7 @@ export default function AdminPage() {
                 </span>
               </div>
               <p className="text-xs text-slate-400 mt-1">
-                Diagnostic audits, 1-click icon approvals, and actionable housekeeping for the next 30 days.
+                Diagnostic audits, child profiles & schedules, 1-click icon approvals, and housekeeping for the next 30 days.
               </p>
             </div>
           </div>
@@ -151,7 +175,7 @@ export default function AdminPage() {
           </div>
         </header>
 
-        {/* Row of Tabs (Static SSR) */}
+        {/* Row of Tabs */}
         <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-slate-900/80 border border-slate-800 shadow-sm overflow-x-auto">
           <button
             onClick={() => setActiveTab("general")}
@@ -163,9 +187,21 @@ export default function AdminPage() {
           >
             <Activity className="w-4 h-4" />
             <span>General Overview</span>
-            {data?.general.systemStatus === "warning" && (
+            {data.general.systemStatus === "warning" && (
               <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
             )}
+          </button>
+
+          <button
+            onClick={() => setActiveTab("children")}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-xs md:text-sm transition-all flex-shrink-0 ${
+              activeTab === "children"
+                ? "bg-purple-600 text-white shadow-md font-black"
+                : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
+            }`}
+          >
+            <Users className="w-4 h-4" />
+            <span>Child Profiles & Schedules</span>
           </button>
 
           <button
@@ -178,9 +214,9 @@ export default function AdminPage() {
           >
             <CalendarIcon className="w-4 h-4" />
             <span>Family Calendar</span>
-            {data && data.general.calendarAlertsCount > 0 && (
-              <span className="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 text-[10px] font-extrabold border border-rose-500/30">
-                {data.general.calendarAlertsCount}
+            {data.calendar.missingIcons.length > 0 && (
+              <span className="px-1.5 py-0.2 rounded-full bg-blue-400 text-slate-950 text-[10px] font-black">
+                {data.calendar.missingIcons.length}
               </span>
             )}
           </button>
@@ -195,413 +231,388 @@ export default function AdminPage() {
           >
             <Utensils className="w-4 h-4" />
             <span>School Lunch</span>
-            {data && data.general.lunchAlertsCount > 0 && (
-              <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-extrabold border border-amber-500/30">
-                {data.general.lunchAlertsCount}
-              </span>
-            )}
           </button>
         </div>
 
-        {isLoading && !data && (
-          <div className="h-96 bg-slate-900/50 rounded-2xl animate-pulse border border-slate-800" />
-        )}
-
-        {error && (
-          <div className="p-5 rounded-2xl bg-rose-950/40 border border-rose-800/50 text-rose-300 text-sm">
-            Failed to load administration diagnostic data.
-          </div>
-        )}
-
-        {/* TAB 1: GENERAL OVERVIEW */}
-        {data && activeTab === "general" && (
+        {/* Tab 1: General Overview */}
+        {activeTab === "general" && (
           <div className="space-y-6">
-            {/* System Health Card */}
-            <div className="glass-card p-6">
-              <div className="flex items-center justify-between pb-4 border-b border-slate-700/60 mb-5">
-                <div className="flex items-center gap-2.5">
-                  <div className="p-2 rounded-xl bg-amber-500/20 text-amber-400">
-                    <Server className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h2 className="text-lg font-black text-white">System & Feed Health</h2>
-                    <p className="text-xs text-slate-400">Overall dashboard status and active connections</p>
-                  </div>
+            {/* Quick Stats Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="glass-card p-4">
+                <div className="flex items-center justify-between text-slate-400 mb-2">
+                  <span className="text-xs font-semibold">Active Calendar Feeds</span>
+                  <Radio className="w-4 h-4 text-emerald-400" />
                 </div>
-                <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold border border-emerald-500/30 flex items-center gap-1.5">
-                  <Radio className="w-3.5 h-3.5 animate-pulse text-emerald-400" />
-                  <span>All Systems Operational</span>
-                </span>
+                <div className="text-2xl font-black text-white">{data.general.totalActiveFeeds} Feeds</div>
+                <div className="text-[11px] text-emerald-400 font-bold mt-1">Live ICS feeds polling OK</div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="p-4 rounded-xl bg-slate-900/70 border border-slate-800">
-                  <span className="text-xs text-slate-400 font-bold uppercase tracking-wider block">Kiosk Access URL</span>
-                  <p className="text-base font-black text-amber-400 font-mono mt-1">{data.general.kioskUrl}</p>
-                  <p className="text-[11px] text-slate-500 mt-1">Local LAN endpoint for kitchen iPad/tablets</p>
+              <div className="glass-card p-4">
+                <div className="flex items-center justify-between text-slate-400 mb-2">
+                  <span className="text-xs font-semibold">Custom Event Rules</span>
+                  <Sparkles className="w-4 h-4 text-amber-400" />
                 </div>
+                <div className="text-2xl font-black text-white">{data.general.quickStats.activeEventRulesCount} Rules</div>
+                <div className="text-[11px] text-slate-400 mt-1">Sports, schools, clinics & venues</div>
+              </div>
 
-                <div className="p-4 rounded-xl bg-slate-900/70 border border-slate-800">
-                  <span className="text-xs text-slate-400 font-bold uppercase tracking-wider block">Calendar Feeds Synced</span>
-                  <p className="text-base font-black text-blue-400 mt-1">{data.general.totalActiveFeeds} Active Google Feeds</p>
-                  <p className="text-[11px] text-slate-500 mt-1">Live sync with +/- 60-day calendar buffer</p>
+              <div className="glass-card p-4">
+                <div className="flex items-center justify-between text-slate-400 mb-2">
+                  <span className="text-xs font-semibold">30-Day Activity Events</span>
+                  <CalendarIcon className="w-4 h-4 text-blue-400" />
                 </div>
+                <div className="text-2xl font-black text-white">{data.general.quickStats.eventsInNext30Days} Events</div>
+                <div className="text-[11px] text-blue-400 font-bold mt-1">
+                  {data.calendar.evaluationWindow.eventsWithCustomIcons} branded / {data.calendar.evaluationWindow.eventsWithoutCustomIcons} unbranded
+                </div>
+              </div>
 
-                <div className="p-4 rounded-xl bg-slate-900/70 border border-slate-800">
-                  <span className="text-xs text-slate-400 font-bold uppercase tracking-wider block">Lunch Coverage</span>
-                  <p className="text-base font-black text-emerald-400 mt-1">{data.general.quickStats.lunchScheduleStatus}</p>
-                  <p className="text-[11px] text-slate-500 mt-1">100% clean string parsing integrity</p>
+              <div className="glass-card p-4">
+                <div className="flex items-center justify-between text-slate-400 mb-2">
+                  <span className="text-xs font-semibold">School Lunch Data</span>
+                  <Utensils className="w-4 h-4 text-emerald-400" />
                 </div>
+                <div className="text-lg font-black text-white truncate">{data.general.quickStats.lunchScheduleStatus}</div>
+                <div className="text-[11px] text-emerald-400 font-bold mt-1">Clean formatting verified</div>
               </div>
             </div>
 
-            {/* Quick Action Hub */}
+            {/* Dad's Checklist Card */}
             <div className="glass-card p-6">
-              <h3 className="text-base font-black text-white mb-4">Quick Housekeeping Hub</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <button
-                  onClick={() => setActiveTab("calendar")}
-                  className="p-4 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 transition-all text-left group"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 rounded-lg bg-blue-500/20 text-blue-400">
-                        <CalendarIcon className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-white text-sm group-hover:text-blue-300">
-                          Calendar Housekeeping
-                        </h4>
-                        <p className="text-xs text-slate-400">
-                          {data.calendar.missingIcons.length} missing icon groups in next 30 days
-                        </p>
-                      </div>
-                    </div>
-                    <ChevronRight className="w-5 h-5 text-slate-500 group-hover:text-white transition-transform group-hover:translate-x-1" />
-                  </div>
-                </button>
-
-                <button
-                  onClick={() => setActiveTab("lunch")}
-                  className="p-4 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 transition-all text-left group"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 rounded-lg bg-emerald-500/20 text-emerald-400">
-                        <Utensils className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-white text-sm group-hover:text-emerald-300">
-                          School Lunch Housekeeping
-                        </h4>
-                        <p className="text-xs text-slate-400">
-                          {data.lunch.upcomingMissingMonths.join(", ")} pending PDFs
-                        </p>
-                      </div>
-                    </div>
-                    <ChevronRight className="w-5 h-5 text-slate-500 group-hover:text-white transition-transform group-hover:translate-x-1" />
-                  </div>
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* TAB 2: FAMILY CALENDAR (Single Column with 1-Click Approvals) */}
-        {data && activeTab === "calendar" && (
-          <div className="space-y-6">
-            {/* Top Attention Section: Missing Custom Icons in Next 30 Days */}
-            <div className="glass-card p-6 border-l-4 border-l-amber-500">
               <div className="flex items-center justify-between pb-3 border-b border-slate-700/60 mb-4">
                 <div className="flex items-center gap-2.5">
                   <div className="p-2 rounded-xl bg-amber-500/20 text-amber-400">
-                    <Sparkles className="w-5 h-5" />
+                    <CheckCircle2 className="w-5 h-5" />
                   </div>
                   <div>
-                    <h2 className="text-lg font-black text-white">
-                      AI Discovered Icon Suggestions & Approvals (Next 30 Days)
-                    </h2>
+                    <h2 className="text-lg font-black text-white">Dad&apos;s Housekeeping Checklist</h2>
+                    <p className="text-xs text-slate-400">Essential configuration items to keep the dashboard 100% complete</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {data.calendar.dadChecklist.map((task) => (
+                  <div
+                    key={task.id}
+                    className={`p-4 rounded-2xl border transition-all ${
+                      task.status === "done"
+                        ? "bg-slate-900/40 border-slate-800/80 text-slate-400"
+                        : "bg-amber-500/5 border-amber-500/30 text-slate-200"
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div
+                        className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-black flex-shrink-0 mt-0.5 ${
+                          task.status === "done"
+                            ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                            : "bg-amber-500 text-slate-950 font-black"
+                        }`}
+                      >
+                        {task.status === "done" ? <Check className="w-3.5 h-3.5" /> : "!"}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className={`text-sm font-bold ${task.status === "done" ? "line-through text-slate-500" : "text-white"}`}>
+                            {task.title}
+                          </span>
+                          <span className="text-[10px] font-extrabold uppercase px-1.5 py-0.2 rounded bg-slate-800 text-slate-400">
+                            {task.category}
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-400 mt-1">{task.description}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Tab 2: Child Profiles & Schedules (NEW!) */}
+        {activeTab === "children" && (
+          <div className="space-y-6">
+            <div className="glass-card p-6">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-700/60 mb-6">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-2 rounded-xl bg-purple-500/20 text-purple-400">
+                    <Users className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-black text-white">Family Child Profiles & Schedule Hub</h2>
                     <p className="text-xs text-slate-400">
-                      Discovered logos and candidate crests for upcoming unbranded events. Click &quot;Approve&quot; to apply instantly.
+                      Central registry for schools, teachers, doctors, therapists, sports leagues, and grandparent share links
                     </p>
                   </div>
                 </div>
-                <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                  {data.calendar.missingIcons.length} Groups
-                </span>
+              </div>
+
+              {/* 4-Child Profile Columns Matrix */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                {(data.childrenRegistry || []).map((child) => (
+                  <div
+                    key={child.id}
+                    className="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 flex flex-col space-y-4 shadow-sm"
+                  >
+                    {/* Header: Avatar + Name + Theme */}
+                    <div className="flex items-center gap-3 pb-3 border-b border-slate-800">
+                      <div
+                        className="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center bg-slate-800 border-2 flex-shrink-0 shadow-md"
+                        style={{ borderColor: child.color }}
+                      >
+                        <img
+                          src={child.avatarIcon}
+                          alt={child.name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLElement).style.display = "none";
+                          }}
+                        />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <h3 className="font-black text-white text-lg tracking-tight">{child.name}</h3>
+                        <p className="text-[11px] text-slate-400 truncate">{child.avatarTheme}</p>
+                      </div>
+                    </div>
+
+                    {/* Metadata Attributes */}
+                    <div className="space-y-2.5 text-xs">
+                      {/* School & Grade */}
+                      <div className="p-2.5 rounded-xl bg-slate-950/70 border border-slate-800">
+                        <span className="text-[10px] font-extrabold uppercase text-slate-500 flex items-center gap-1 mb-0.5">
+                          <GraduationCap className="w-3 h-3 text-blue-400" />
+                          School & Grade
+                        </span>
+                        <div className="font-bold text-white">{child.school}</div>
+                        <div className="text-amber-400 font-semibold">{child.grade}</div>
+                      </div>
+
+                      {/* Teacher */}
+                      <div className="p-2.5 rounded-xl bg-slate-950/70 border border-slate-800">
+                        <span className="text-[10px] font-extrabold uppercase text-slate-500 flex items-center gap-1 mb-0.5">
+                          <User className="w-3 h-3 text-emerald-400" />
+                          Teacher / Homeroom
+                        </span>
+                        <div className="font-bold text-slate-200">{child.teacher}</div>
+                      </div>
+
+                      {/* Pediatrician & Specialists */}
+                      <div className="p-2.5 rounded-xl bg-slate-950/70 border border-slate-800">
+                        <span className="text-[10px] font-extrabold uppercase text-slate-500 flex items-center gap-1 mb-0.5">
+                          <HeartPulse className="w-3 h-3 text-rose-400" />
+                          Medical & Therapy
+                        </span>
+                        <div className="font-semibold text-slate-300">{child.pediatrician}</div>
+                        <div className="text-[11px] text-slate-400 mt-0.5">{child.therapist}</div>
+                      </div>
+
+                      {/* Sports & Activities */}
+                      <div className="p-2.5 rounded-xl bg-slate-950/70 border border-slate-800">
+                        <span className="text-[10px] font-extrabold uppercase text-slate-500 flex items-center gap-1 mb-0.5">
+                          <Trophy className="w-3 h-3 text-amber-400" />
+                          Athletics & Teams
+                        </span>
+                        <div className="font-bold text-amber-300">{child.primarySport}</div>
+                        <div className="text-[11px] text-slate-400 mt-0.5">{child.secondaryActivity}</div>
+                      </div>
+
+                      {/* Custody Rule */}
+                      <div className="p-2.5 rounded-xl bg-slate-950/70 border border-slate-800">
+                        <span className="text-[10px] font-extrabold uppercase text-slate-500 flex items-center gap-1 mb-0.5">
+                          <Home className="w-3 h-3 text-indigo-400" />
+                          Custody Rule
+                        </span>
+                        <div className="font-semibold text-slate-300">{child.custody}</div>
+                      </div>
+
+                      {/* External Schedule Share Links (For Grandparents & Family) */}
+                      <div className="p-2.5 rounded-xl bg-slate-950/70 border border-slate-800 space-y-1.5">
+                        <span className="text-[10px] font-extrabold uppercase text-slate-500 flex items-center gap-1">
+                          <Link2 className="w-3 h-3 text-purple-400" />
+                          Grandparent Schedule Links
+                        </span>
+                        {child.scheduleLinks.map((link, idx) => (
+                          <a
+                            key={idx}
+                            href={link.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center justify-between p-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 transition-all font-semibold text-[11px]"
+                          >
+                            <span className="truncate">{link.label}</span>
+                            <ExternalLink className="w-3 h-3 text-slate-400 flex-shrink-0" />
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Tab 3: Family Calendar Housekeeping */}
+        {activeTab === "calendar" && (
+          <div className="space-y-6">
+            {/* Missing Icons Radar */}
+            <div className="glass-card p-6">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-700/60 mb-4">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-2 rounded-xl bg-blue-500/20 text-blue-400">
+                    <ImageIcon className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-black text-white">Missing Icons Radar (Next 30 Days)</h2>
+                    <p className="text-xs text-slate-400">
+                      Unbranded events detected on your calendar. Approve AI suggestions or paste custom logo URLs.
+                    </p>
+                  </div>
+                </div>
               </div>
 
               {data.calendar.missingIcons.length === 0 ? (
-                <div className="p-5 rounded-2xl bg-emerald-950/20 border border-emerald-800/40 text-emerald-300 text-sm flex items-center gap-3">
-                  <CheckCircle2 className="w-6 h-6 text-emerald-400 flex-shrink-0" />
-                  <div>
-                    <span className="font-bold block text-white">All Clear!</span>
-                    <span>Every event in the next 30 days has an explicit custom icon assigned.</span>
-                  </div>
+                <div className="p-8 text-center text-slate-400 bg-slate-900/40 rounded-2xl border border-slate-800/80">
+                  <CheckCircle2 className="w-8 h-8 text-emerald-400 mx-auto mb-2" />
+                  <p className="font-bold text-white">All Events in Next 30 Days Are Branded!</p>
+                  <p className="text-xs text-slate-400 mt-1">Every upcoming team, clinic, and school has a custom crest assigned.</p>
                 </div>
               ) : (
-                <div className="space-y-3.5">
-                  {data.calendar.missingIcons.map((item) => {
-                    const isApproving = approvingId === item.id;
-                    const hasSuggestion = !!item.suggestion?.candidateIconUrl;
-                    const candidateUrl = item.suggestion?.candidateIconUrl || customUrls[item.id];
-                    const isCustomOpen = showCustomInput[item.id];
+                <div className="space-y-4">
+                  {data.calendar.missingIcons.map((item) => (
+                    <div
+                      key={item.id}
+                      className="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 transition-all"
+                    >
+                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap mb-1">
+                            <span className="font-black text-white text-base tracking-tight">{item.summaryGroup}</span>
+                            <span className="text-xs font-extrabold px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                              {item.countIn30Days} {item.countIn30Days === 1 ? "time" : "times"} in next 30d
+                            </span>
+                            {item.childName && (
+                              <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300">
+                                {item.childName}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-slate-400 mt-1">
+                            Sample: <span className="text-slate-300 italic">&quot;{item.sampleEvents[0]}&quot;</span>
+                          </p>
+                        </div>
 
-                    return (
-                      <div
-                        key={item.id}
-                        className="p-4 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 transition-all flex flex-col gap-3"
-                      >
-                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-                          {/* Left: Candidate Thumbnail Preview + Details */}
-                          <div className="flex items-start gap-3.5">
-                            {/* Candidate Image Preview */}
-                            <div className="w-14 h-14 rounded-2xl bg-slate-950/80 border border-slate-700 p-2 flex-shrink-0 flex items-center justify-center shadow-inner relative group">
-                              {candidateUrl ? (
+                        {/* AI Candidate Thumbnail Preview & 1-Click Action */}
+                        <div className="flex items-center gap-3 flex-shrink-0">
+                          {item.suggestion?.candidateIconUrl && (
+                            <div className="flex items-center gap-2.5 p-2 rounded-xl bg-slate-950 border border-slate-800">
+                              <div className="w-10 h-10 rounded-lg bg-slate-900 border border-slate-700 p-1 flex items-center justify-center overflow-hidden">
                                 <img
-                                  src={candidateUrl}
-                                  alt="Candidate Logo"
+                                  src={item.suggestion.candidateIconUrl}
+                                  alt={item.suggestion.category}
                                   className="w-full h-full object-contain"
                                   onError={(e) => {
                                     (e.target as HTMLElement).style.display = "none";
                                   }}
                                 />
-                              ) : (
-                                <HelpCircle className="w-6 h-6 text-slate-500" />
-                              )}
-                            </div>
-
-                            <div className="space-y-1 min-w-0">
-                              <div className="flex items-center gap-2 flex-wrap">
-                                <h4 className="font-bold text-white text-base leading-tight">
-                                  {item.summaryGroup}
-                                </h4>
-                                <span className="text-xs font-black px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                                  {item.countIn30Days}x in 30d
-                                </span>
-                                {item.childName && (
-                                  <span className="text-xs font-bold px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30">
-                                    {item.childName}
-                                  </span>
-                                )}
                               </div>
-
-                              {item.suggestion && (
-                                <div className="flex items-center gap-2 text-xs text-slate-300 font-semibold">
-                                  <span className="text-emerald-400">✨ Discovered: {item.suggestion.category}</span>
-                                  {item.suggestion.sourceDomain && (
-                                    <span className="text-[10px] text-slate-400 font-mono flex items-center gap-1">
-                                      <Globe className="w-3 h-3" />
-                                      {item.suggestion.sourceDomain}
-                                    </span>
-                                  )}
+                              <div className="text-left">
+                                <div className="text-[11px] font-bold text-white">{item.suggestion.category}</div>
+                                <div className="text-[10px] text-slate-500 truncate max-w-[120px]">
+                                  {item.suggestion.sourceDomain || "Verified source"}
                                 </div>
-                              )}
-
-                              {item.sampleEvents.length > 0 && (
-                                <div className="text-xs text-slate-400 truncate max-w-xl">
-                                  <span className="text-slate-500 font-semibold">Sample: </span>
-                                  {item.sampleEvents[0]}
-                                </div>
-                              )}
+                              </div>
                             </div>
-                          </div>
+                          )}
 
-                          {/* Right: 1-Click Action Buttons */}
-                          <div className="flex items-center gap-2 self-start md:self-center flex-shrink-0">
-                            {hasSuggestion && (
-                              <button
-                                onClick={() => handleApproveIcon(item)}
-                                disabled={isApproving}
-                                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md transition-all active:scale-95 disabled:opacity-50"
-                              >
-                                {isApproving ? (
-                                  <Loader2 className="w-4 h-4 animate-spin" />
-                                ) : (
-                                  <Check className="w-4 h-4" />
-                                )}
-                                <span>Approve & Apply</span>
-                              </button>
+                          <button
+                            onClick={() => handleApproveIcon(item)}
+                            disabled={approvingId === item.id}
+                            className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs transition-all shadow-md active:scale-95 flex items-center gap-1.5 disabled:opacity-50"
+                          >
+                            {approvingId === item.id ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <Check className="w-4 h-4" />
                             )}
+                            <span>Approve &amp; Apply</span>
+                          </button>
 
-                            <button
-                              onClick={() =>
-                                setShowCustomInput((prev) => ({ ...prev, [item.id]: !prev[item.id] }))
-                              }
-                              className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition-all text-xs font-semibold flex items-center gap-1"
-                              title="Provide custom image link"
-                            >
-                              <Link2 className="w-3.5 h-3.5 text-amber-400" />
-                              <span className="hidden sm:inline">Custom URL</span>
-                            </button>
-                          </div>
+                          <button
+                            onClick={() =>
+                              setShowCustomInput((prev) => ({
+                                ...prev,
+                                [item.id]: !prev[item.id],
+                              }))
+                            }
+                            className="px-3 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-all"
+                          >
+                            Custom URL
+                          </button>
                         </div>
-
-                        {/* Expandable Custom URL Input */}
-                        {isCustomOpen && (
-                          <div className="pt-2 border-t border-slate-800/80 flex items-center gap-2">
-                            <input
-                              type="url"
-                              placeholder="Paste custom logo image URL (https://...)"
-                              value={customUrls[item.id] || ""}
-                              onChange={(e) =>
-                                setCustomUrls((prev) => ({ ...prev, [item.id]: e.target.value }))
-                              }
-                              className="flex-1 px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400"
-                            />
-                            <button
-                              onClick={() => handleApproveIcon(item, customUrls[item.id])}
-                              disabled={!customUrls[item.id] || isApproving}
-                              className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition-all disabled:opacity-40"
-                            >
-                              Save & Apply
-                            </button>
-                          </div>
-                        )}
                       </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
 
-            {/* Missing Details Warnings (e.g. Missing Locations in next 30 days) */}
-            <div className="glass-card p-6">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-700/60 mb-4">
-                <div className="flex items-center gap-2.5">
-                  <div className="p-2 rounded-xl bg-rose-500/20 text-rose-400">
-                    <MapPin className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h2 className="text-lg font-black text-white">Missing Event Details & Locations (Next 30 Days)</h2>
-                    <p className="text-xs text-slate-400">
-                      Matches, games, or appointments in next 30 days missing locations
-                    </p>
-                  </div>
-                </div>
-                <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30">
-                  {data.calendar.missingDetailsWarnings.length} Flagged
-                </span>
-              </div>
-
-              {data.calendar.missingDetailsWarnings.length === 0 ? (
-                <div className="p-4 rounded-xl bg-emerald-950/20 border border-emerald-800/40 text-emerald-300 text-xs flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                  <span>All upcoming games and appointments have locations attached!</span>
-                </div>
-              ) : (
-                <div className="space-y-2.5">
-                  {data.calendar.missingDetailsWarnings.map((warn) => (
-                    <div
-                      key={warn.id}
-                      className="p-3 rounded-xl bg-slate-900/60 border border-slate-800 flex items-center justify-between gap-3 text-xs"
-                    >
-                      <div>
-                        <span className="font-bold text-white text-sm block">{warn.eventSummary}</span>
-                        <span className="text-rose-400 font-semibold">{warn.detail}</span>
-                      </div>
-                      <span className="text-slate-400 font-mono text-[11px] whitespace-nowrap">
-                        {format(parseISO(warn.eventDate), "EEE, MMM d")}
-                      </span>
+                      {/* Optional Custom Image URL input */}
+                      {showCustomInput[item.id] && (
+                        <div className="mt-4 pt-3 border-t border-slate-800 flex items-center gap-2">
+                          <input
+                            type="url"
+                            placeholder="Paste custom logo image URL (e.g. https://.../logo.png)"
+                            value={customUrls[item.id] || ""}
+                            onChange={(e) =>
+                              setCustomUrls((prev) => ({
+                                ...prev,
+                                [item.id]: e.target.value,
+                              }))
+                            }
+                            className="flex-1 px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400"
+                          />
+                          <button
+                            onClick={() => handleApproveIcon(item, customUrls[item.id])}
+                            disabled={!customUrls[item.id] || approvingId === item.id}
+                            className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs transition-all disabled:opacity-50"
+                          >
+                            Apply Custom Logo
+                          </button>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
               )}
             </div>
 
-            {/* Dad's Housekeeping Checklist */}
-            <div className="glass-card p-6">
-              <div className="flex items-center gap-2.5 pb-3 border-b border-slate-700/60 mb-4">
-                <div className="p-2 rounded-xl bg-emerald-500/20 text-emerald-400">
-                  <CheckCircle2 className="w-5 h-5" />
-                </div>
-                <div>
-                  <h2 className="text-lg font-black text-white">Dad&apos;s Actionable Checklist</h2>
-                  <p className="text-xs text-slate-400">Pending and completed dashboard polishing tasks</p>
-                </div>
-              </div>
-
-              <div className="space-y-2.5">
-                {data.calendar.dadChecklist.map((task) => (
-                  <div
-                    key={task.id}
-                    className={`p-3.5 rounded-xl border flex items-center justify-between gap-3 ${
-                      task.status === "done"
-                        ? "bg-emerald-950/20 border-emerald-800/40 text-slate-300"
-                        : "bg-slate-900/80 border-slate-800 text-white"
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      {task.status === "done" ? (
-                        <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
-                      ) : (
-                        <div className="w-5 h-5 rounded-full border-2 border-slate-600 flex-shrink-0" />
-                      )}
-                      <div>
-                        <h5 className="font-bold text-sm">{task.title}</h5>
-                        <p className="text-xs text-slate-400">{task.description}</p>
-                      </div>
-                    </div>
-
-                    <span
-                      className={`text-[10px] font-extrabold px-2.5 py-1 rounded uppercase ${
-                        task.status === "done"
-                          ? "bg-emerald-500/20 text-emerald-300"
-                          : "bg-amber-500/20 text-amber-300"
-                      }`}
-                    >
-                      {task.status}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Bottom Active Rules & Configuration */}
+            {/* Active Rules List */}
             <div className="glass-card p-6">
               <div className="flex items-center justify-between pb-3 border-b border-slate-700/60 mb-4">
                 <div className="flex items-center gap-2.5">
-                  <div className="p-2 rounded-xl bg-blue-500/20 text-blue-400">
+                  <div className="p-2 rounded-xl bg-emerald-500/20 text-emerald-400">
                     <Layers className="w-5 h-5" />
                   </div>
                   <div>
-                    <h2 className="text-lg font-black text-white">Active Event Categorization Rules</h2>
+                    <h2 className="text-lg font-black text-white">Active Event Rules ({data.calendar.activeRules.length})</h2>
                     <p className="text-xs text-slate-400">Configured in config/event_rules.json</p>
                   </div>
                 </div>
-                <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                  {data.calendar.activeRules.length} Configured
-                </span>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                 {data.calendar.activeRules.map((rule) => (
-                  <div
-                    key={rule.id}
-                    className="p-4 rounded-xl bg-slate-900/80 border border-slate-800 flex items-start gap-3"
-                  >
-                    {rule.iconUrl && (
-                      <div className="w-12 h-12 rounded-xl bg-white/10 p-1.5 border border-slate-700 flex-shrink-0 flex items-center justify-center">
-                        <img
-                          src={rule.iconUrl}
-                          alt={rule.badgeText || "Crest"}
-                          className="w-full h-full object-contain"
-                        />
+                  <div key={rule.id} className="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 flex items-center gap-3">
+                    {rule.iconUrl ? (
+                      <div className="w-9 h-9 rounded-lg bg-slate-950 border border-slate-800 p-1 flex items-center justify-center flex-shrink-0">
+                        <img src={rule.iconUrl} alt={rule.category} className="w-full h-full object-contain" />
                       </div>
+                    ) : (
+                      <CalendarIcon className="w-5 h-5 text-slate-500" />
                     )}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between gap-2">
-                        <h4 className="font-bold text-white text-sm">
-                          {rule.childName ? `${rule.childName} • ` : ""}
-                          {rule.category}
-                        </h4>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-300">
-                          {rule.badgeText}
-                        </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="font-bold text-white text-xs truncate">{rule.category}</div>
+                      <div className="text-[10px] text-slate-400 truncate">
+                        Badge: <span className="text-amber-400">{rule.badgeText || "None"}</span>
                       </div>
-                      <p className="text-[11px] text-slate-400 font-mono mt-1 truncate">
-                        {rule.summaryPatterns?.join(", ")}
-                      </p>
                     </div>
                   </div>
                 ))}
@@ -610,43 +621,24 @@ export default function AdminPage() {
           </div>
         )}
 
-        {/* TAB 3: SCHOOL LUNCH (Single Column) */}
-        {data && activeTab === "lunch" && (
+        {/* Tab 4: School Lunch Housekeeping */}
+        {activeTab === "lunch" && (
           <div className="space-y-6">
-            {/* Top Attention Section: 30-Day Lunch Coverage */}
-            <div className="glass-card p-6 border-l-4 border-l-amber-500">
+            <div className="glass-card p-6">
               <div className="flex items-center justify-between pb-3 border-b border-slate-700/60 mb-4">
                 <div className="flex items-center gap-2.5">
-                  <div className="p-2 rounded-xl bg-amber-500/20 text-amber-400">
+                  <div className="p-2 rounded-xl bg-emerald-500/20 text-emerald-400">
                     <Utensils className="w-5 h-5" />
                   </div>
                   <div>
-                    <h2 className="text-lg font-black text-white">⚠️ Attention Needed: 30-Day Lunch Menu Coverage</h2>
-                    <p className="text-xs text-slate-400">Upcoming school weekdays in the next 30 days</p>
+                    <h2 className="text-lg font-black text-white">School Lunch 30-Day Coverage</h2>
+                    <p className="text-xs text-slate-400">
+                      Tracking loaded menus for Holliston Elementary and Middle Schools
+                    </p>
                   </div>
                 </div>
-              </div>
-
-              {/* 30-Day Coverage Metric Card */}
-              <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800 mb-4 flex items-center justify-between gap-4">
-                <div>
-                  <span className="text-xs text-slate-400 font-bold uppercase tracking-wider block">
-                    Next 30 Days Coverage
-                  </span>
-                  <h3 className="text-xl font-black text-white mt-0.5">
-                    {data.lunch.thirtyDaySchoolDaysCovered} of {data.lunch.thirtyDaySchoolDaysTotal} School Days Loaded
-                  </h3>
-                </div>
-                <span
-                  className={`text-xs font-black px-3 py-1.5 rounded-xl uppercase ${
-                    data.lunch.thirtyDaySchoolDaysCovered === data.lunch.thirtyDaySchoolDaysTotal
-                      ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
-                      : "bg-amber-500/20 text-amber-300 border border-amber-500/30"
-                  }`}
-                >
-                  {data.lunch.thirtyDaySchoolDaysCovered === data.lunch.thirtyDaySchoolDaysTotal
-                    ? "100% Loaded"
-                    : "Action Needed"}
+                <span className="text-xs font-bold px-3 py-1 rounded-full bg-slate-800 text-emerald-400 border border-emerald-500/30">
+                  {data.lunch.thirtyDaySchoolDaysCovered} / {data.lunch.thirtyDaySchoolDaysTotal} School Weekdays Loaded
                 </span>
               </div>
 

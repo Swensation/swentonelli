@@ -4,6 +4,7 @@ import { getLunchForDates } from "@/lib/lunch";
 import { DailyLunchMenu } from "@/types/lunch";
 import { discoverIconForEventGroup, DiscoveredIconSuggestion } from "@/lib/iconDiscovery";
 import { isAnnotationEvent } from "@/lib/annotations";
+import { getChildrenRegistry, ChildProfile } from "@/lib/childrenRegistry";
 import { addDays, endOfDay, format, isAfter, isBefore, isWeekend, parseISO, startOfDay } from "date-fns";
 import fs from "fs";
 import path from "path";
@@ -85,6 +86,7 @@ export interface AdminDashboardData {
   general: AdminGeneralOverview;
   calendar: AdminCalendarHousekeeping;
   lunch: AdminLunchHousekeeping;
+  childrenRegistry: ChildProfile[];
   lastChecked: string;
 }
 
@@ -92,6 +94,7 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
   const activeRules = loadEventRules();
   const agenda = await fetchCalendarAgenda();
   const lunchData = getLunchForDates();
+  const childrenRegistry = getChildrenRegistry();
 
   const now = new Date();
   const windowStart = startOfDay(now);
@@ -313,7 +316,7 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
   ];
 
   // School Lunch Housekeeping
-  const lunchHousekeeping: AdminLunchHousekeeping = {
+  const lunchHousekeeping: AdminLunchLunchHousekeeping = {
     activeMonth: lunchData.activeScheduleMonth,
     totalDays: lunchData.allDays.length,
     cleanIntegrityPass: !lunchData.allDays.some((d: DailyLunchMenu) =>
@@ -371,6 +374,9 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
       },
     },
     lunch: lunchHousekeeping,
+    childrenRegistry,
     lastChecked: new Date().toISOString(),
   };
 }
+
+type AdminLunchLunchHousekeeping = AdminLunchHousekeeping;

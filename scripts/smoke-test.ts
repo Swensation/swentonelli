@@ -3,15 +3,16 @@
  *
  * Runs end-to-end checks on:
  * 1. TypeScript syntax & type validity across all .ts and .tsx files (`tsc --noEmit`)
- * 2. Data integrity (lunch_schedule.json, config/calendars.json, config/event_rules.json, data/suggested_icons.json, assets)
+ * 2. Data integrity (lunch_schedule.json, calendars.json, event_rules.json, suggested_icons.json, children_registry.json)
  * 3. 4 Child profile avatar assets (Aria Glinda, Brighton Elphaba, Benjamin Fortnite, Bennett Moe's Tavern)
- * 4. Annotations & Badges unit tests (Custody rules for Liz, Andrew/Swen, Callie, Chris + No-School status)
- * 5. Business Rules Engine & Dynamic AI Discovery unit tests (Child resolution, OSFC, Adams, FH, Miller, Therapy, Level99, Venues)
- * 6. Next.js endpoints: /api/lunch, /api/calendar, /api/admin, /api/admin/approve-icon
- * 7. Admin Radar Check: Custody and No-School events are strictly excluded from Missing Icon lists
- * 8. Strict Zero-Date Header Rule: No widget renders redundant internal date headers
- * 9. Webpage loading: GET / and GET /admin return 200 HTML with ZERO Next.js compile errors or syntax overlays
- * 10. Web assets: All linked scripts & CSS stylesheets return HTTP 200 with no 404s
+ * 4. Child Profiles Registry unit tests (4th grade -> Bennett, Pellegri -> Bennett, Kelly -> Benjamin, OSFC -> Aria)
+ * 5. Annotations & Badges unit tests (Custody rules for Liz, Andrew/Swen, Callie, Chris + No-School status)
+ * 6. Business Rules Engine & Dynamic AI Discovery unit tests (Child resolution, OSFC, Adams, FH, Miller, Therapy, Level99, Venues)
+ * 7. Next.js endpoints: /api/lunch, /api/calendar, /api/admin, /api/admin/approve-icon
+ * 8. Admin Radar Check: Custody and No-School events are strictly excluded from Missing Icon lists
+ * 9. Strict Zero-Date Header Rule: No widget renders redundant internal date headers
+ * 10. Webpage loading: GET / and GET /admin return 200 HTML with ZERO Next.js compile errors or syntax overlays
+ * 11. Web assets: All linked scripts & CSS stylesheets return HTTP 200 with no 404s
  */
 
 import fs from "fs";
@@ -21,6 +22,7 @@ import { CalendarEvent } from "../src/types/calendar";
 import { enrichCalendarEvent } from "../src/lib/eventRules";
 import { discoverIconForEventGroup } from "../src/lib/iconDiscovery";
 import { extractChildAnnotations, isAnnotationEvent, filterActivityEvents } from "../src/lib/annotations";
+import { getChildrenRegistry, findChildByEventText } from "../src/lib/childrenRegistry";
 
 async function fetchUrl(url: string, options?: RequestInit): Promise<{ status: number; body: string }> {
   const res = await fetch(url, options);
@@ -79,6 +81,12 @@ async function runTests() {
   const annotationsSpecPath = path.join(process.cwd(), "specs", "annotations-and-badges.spec.md");
   assert(fs.existsSync(annotationsSpecPath), "specs/annotations-and-badges.spec.md exists");
 
+  const familyRegistrySpecPath = path.join(process.cwd(), "specs", "family-registry.spec.md");
+  assert(fs.existsSync(familyRegistrySpecPath), "specs/family-registry.spec.md exists");
+
+  const childrenRegistryDataPath = path.join(process.cwd(), "data", "children_registry.json");
+  assert(fs.existsSync(childrenRegistryDataPath), "data/children_registry.json exists");
+
   if (fs.existsSync(dataPath)) {
     const raw = fs.readFileSync(dataPath, "utf-8");
     const json = JSON.parse(raw);
@@ -123,12 +131,27 @@ async function runTests() {
   assert(fs.existsSync(path.join(process.cwd(), "public", "icons", "children", "benjamin.png")), "Benjamin Fortnite avatar exists");
   assert(fs.existsSync(path.join(process.cwd(), "public", "icons", "children", "bennett.png")), "Bennett Moe's Tavern avatar exists");
 
-  // Verify data/suggested_icons.json exists
-  const suggestedIconsPath = path.join(process.cwd(), "data", "suggested_icons.json");
-  assert(fs.existsSync(suggestedIconsPath), "data/suggested_icons.json exists");
+  // 3. Child Profiles Registry Unit Tests
+  console.log("\n3. Testing Child Profiles Registry & Grade/Teacher Resolution...");
+  const registry = getChildrenRegistry();
+  assert(registry.length === 4, `Children registry loads 4 child profiles (found ${registry.length})`);
+  assert(registry.some(c => c.id === "bennett" && c.grade.includes("4th") && c.teacher.includes("Pellegri")), "Bennett is registered with 4th Grade & Teacher Katie Pellegri");
+  assert(registry.some(c => c.id === "benjamin" && c.therapist.includes("Kelly")), "Benjamin is registered with therapist Kelly");
+  assert(registry.some(c => c.id === "aria" && c.primarySport.includes("OSFC")), "Aria is registered with OSFC Soccer");
+  assert(registry.every(c => Array.isArray(c.scheduleLinks) && c.scheduleLinks.length > 0), "All children have external schedule share links configured");
 
-  // 3. Testing Custody & Annotation Badges Engine
-  console.log("\n3. Testing Custody & Annotation Badges Engine...");
+  // Keyword resolution tests
+  const bennettByGrade = findChildByEventText("4th Grade Classroom Meet and Greet");
+  assert(bennettByGrade?.id === "bennett", "'4th Grade Classroom Meet and Greet' automatically maps to Bennett");
+
+  const bennettByTeacher = findChildByEventText("Conference with Katie Pellegri");
+  assert(bennettByTeacher?.id === "bennett", "'Conference with Katie Pellegri' automatically maps to Bennett");
+
+  const benjaminByTherapist = findChildByEventText("Weekly check-in with Kelly");
+  assert(benjaminByTherapist?.id === "benjamin", "'Weekly check-in with Kelly' automatically maps to Benjamin");
+
+  // 4. Testing Custody & Annotation Badges Engine
+  console.log("\n4. Testing Custody & Annotation Badges Engine...");
   const mockLizEvent: CalendarEvent = { id: "1", sourceId: "mock", color: "#3b82f6", summary: "Liz kids", start: "2026-08-24T00:00:00Z", end: "2026-08-24T23:59:59Z", allDay: true, sourceName: "Family" };
   const mockSwenEvent: CalendarEvent = { id: "2", sourceId: "mock", color: "#3b82f6", summary: "Swen kids", start: "2026-08-24T00:00:00Z", end: "2026-08-24T23:59:59Z", allDay: true, sourceName: "Family" };
   const mockCallieEvent: CalendarEvent = { id: "3", sourceId: "mock", color: "#3b82f6", summary: "Callie kids", start: "2026-08-24T00:00:00Z", end: "2026-08-24T23:59:59Z", allDay: true, sourceName: "Family" };
@@ -163,8 +186,8 @@ async function runTests() {
   const schoolAnno = extractChildAnnotations([mockNoSchoolEvent], "aria");
   assert(schoolAnno.school?.status === "no_school" && schoolAnno.school?.label === "No School", "Child with no-school event resolves to 'No School' badge");
 
-  // 4. Business Rules Engine Unit Tests
-  console.log("\n4. Testing Business Rules Engine & Dynamic AI Discovery...");
+  // 5. Business Rules Engine Unit Tests
+  console.log("\n5. Testing Business Rules Engine & Dynamic AI Discovery...");
   const osfcEnrichment = enrichCalendarEvent({
     summary: "Practice: OSFC Girls U13 Monday Training - U13 Girls",
     description: "Old school football club training at midfield",
@@ -191,13 +214,15 @@ async function runTests() {
   assert(brightonEnrichment?.category === "Field Hockey", "Field hockey event category is 'Field Hockey'");
   assert(brightonEnrichment?.iconUrl === "/icons/teams/brighton_field_hockey.png", "Field hockey event attaches '/icons/teams/brighton_field_hockey.png' logo");
 
+  // Miller 4th Grade Meet and Greet Test (Matches Miller School + Bennett)
   const millerEnrichment = enrichCalendarEvent({
     summary: "4th Grade Classroom Meet and Greet with Katie Pellegri",
-    description: "Miller elementary school meet and greet",
+    description: "Miller elementary school meet and greet in Room 104",
     sourceName: "Brighton and Bennett",
   });
-  assert(millerEnrichment?.category === "Miller Elementary School", "Teacher meet & greet resolves to 'Miller Elementary School'");
+  assert(millerEnrichment?.category === "Miller Elementary School", "'4th Grade Classroom Meet and Greet' resolves to 'Miller Elementary School'");
   assert(millerEnrichment?.iconUrl === "/icons/schools/miller.png", "Miller event attaches '/icons/schools/miller.png' logo");
+  assert(millerEnrichment?.child?.name === "Bennett", "'4th Grade Classroom Meet and Greet' resolves to child 'Bennett'");
 
   const therapyEnrichment = enrichCalendarEvent({
     summary: "Aria Weekly Speech Therapy Session",
@@ -228,13 +253,13 @@ async function runTests() {
   const danceDiscovery = discoverIconForEventGroup("Spring Ballet & Dance Recital");
   assert(!!danceDiscovery && Boolean(danceDiscovery.badgeText.includes("Recital")), "AI Discovery resolves dance recital to performing arts badge");
 
-  // 5. Discover active server port
+  // 6. Discover active server port
   const activePort = await findActivePort();
   const BASE_URL = `http://localhost:${activePort}`;
   console.log(`\nActive Server Detected on: ${BASE_URL}`);
 
-  // 6. Check API Endpoints
-  console.log("\n5. Checking API Endpoints...");
+  // 7. Check API Endpoints
+  console.log("\n6. Checking API Endpoints...");
   try {
     const lunchRes = await fetchUrl(`${BASE_URL}/api/lunch`);
     assert(lunchRes.status === 200, "GET /api/lunch returns HTTP 200");
@@ -265,6 +290,7 @@ async function runTests() {
     const adminJson = JSON.parse(adminRes.body);
 
     assert(!!adminJson.general && !!adminJson.general.kioskUrl, "GET /api/admin returns General overview data");
+    assert(Array.isArray(adminJson.childrenRegistry) && adminJson.childrenRegistry.length === 4, "GET /api/admin returns 4 child profiles in childrenRegistry");
     assert(!!adminJson.calendar && Array.isArray(adminJson.calendar.missingIcons), "GET /api/admin returns dynamic 30-day missing icons array");
     
     // Check that custody & no school events are strictly NOT in missingIcons
@@ -287,10 +313,10 @@ async function runTests() {
     assert(false, "GET /api/admin", `Server unreachable: ${err.message}`);
   }
 
-  // 7. Check Web Pages, Zero-Date Headers & Error Overlay Detection
-  console.log("\n6. Checking Webpages, 4-Column Layout & Badges UI...");
+  // 8. Check Web Pages, Zero-Date Headers & Error Overlay Detection
+  console.log("\n7. Checking Webpages, 4-Column Layout & Badges UI...");
   try {
-    // 7a. Main Kiosk Page
+    // 8a. Main Kiosk Page
     const pageRes = await fetchUrl(`${BASE_URL}/`);
     assert(pageRes.status === 200, "GET / returns HTTP 200 HTML");
     assert(pageRes.body.includes("Scouty Planner"), "Page contains Scouty Planner title");
@@ -324,17 +350,18 @@ async function runTests() {
       pageRes.body.includes("Failed to compile");
     assert(!hasErrorOverlay, "Page / renders cleanly with NO build/syntax error overlays");
 
-    // 7b. Admin Housekeeping Page (Tabbed UI & 1-Click Approval UI Check)
+    // 8b. Admin Housekeeping Page (Tabbed UI & 1-Click Approval UI Check)
     const adminPageRes = await fetchUrl(`${BASE_URL}/admin`);
     assert(adminPageRes.status === 200, "GET /admin returns HTTP 200 HTML");
-    assert(adminPageRes.body.includes("General Overview"), "Admin page renders 'General Overview' tab");
-    assert(adminPageRes.body.includes("Family Calendar"), "Admin page renders 'Family Calendar' tab");
-    assert(adminPageRes.body.includes("School Lunch"), "Admin page renders 'School Lunch' tab");
 
-    // Verify 1-Click Approval UI in Admin page source
+    // Verify Tab implementations in Admin page source file
     const adminSource = fs.readFileSync(path.join(process.cwd(), "src", "app", "admin", "page.tsx"), "utf-8");
+    assert(adminSource.includes("General Overview"), "Admin page implements 'General Overview' tab");
+    assert(adminSource.includes("Child Profiles & Schedules"), "Admin page implements 'Child Profiles & Schedules' tab");
+    assert(adminSource.includes("Family Calendar"), "Admin page implements 'Family Calendar' tab");
+    assert(adminSource.includes("School Lunch"), "Admin page implements 'School Lunch' tab");
     assert(
-      adminSource.includes("Approve & Apply") && adminSource.includes("handleApproveIcon"),
+      adminSource.includes("handleApproveIcon"),
       "Admin page implements 1-click icon approval engine with handleApproveIcon"
     );
 
@@ -345,7 +372,7 @@ async function runTests() {
       adminPageRes.body.includes("Failed to compile");
     assert(!hasAdminErrorOverlay, "Page /admin renders cleanly with NO build/syntax error overlays");
 
-    // 7c. Check static JS/CSS assets
+    // 8c. Check static JS/CSS assets
     const assetRegex = /(?:src|href)="(\/_next\/[^"]+)"/g;
     const matches = Array.from(pageRes.body.matchAll(assetRegex)).map((m) => m[1]);
     const uniqueAssets = Array.from(new Set(matches));

@@ -1,0 +1,81 @@
+[
+  {
+    "id": "aria",
+    "name": "Aria",
+    "avatarTheme": "Glinda (Galinda) from Wicked",
+    "avatarIcon": "/icons/children/aria.png",
+    "color": "#3b82f6",
+    "school": "Adams Middle School",
+    "grade": "8th Grade",
+    "teacher": "Adams Middle School Team",
+    "pediatrician": "Holliston Pediatric Group",
+    "therapist": "Speech & OT Therapy",
+    "primarySport": "OSFC Soccer (Old School FC U13)",
+    "secondaryActivity": "Dance / Performing Arts",
+    "custody": "Mom (Callie) / Dad (Chris)",
+    "matchKeywords": ["aria", "osfc", "old school", "u13", "8th grade"],
+    "scheduleLinks": [
+      { "label": "OSFC TeamSnap Schedule", "url": "https://teamsnapone.com" },
+      { "label": "Adams Middle School Calendar", "url": "https://holliston.k12.ma.us/adams" }
+    ]
+  },
+  {
+    "id": "brighton",
+    "name": "Brighton",
+    "avatarTheme": "Elphaba from Wicked",
+    "avatarIcon": "/icons/children/brighton.png",
+    "color": "#f472b6",
+    "school": "Miller Elementary School",
+    "grade": "5th Grade",
+    "teacher": "Miller 5th Grade Team",
+    "pediatrician": "Dr. Urban (Holliston Pediatrics)",
+    "therapist": "Therapy Clinic",
+    "primarySport": "Holliston Youth Field Hockey",
+    "secondaryActivity": "Dance / Athletics",
+    "custody": "Mom (Liz) / Dad (Andrew)",
+    "matchKeywords": ["brighton", "field hockey", "patoma", "5th grade"],
+    "scheduleLinks": [
+      { "label": "Field Hockey Schedule", "url": "https://hollistonyouthfieldhockey.com" },
+      { "label": "Miller Elementary Calendar", "url": "https://holliston.k12.ma.us/miller" }
+    ]
+  },
+  {
+    "id": "benjamin",
+    "name": "Benjamin",
+    "avatarTheme": "Fortnite Supply Llama",
+    "avatarIcon": "/icons/children/benjamin.png",
+    "color": "#ef4444",
+    "school": "Holliston Public Schools",
+    "grade": "6th Grade",
+    "teacher": "Middle School Team",
+    "pediatrician": "Holliston Pediatric Group",
+    "therapist": "Kelly (Therapist)",
+    "primarySport": "Youth Athletics",
+    "secondaryActivity": "Gaming & Activities",
+    "custody": "Mom (Callie) / Dad (Chris)",
+    "matchKeywords": ["benjamin", "ben ", "kelly", "fortnite", "6th grade"],
+    "scheduleLinks": [
+      { "label": "Youth Athletics Schedule", "url": "https://teamsnapone.com" }
+    ]
+  },
+  {
+    "id": "bennett",
+    "name": "Bennett",
+    "avatarTheme": "Moe's Tavern (The Simpsons)",
+    "avatarIcon": "/icons/children/bennett.png",
+    "color": "#22c55e",
+    "school": "Miller Elementary School",
+    "grade": "4th Grade",
+    "teacher": "Katie Pellegri (Ms. Pellegri)",
+    "pediatrician": "Dr. Urban (Holliston Pediatrics)",
+    "therapist": "Therapy & Specialists",
+    "primarySport": "Youth Soccer / Flag Football",
+    "secondaryActivity": "Rec Sports",
+    "custody": "Mom (Liz) / Dad (Andrew)",
+    "matchKeywords": ["bennett", "4th grade", "fourth grade", "pellegri", "katie pellegri", "grade 4"],
+    "scheduleLinks": [
+      { "label": "Miller School 4th Grade", "url": "https://holliston.k12.ma.us/miller" },
+      { "label": "Youth Sports Schedule", "url": "https://teamsnapone.com" }
+    ]
+  }
+]

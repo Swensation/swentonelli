@@ -1,4 +1,5 @@
 import { EventEnrichment } from "@/types/calendar";
+import { findChildByEventText } from "@/lib/childrenRegistry";
 import fs from "fs";
 import path from "path";
 
@@ -36,7 +37,7 @@ export function loadEventRules(): EventRule[] {
 
 /**
  * 2-Stage Business Rules Engine:
- * Stage 1: Identify which family member / child the event belongs to
+ * Stage 1: Identify which family member / child the event belongs to via the Child Registry
  * Stage 2: Match explicit custom rules from config/event_rules.json.
  *          If no explicit custom rule is matched, strictly default to the generic calendar icon.
  */
@@ -77,29 +78,20 @@ export function enrichCalendarEvent(event: {
       name: matchedRule.childName,
       color: matchedRule.childColor,
     };
-  } else if (summaryLower.includes("aria") || descLower.includes("aria")) {
-    child = { id: "aria", name: "Aria", color: "#3b82f6" };
-  } else if (
-    summaryLower.includes("brighton") ||
-    descLower.includes("brighton") ||
-    summaryLower.includes("katie pellegri")
-  ) {
-    child = { id: "brighton", name: "Brighton", color: "#f97316" };
-  } else if (
-    summaryLower.includes("bennett") ||
-    descLower.includes("bennett")
-  ) {
-    child = { id: "bennett", name: "Bennett", color: "#f59e0b" };
-  } else if (
-    summaryLower.includes("benjamin") ||
-    summaryLower.includes("ben ") ||
-    summaryLower.endsWith("ben")
-  ) {
-    child = { id: "benjamin", name: "Benjamin", color: "#8b5cf6" };
-  } else if (summaryLower.includes("andrew") || sourceLower.includes("andrew")) {
-    child = { id: "andrew", name: "Andrew (Dad)", color: "#10b981" };
-  } else if (summaryLower.includes("liz")) {
-    child = { id: "liz", name: "Liz (Mom)", color: "#ec4899" };
+  } else {
+    // Dynamic resolution via Child Profiles Registry (checks grades, teachers, therapists, sports)
+    const registryChild = findChildByEventText(event.summary, event.description);
+    if (registryChild) {
+      child = {
+        id: registryChild.id,
+        name: registryChild.name,
+        color: registryChild.color,
+      };
+    } else if (summaryLower.includes("andrew") || sourceLower.includes("andrew")) {
+      child = { id: "andrew", name: "Andrew (Dad)", color: "#10b981" };
+    } else if (summaryLower.includes("liz")) {
+      child = { id: "liz", name: "Liz (Mom)", color: "#ec4899" };
+    }
   }
 
   // 3. Construct EventEnrichment result

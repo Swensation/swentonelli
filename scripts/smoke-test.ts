@@ -4,7 +4,7 @@
  * Runs end-to-end checks on:
  * 1. TypeScript syntax & type validity across all .ts and .tsx files (`tsc --noEmit`)
  * 2. Data integrity (lunch_schedule.json, config/calendars.json, config/event_rules.json, data/suggested_icons.json, assets)
- * 3. Business Rules Engine & AI Discovery unit tests (Child resolution, OSFC, Adams, FH, Miller, Therapy, Pediatrics, Discovery)
+ * 3. Business Rules Engine & Dynamic AI Discovery unit tests (Child resolution, OSFC, Adams, FH, Miller, Therapy, Level99, Venues)
  * 4. Next.js endpoints: /api/lunch, /api/calendar, /api/admin, /api/admin/approve-icon
  * 5. Strict Zero-Date Header Rule: No widget renders redundant internal date headers
  * 6. Webpage loading: GET / and GET /admin return 200 HTML with ZERO Next.js compile errors or syntax overlays
@@ -114,7 +114,7 @@ async function runTests() {
   assert(fs.existsSync(suggestedIconsPath), "data/suggested_icons.json exists");
 
   // 3. Business Rules Engine Unit Tests
-  console.log("\n3. Testing Business Rules Engine & AI Discovery...");
+  console.log("\n3. Testing Business Rules Engine & Dynamic AI Discovery...");
   const osfcEnrichment = enrichCalendarEvent({
     summary: "Practice: OSFC Girls U13 Monday Training - U13 Girls",
     description: "Old school football club training at midfield",
@@ -165,11 +165,18 @@ async function runTests() {
   assert(pediatricsEnrichment?.category === "Holliston Pediatrics", "Dr. Urban visit resolves to 'Holliston Pediatrics'");
   assert(pediatricsEnrichment?.iconUrl === "/icons/general/holliston_pediatrics.png", "Dr. Urban visit attaches '/icons/general/holliston_pediatrics.png' logo");
 
-  // AI Discovery Engine Test
-  const placentinoDiscovery = discoverIconForEventGroup("Placentino Kindergarten Welcome Meeting");
-  assert(!!placentinoDiscovery, "AI Discovery matches Placentino event");
-  assert(placentinoDiscovery?.category === "Placentino Elementary", "Placentino category is 'Placentino Elementary'");
-  assert(!!placentinoDiscovery?.candidateIconUrl, "Placentino discovery returns candidate logo URL");
+  // Dynamic AI Venue Discovery Tests
+  const level99Discovery = discoverIconForEventGroup("Juliana’s bday Level99 in Natick");
+  assert(!!level99Discovery, "AI Discovery matches Level99 event");
+  assert(level99Discovery?.sourceDomain === "level99.com", "AI Discovery correctly infers level99.com domain");
+  assert(!!level99Discovery?.category.includes("Level99"), "AI Discovery identifies Level99 category");
+  assert(!!level99Discovery?.candidateIconUrl, "AI Discovery generates high-res candidate logo URL for Level99");
+
+  const urbanAirDiscovery = discoverIconForEventGroup("Lucas 9th Birthday Party at Urban Air");
+  assert(!!urbanAirDiscovery && urbanAirDiscovery.sourceDomain === "urbanair.com", "AI Discovery dynamically resolves Urban Air to urbanair.com");
+
+  const danceDiscovery = discoverIconForEventGroup("Spring Ballet & Dance Recital");
+  assert(!!danceDiscovery && Boolean(danceDiscovery.badgeText.includes("Recital")), "AI Discovery resolves dance recital to performing arts badge");
 
   // 4. Discover active server port
   const activePort = await findActivePort();

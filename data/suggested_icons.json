@@ -28,7 +28,7 @@
   },
   {
     "id": "pediatric-well-visit",
-    "matchPatterns": ["urban", "dr. urban", "dr urban", "well visit", "pediatric", "doctor", "dr.", "checkup", "flu shot", "vaccine", "physical"],
+    "matchPatterns": ["dr. urban", "dr urban", "dr.urban", "well visit", "pediatric", "doctor", "dr.", "checkup", "flu shot", "vaccine", "physical"],
     "category": "Holliston Pediatrics",
     "badgeText": "Dr. Urban",
     "candidateIconUrl": "https://i0.wp.com/hollistonpediatricgroup.com/wp-content/uploads/2020/05/cropped-title-logo-5.png?w=532&ssl=1",

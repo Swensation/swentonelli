@@ -72,6 +72,46 @@
     ]
   },
   {
+    "id": "millis-middle-school",
+    "childId": "aria",
+    "childName": "Aria",
+    "childColor": "#3b82f6",
+    "category": "Millis Middle School",
+    "badgeText": "Millis Middle",
+    "iconUrl": "/icons/schools/millis.png",
+    "summaryPatterns": [
+      "millis middle",
+      "millis middle school",
+      "millis public",
+      "millis ms"
+    ],
+    "descriptionPatterns": [
+      "millis middle",
+      "millis public schools"
+    ]
+  },
+  {
+    "id": "cfb-elementary-school",
+    "childId": "benjamin",
+    "childName": "Benjamin",
+    "childColor": "#ef4444",
+    "category": "Clyde F. Brown Elementary",
+    "badgeText": "CFB Millis",
+    "iconUrl": "/icons/schools/cfb.png",
+    "summaryPatterns": [
+      "cfb",
+      "clyde brown",
+      "clyde f. brown",
+      "clyde f brown",
+      "cfb elementary"
+    ],
+    "descriptionPatterns": [
+      "clyde f. brown",
+      "cfb school",
+      "millis elementary"
+    ]
+  },
+  {
     "id": "adams-middle-school",
     "category": "Adams Middle School",
     "badgeText": "Adams Rams",

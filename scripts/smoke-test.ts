@@ -120,6 +120,8 @@ async function runTests() {
   // Verify icon assets exist
   assert(fs.existsSync(path.join(process.cwd(), "public", "icons", "teams", "osfc.png")), "OSFC team logo exists");
   assert(fs.existsSync(path.join(process.cwd(), "public", "icons", "schools", "adams.png")), "Adams Rams logo exists");
+  assert(fs.existsSync(path.join(process.cwd(), "public", "icons", "schools", "millis.png")), "Millis Middle School logo exists");
+  assert(fs.existsSync(path.join(process.cwd(), "public", "icons", "schools", "cfb.png")), "Clyde F. Brown (CFB) logo exists");
   assert(fs.existsSync(path.join(process.cwd(), "public", "icons", "teams", "brighton_field_hockey.png")), "Holliston Field Hockey logo exists");
   assert(fs.existsSync(path.join(process.cwd(), "public", "icons", "schools", "miller.png")), "Miller School logo exists");
   assert(fs.existsSync(path.join(process.cwd(), "public", "icons", "general", "therapy.png")), "Therapy logo exists");
@@ -245,6 +247,24 @@ async function runTests() {
   });
   assert(adamsEnrichment?.category === "Adams Middle School", "Adams orientation resolves to 'Adams Middle School'");
   assert(adamsEnrichment?.iconUrl === "/icons/schools/adams.png", "Adams event attaches '/icons/schools/adams.png' logo");
+
+  const millisEnrichment = enrichCalendarEvent({
+    summary: "Millis Middle School 7th Grade Open House",
+    description: "Welcome parents to Millis Middle School",
+    sourceName: "Aria and Ben",
+  });
+  assert(millisEnrichment?.category === "Millis Middle School", "Millis event resolves to 'Millis Middle School'");
+  assert(millisEnrichment?.iconUrl === "/icons/schools/millis.png", "Millis event attaches '/icons/schools/millis.png' logo");
+  assert(millisEnrichment?.child?.name === "Aria", "Millis Middle event resolves to Aria");
+
+  const cfbEnrichment = enrichCalendarEvent({
+    summary: "CFB Elementary Grade 5 Curriculum Night",
+    description: "Clyde F. Brown school curriculum night",
+    sourceName: "Aria and Ben",
+  });
+  assert(cfbEnrichment?.category === "Clyde F. Brown Elementary", "CFB event resolves to 'Clyde F. Brown Elementary'");
+  assert(cfbEnrichment?.iconUrl === "/icons/schools/cfb.png", "CFB event attaches '/icons/schools/cfb.png' logo");
+  assert(cfbEnrichment?.child?.name === "Benjamin", "CFB event resolves to Benjamin");
 
   const brightonEnrichment = enrichCalendarEvent({
     summary: "Brighton Practice @ Patoma (Field Hockey)",

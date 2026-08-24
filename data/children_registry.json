@@ -6,6 +6,7 @@
     "avatarIcon": "/icons/children/aria.png",
     "color": "#3b82f6",
     "school": "Millis Middle School",
+    "schoolIcon": "/icons/schools/millis.png",
     "grade": "7th Grade",
     "teacher": "Millis 7th Grade Team",
     "pediatrician": "TBD",
@@ -25,6 +26,7 @@
     "avatarIcon": "/icons/children/brighton.png",
     "color": "#f472b6",
     "school": "Adams Middle School (Holliston)",
+    "schoolIcon": "/icons/schools/adams.png",
     "grade": "6th Grade",
     "teacher": "Adams 6th Grade Team",
     "pediatrician": "Dr. Urban (Holliston Pediatrics)",
@@ -44,13 +46,14 @@
     "avatarIcon": "/icons/children/benjamin.png",
     "color": "#ef4444",
     "school": "CFB (Clyde F. Brown, Millis)",
+    "schoolIcon": "/icons/schools/cfb.png",
     "grade": "5th Grade",
     "teacher": "CFB 5th Grade Team",
     "pediatrician": "TBD",
     "therapist": "Kelley",
     "primarySport": "Youth Athletics",
     "custody": "Mom (Callie) / Dad (Chris)",
-    "matchKeywords": ["benjamin", "ben ", "cfb", "5th grade", "fifth grade", "kelley", "fortnite"],
+    "matchKeywords": ["benjamin", "ben ", "cfb", "clyde f brown", "clyde brown", "5th grade", "fifth grade", "kelley", "fortnite"],
     "scheduleLinks": [
       { "label": "CFB Elementary Calendar", "url": "https://millisps.org" },
       { "label": "Youth Athletics Schedule", "url": "https://teamsnapone.com" }
@@ -63,6 +66,7 @@
     "avatarIcon": "/icons/children/bennett.png",
     "color": "#22c55e",
     "school": "Miller Elementary School (Holliston)",
+    "schoolIcon": "/icons/schools/miller.png",
     "grade": "4th Grade",
     "teacher": "Katie Pellegri (Ms. Pellegri)",
     "pediatrician": "Dr. Urban (Holliston Pediatrics)",
@@ -76,4 +80,3 @@
     ]
   }
 ]
-

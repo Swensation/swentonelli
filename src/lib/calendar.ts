@@ -249,11 +249,26 @@ export async function fetchCalendarAgenda(): Promise<CalendarAgenda> {
 
   allEvents.forEach((ev) => {
     try {
-      const dateKey = getEasternDateKey(ev.start);
-      if (!byDate[dateKey]) {
-        byDate[dateKey] = [];
+      const startDate = new Date(ev.start);
+      const endDate = new Date(ev.end);
+      const startKey = getEasternDateKey(startDate);
+      const endKey = getEasternDateKey(endDate);
+
+      // Multi-day all-day events (e.g. custody blocks or vacation weeks) are indexed on each day
+      if (ev.allDay && startKey !== endKey) {
+        let curr = new Date(startDate);
+        while (isBefore(curr, endDate)) {
+          const key = getEasternDateKey(curr);
+          if (!byDate[key]) byDate[key] = [];
+          byDate[key].push(ev);
+          curr = addDays(curr, 1);
+        }
+      } else {
+        if (!byDate[startKey]) {
+          byDate[startKey] = [];
+        }
+        byDate[startKey].push(ev);
       }
-      byDate[dateKey].push(ev);
     } catch {
       // ignore parse error
     }

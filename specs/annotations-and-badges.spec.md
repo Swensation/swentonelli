@@ -7,31 +7,41 @@ To prevent visual clutter, **Annotations & Badges** are extracted from the raw c
 
 ---
 
-## 2. Custody Annotation Specification
+## 2. Custody Annotation Specification & Color Encoding
 
-### A. Brighton & Bennett
-- **Household Context**: Brighton and Bennett spend half their time with their mother Liz and half with their father Andrew (Swen).
-- **Classification Rules**:
-  - **With Mom (Liz)**:
+### A. Location & Color Matrix
+| Parent | Household Location | Signature Badge Color | Color Code | TailWind Styling |
+| :--- | :--- | :--- | :--- | :--- |
+| **Chris** (Dad for Aria & Benjamin) | **Franklin** | **Blue** | `#2563eb` / `#3b82f6` | `bg-blue-600/25 text-blue-300 border-blue-500/50` |
+| **Liz** (Mom for Brighton & Bennett) | **Holliston** | **Red** | `#dc2626` / `#ef4444` | `bg-red-600/25 text-red-300 border-red-500/50` |
+| **Andrew & Callie** (Dad for Brighton/Bennett, Mom for Aria/Benjamin) | **Millis** | **Maroon** | `#800020` / `#9f1239` | `bg-[#800020]/30 text-rose-300 border-[#9f1239]/60` |
+
+### B. Classification & Naming Rules
+
+#### 1. Brighton & Bennett
+- **Household Context**: Brighton and Bennett spend half their time with their mother Liz (Holliston) and half with their father Andrew (Millis).
+- **Rules**:
+  - **Mom's (Liz - Holliston, Red)**:
     - **Trigger**: Event title contains `"Liz kids"`.
-    - **Badge Display**: `[ 🏡 With Mom ]` (Emerald/Green home pill) or `[ 🏡 Liz's House ]`.
-  - **With Dad (Andrew / Swen)**:
+    - **Badge Display**: `[ 🏡 Mom's ]` with **Red** styling (`bg-red-600/25 text-red-300 border-red-500/50`).
+  - **Dad's (Andrew - Millis, Maroon)**:
     - **Trigger**: Event title contains `"Andrew kids"` or `"Swen kids"`.
-    - **Badge Display**: `[ 🏠 With Dad ]` (Amber/Gold home pill) or `[ 🏠 Dad's House ]`.
+    - **Badge Display**: `[ 🏠 Dad's ]` with **Maroon** styling (`bg-[#800020]/30 text-rose-300 border-[#9f1239]/60`).
 
-### B. Benjamin & Aria
-- **Household Context**: Benjamin and Aria spend half their time with their mother Callie and half with their father Chris.
-- **Classification Rules**:
-  - **With Mom (Callie)**:
-    - **Trigger**: Event title contains `"Callie kids"`.
-    - **Badge Display**: `[ 🏡 With Mom ]` (Emerald/Green home pill) or `[ 🏡 Callie's House ]`.
-  - **With Dad (Chris)**:
-    - **Trigger**: Default state when not with Callie (or events referencing Chris/Dad).
-    - **Badge Display**: `[ 🏠 With Dad ]` (Blue/Indigo home pill) or `[ 🏠 Dad's House ]`.
+#### 2. Benjamin & Aria
+- **Household Context**: Benjamin and Aria spend half their time with their mother Callie (Millis) and half with their father Chris (Franklin).
+- **Rules**:
+  - **Mom's (Callie - Millis, Maroon)**:
+    - **Trigger**: If the day has a `"Callie kids"` event.
+    - **Badge Display**: `[ 🏡 Mom's ]` with **Maroon** styling (`bg-[#800020]/30 text-rose-300 border-[#9f1239]/60`).
+  - **Dad's (Chris - Franklin, Blue)**:
+    - **Trigger**: Default state when there is no `"Callie kids"` event.
+    - **Badge Display**: `[ 🏠 Dad's ]` with **Blue** styling (`bg-blue-600/25 text-blue-300 border-blue-500/50`).
 
 ### C. UI Presentation Rules
 - **No Timeline Clutter**: Custody events (e.g. all-day `"Liz kids"` or `"Callie kids"`) MUST NOT render as standard activity cards in the timeline.
-- **Column Header Placement**: Rendered directly beneath the child's name/avatar in their respective column.
+- **Top-Right Justified Header Badge**: Placed in the top-right corner of each child's column header, strictly on one line (never wrapping).
+- **Pronounced Box Border**: Each child column's outer container features a prominent `border-2` styled with that child's signature color so the column pops, while child avatars retain clean neutral circular borders.
 
 ---
 
@@ -41,11 +51,6 @@ To prevent visual clutter, **Annotations & Badges** are extracted from the raw c
 - **Triggers**:
   - Event title or description contains: `"no school"`, `"school closed"`, `"holiday - no school"`, `"teacher professional day"`, `"professional development"`, `"summer break"`, `"winter break"`, `"spring break"`, `"vacation"`.
   - Half-Day / Early Release triggers: `"early release"`, `"half day"`, `"early dismissal"`.
-- **Target Child Mapping**:
-  - If event mentions `"adams"` or source is Aria/Ben $\rightarrow$ applies to **Aria**.
-  - If event mentions `"miller"` or source is Brighton/Bennett $\rightarrow$ applies to **Brighton**.
-  - If event mentions `"placentino"` $\rightarrow$ applies to **Bennett** (and Brighton).
-  - If general `"Holliston Public Schools"` $\rightarrow$ applies to all school-age children.
 
 ### B. Badge Presentation
 - **No School Badge**: `[ 🏫 No School ]` (Red/Rose pill with school building icon).
@@ -58,12 +63,11 @@ To prevent visual clutter, **Annotations & Badges** are extracted from the raw c
 
 ```
 [ Raw ICS Events ] ➔ [ Annotations Extractor (src/lib/annotations.ts) ]
-                               │
+                                │
             ┌──────────────────┴──────────────────┐
             ▼                                     ▼
  [ Regular Activity Cards ]             [ Child & Day Badges ]
- • Filter out custody/no-school         • Custody: { status, parent, label }
+ • Filter out custody/no-school         • Custody: { status, parent, town, color, label }
  • Chronological timeline display       • School: { status, label }
                                         • Rendered in Column Headers
 ```
-

@@ -3,7 +3,8 @@ import { CalendarEvent } from "@/types/calendar";
 export interface CustodyAnnotation {
   status: "dad" | "mom";
   parentName: string;
-  label: string;
+  town: string;
+  label: "Dad's" | "Mom's";
   badgeClass: string;
 }
 
@@ -60,9 +61,14 @@ export function isAnnotationEvent(event: CalendarEvent): boolean {
 /**
  * Extracts custody and school status annotations for a specific child on a given day.
  *
+ * Location & Color Matrix:
+ * - Chris (Dad for Aria/Ben - Franklin): Blue (bg-blue-600/25 text-blue-300 border-blue-500/50)
+ * - Liz (Mom for Brighton/Bennett - Holliston): Red (bg-red-600/25 text-red-300 border-red-500/50)
+ * - Andrew & Callie (Millis): Maroon (bg-[#800020]/30 text-rose-300 border-[#9f1239]/60)
+ *
  * Custody Rules:
- * - Brighton / Bennett: "Liz kids" -> With Mom (Liz). "Andrew kids" / "Swen kids" -> With Dad (Andrew).
- * - Benjamin / Aria: "Callie kids" -> With Mom (Callie). Otherwise -> With Dad (Chris).
+ * - Brighton / Bennett: "Liz kids" -> Mom's (Liz - Red). "Andrew kids" / "Swen kids" -> Dad's (Andrew - Maroon).
+ * - Benjamin / Aria: "Callie kids" -> Mom's (Callie - Maroon). Otherwise -> Dad's (Chris - Blue).
  */
 export function extractChildAnnotations(
   dayEvents: CalendarEvent[],
@@ -81,27 +87,30 @@ export function extractChildAnnotations(
         custody = {
           status: "mom",
           parentName: "Liz",
-          label: "With Mom",
-          badgeClass: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+          town: "Holliston",
+          label: "Mom's",
+          badgeClass: "bg-red-600/25 text-red-300 border-red-500/50",
         };
       } else if (summary.includes("andrew kids") || summary.includes("swen kids")) {
         custody = {
           status: "dad",
           parentName: "Andrew",
-          label: "With Dad",
-          badgeClass: "bg-amber-500/20 text-amber-300 border-amber-500/30",
+          town: "Millis",
+          label: "Dad's",
+          badgeClass: "bg-[#800020]/35 text-rose-200 border-[#9f1239]/70",
         };
       }
     }
 
-    // Check Benjamin & Aria Custody
+    // Check Benjamin & Aria Custody: If the day has "Callie kids" event -> Callie (Mom's in Millis, Maroon)
     if (cId === "aria" || cId === "benjamin") {
       if (summary.includes("callie kids")) {
         custody = {
           status: "mom",
           parentName: "Callie",
-          label: "With Mom",
-          badgeClass: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+          town: "Millis",
+          label: "Mom's",
+          badgeClass: "bg-[#800020]/35 text-rose-200 border-[#9f1239]/70",
         };
       }
     }
@@ -133,13 +142,15 @@ export function extractChildAnnotations(
     }
   }
 
-  // Aria / Benjamin default custody rule: If not with Callie ("Callie kids"), they are with Dad
+  // Aria / Benjamin rule of thumb:
+  // "if the day has Callie kids event, then that means with Callie (Mom's). otherwise, Dad's (Chris in Franklin)"
   if ((cId === "aria" || cId === "benjamin") && !custody) {
     custody = {
       status: "dad",
       parentName: "Chris",
-      label: "With Dad",
-      badgeClass: "bg-blue-500/20 text-blue-300 border-blue-500/30",
+      town: "Franklin",
+      label: "Dad's",
+      badgeClass: "bg-blue-600/25 text-blue-300 border-blue-500/50",
     };
   }
 
@@ -150,9 +161,8 @@ export function extractChildAnnotations(
 }
 
 /**
- * Filters out annotation events from the list of timeline cards.
+ * Filters out custody and school status annotation events from the list of timeline events.
  */
 export function filterActivityEvents(events: CalendarEvent[]): CalendarEvent[] {
-  return events.filter((e) => !isAnnotationEvent(e));
+  return events.filter((ev) => !isAnnotationEvent(ev));
 }
-

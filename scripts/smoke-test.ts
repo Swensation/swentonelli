@@ -187,17 +187,41 @@ async function runTests() {
 
   // Brighton / Bennett Custody extraction
   const brightonMomAnno = extractChildAnnotations([mockLizEvent, mockSoccerEvent], "brighton");
-  assert(brightonMomAnno.custody?.status === "mom" && brightonMomAnno.custody?.parentName === "Liz", "Brighton with 'Liz kids' resolves to With Mom (Liz)");
+  assert(
+    brightonMomAnno.custody?.status === "mom" &&
+      brightonMomAnno.custody?.label === "Mom's" &&
+      brightonMomAnno.custody?.town === "Holliston" &&
+      brightonMomAnno.custody?.badgeClass.includes("red"),
+    "Brighton with 'Liz kids' resolves to Mom's (Liz in Holliston - Red)"
+  );
 
   const bennettDadAnno = extractChildAnnotations([mockSwenEvent, mockSoccerEvent], "bennett");
-  assert(bennettDadAnno.custody?.status === "dad" && bennettDadAnno.custody?.parentName === "Andrew", "Bennett with 'Swen kids' resolves to With Dad (Andrew)");
+  assert(
+    bennettDadAnno.custody?.status === "dad" &&
+      bennettDadAnno.custody?.label === "Dad's" &&
+      bennettDadAnno.custody?.town === "Millis" &&
+      bennettDadAnno.custody?.badgeClass.includes("#800020"),
+    "Bennett with 'Swen kids' resolves to Dad's (Andrew in Millis - Maroon)"
+  );
 
   // Aria / Benjamin Custody extraction
   const ariaMomAnno = extractChildAnnotations([mockCallieEvent], "aria");
-  assert(ariaMomAnno.custody?.status === "mom" && ariaMomAnno.custody?.parentName === "Callie", "Aria with 'Callie kids' resolves to With Mom (Callie)");
+  assert(
+    ariaMomAnno.custody?.status === "mom" &&
+      ariaMomAnno.custody?.label === "Mom's" &&
+      ariaMomAnno.custody?.town === "Millis" &&
+      ariaMomAnno.custody?.badgeClass.includes("#800020"),
+    "Aria with 'Callie kids' resolves to Mom's (Callie in Millis - Maroon)"
+  );
 
   const benDadAnno = extractChildAnnotations([], "benjamin");
-  assert(benDadAnno.custody?.status === "dad" && benDadAnno.custody?.parentName === "Chris", "Benjamin without 'Callie kids' defaults to With Dad (Chris)");
+  assert(
+    benDadAnno.custody?.status === "dad" &&
+      benDadAnno.custody?.label === "Dad's" &&
+      benDadAnno.custody?.town === "Franklin" &&
+      benDadAnno.custody?.badgeClass.includes("blue"),
+    "Benjamin without 'Callie kids' defaults to Dad's (Chris in Franklin - Blue)"
+  );
 
   // No-School extraction
   const schoolAnno = extractChildAnnotations([mockNoSchoolEvent], "aria");

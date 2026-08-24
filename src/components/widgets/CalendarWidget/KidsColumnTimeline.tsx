@@ -85,16 +85,14 @@ export function KidsColumnTimeline({ events }: KidsColumnTimelineProps) {
           return (
             <div
               key={kid.id}
-              className={`rounded-2xl p-3.5 bg-slate-900/60 border ${kid.border} flex flex-col min-h-[360px] shadow-sm`}
+              className="rounded-2xl p-3.5 bg-slate-900/85 border-2 flex flex-col min-h-[360px] shadow-lg transition-all"
+              style={{ borderColor: `${kid.color}99` }}
             >
               {/* Column Header: Larger Avatar + Child Name on Left, Badges Strictly Top-Right Justified on One Line */}
               <div className="flex items-center justify-between gap-2 pb-2.5 mb-3 border-b border-slate-800">
                 {/* Left: Avatar + Name */}
                 <div className="flex items-center gap-2.5 min-w-0">
-                  <div
-                    className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center bg-slate-800 border-2 flex-shrink-0 shadow-md"
-                    style={{ borderColor: kid.color }}
-                  >
+                  <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center bg-slate-800 border border-slate-700/80 flex-shrink-0 shadow-md">
                     <img
                       src={`/icons/children/${kid.id}.png`}
                       alt={kid.name}

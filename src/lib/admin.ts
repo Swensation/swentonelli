@@ -87,9 +87,7 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
     const sLower = (e.summary || "").toLowerCase();
 
     if (
-      sLower.includes("katie pellegri") ||
       sLower.includes("placentino") ||
-      sLower.includes("meet and greet") ||
       sLower.includes("elementary")
     ) {
       if (!placentinoSamples.includes(e.summary)) placentinoSamples.push(e.summary);
@@ -159,6 +157,10 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
     path.join(process.cwd(), "public", "icons", "teams", "brighton_field_hockey.png")
   );
 
+  const hasMillerIcon = fs.existsSync(
+    path.join(process.cwd(), "public", "icons", "schools", "miller.png")
+  );
+
   const dadChecklist = [
     {
       id: "task-osfc",
@@ -181,6 +183,13 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
       description:
         "Holliston Field Hockey crossed-sticks emblem extracted and active.",
       status: (hasBrightonFieldHockeyIcon ? "done" : "pending") as "done" | "pending",
+      category: "calendar" as const,
+    },
+    {
+      id: "task-miller",
+      title: "Miller Elementary School Logo",
+      description: "Miller Elementary School (Holliston) logo configured and active.",
+      status: (hasMillerIcon ? "done" : "pending") as "done" | "pending",
       category: "calendar" as const,
     },
     {

@@ -4,7 +4,7 @@
  * Runs end-to-end checks on:
  * 1. TypeScript syntax & type validity across all .ts and .tsx files (`tsc --noEmit`)
  * 2. Data integrity (lunch_schedule.json, config/calendars.json, config/event_rules.json, team/school assets)
- * 3. Business Rules Engine unit tests (Child resolution, OSFC icon, Adams Rams icon, Brighton Holliston FH icon)
+ * 3. Business Rules Engine unit tests (Child resolution, OSFC icon, Adams Rams icon, Brighton FH, Miller School)
  * 4. Next.js endpoints: /api/lunch, /api/calendar, /api/admin (with rolling 30-day window diagnostics)
  * 5. Webpage loading: GET / and GET /admin return 200 HTML with ZERO Next.js compile errors or syntax overlays
  * 6. Web assets: All linked scripts & CSS stylesheets return HTTP 200 with no 404s
@@ -123,6 +123,14 @@ async function runTests() {
     assert(stats.size > 1000, `Holliston Field Hockey logo is valid binary image (${stats.size} bytes)`);
   }
 
+  // Verify Miller Elementary School logo asset exists
+  const millerLogoPath = path.join(process.cwd(), "public", "icons", "schools", "miller.png");
+  assert(fs.existsSync(millerLogoPath), "public/icons/schools/miller.png asset exists");
+  if (fs.existsSync(millerLogoPath)) {
+    const stats = fs.statSync(millerLogoPath);
+    assert(stats.size > 1000, `Miller School logo is valid binary image (${stats.size} bytes)`);
+  }
+
   // 3. Business Rules Engine Unit Tests
   console.log("\n3. Testing Business Rules Engine (Child Resolution & Categorization)...");
   const osfcEnrichment = enrichCalendarEvent({
@@ -150,6 +158,14 @@ async function runTests() {
   assert(brightonEnrichment?.child?.name === "Brighton", "Field hockey event resolves to Brighton");
   assert(brightonEnrichment?.category === "Field Hockey", "Field hockey event category is 'Field Hockey'");
   assert(brightonEnrichment?.iconUrl === "/icons/teams/brighton_field_hockey.png", "Field hockey event attaches '/icons/teams/brighton_field_hockey.png' logo");
+
+  const millerEnrichment = enrichCalendarEvent({
+    summary: "4th Grade Classroom Meet and Greet with Katie Pellegri",
+    description: "Miller elementary school meet and greet",
+    sourceName: "Brighton and Bennett",
+  });
+  assert(millerEnrichment?.category === "Miller Elementary School", "Teacher meet & greet resolves to 'Miller Elementary School'");
+  assert(millerEnrichment?.iconUrl === "/icons/schools/miller.png", "Miller event attaches '/icons/schools/miller.png' logo");
 
   // 4. Discover active server port
   const activePort = await findActivePort();
@@ -197,6 +213,9 @@ async function runTests() {
 
     const fhTask = adminJson.calendar.dadChecklist.find((t: any) => t.id === "task-brighton-fh");
     assert(fhTask?.status === "done", "Admin checklist dynamically marks Brighton Field Hockey task as DONE");
+
+    const millerTask = adminJson.calendar.dadChecklist.find((t: any) => t.id === "task-miller");
+    assert(millerTask?.status === "done", "Admin checklist dynamically marks Miller School task as DONE");
   } catch (err: any) {
     assert(false, "GET /api/admin", `Server unreachable: ${err.message}`);
   }

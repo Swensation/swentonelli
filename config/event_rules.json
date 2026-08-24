@@ -28,5 +28,13 @@
     "iconUrl": "/icons/teams/brighton_field_hockey.png",
     "summaryPatterns": ["field hockey", "patoma", "softball"],
     "descriptionPatterns": ["field hockey", "holliston youth field hockey"]
+  },
+  {
+    "id": "miller-school",
+    "category": "Miller Elementary School",
+    "badgeText": "Miller School",
+    "iconUrl": "/icons/schools/miller.png",
+    "summaryPatterns": ["miller", "katie pellegri"],
+    "descriptionPatterns": ["miller elementary school", "fred w. miller", "miller school"]
   }
 ]

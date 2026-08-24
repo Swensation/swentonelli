@@ -44,3 +44,4 @@ async function processLogo() {
 }
 
 processLogo().catch(console.error);
+

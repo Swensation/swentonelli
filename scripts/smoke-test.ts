@@ -4,7 +4,7 @@
  * Runs end-to-end checks on:
  * 1. TypeScript syntax & type validity across all .ts and .tsx files (`tsc --noEmit`)
  * 2. Data integrity (lunch_schedule.json, config/calendars.json, config/event_rules.json, data/suggested_icons.json, assets)
- * 3. Business Rules Engine & AI Discovery unit tests (Child resolution, OSFC, Adams, FH, Miller, Therapy, Discovery)
+ * 3. Business Rules Engine & AI Discovery unit tests (Child resolution, OSFC, Adams, FH, Miller, Therapy, Pediatrics, Discovery)
  * 4. Next.js endpoints: /api/lunch, /api/calendar, /api/admin, /api/admin/approve-icon
  * 5. Strict Zero-Date Header Rule: No widget renders redundant internal date headers
  * 6. Webpage loading: GET / and GET /admin return 200 HTML with ZERO Next.js compile errors or syntax overlays
@@ -107,6 +107,7 @@ async function runTests() {
   assert(fs.existsSync(path.join(process.cwd(), "public", "icons", "teams", "brighton_field_hockey.png")), "Holliston Field Hockey logo exists");
   assert(fs.existsSync(path.join(process.cwd(), "public", "icons", "schools", "miller.png")), "Miller School logo exists");
   assert(fs.existsSync(path.join(process.cwd(), "public", "icons", "general", "therapy.png")), "Therapy logo exists");
+  assert(fs.existsSync(path.join(process.cwd(), "public", "icons", "general", "holliston_pediatrics.png")), "Holliston Pediatrics logo exists");
 
   // Verify data/suggested_icons.json exists
   const suggestedIconsPath = path.join(process.cwd(), "data", "suggested_icons.json");
@@ -155,6 +156,14 @@ async function runTests() {
   });
   assert(therapyEnrichment?.category === "Therapy", "Therapy session resolves to 'Therapy'");
   assert(therapyEnrichment?.iconUrl === "/icons/general/therapy.png", "Therapy event attaches '/icons/general/therapy.png' logo");
+
+  const pediatricsEnrichment = enrichCalendarEvent({
+    summary: "Bennett Annual Well Visit with Dr. Urban",
+    description: "Holliston pediatric group yearly checkup",
+    sourceName: "Brighton and Bennett",
+  });
+  assert(pediatricsEnrichment?.category === "Holliston Pediatrics", "Dr. Urban visit resolves to 'Holliston Pediatrics'");
+  assert(pediatricsEnrichment?.iconUrl === "/icons/general/holliston_pediatrics.png", "Dr. Urban visit attaches '/icons/general/holliston_pediatrics.png' logo");
 
   // AI Discovery Engine Test
   const placentinoDiscovery = discoverIconForEventGroup("Placentino Kindergarten Welcome Meeting");

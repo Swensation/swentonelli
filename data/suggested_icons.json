@@ -28,11 +28,11 @@
   },
   {
     "id": "pediatric-well-visit",
-    "matchPatterns": ["well visit", "pediatric", "doctor", "dr.", "checkup", "flu shot", "vaccine", "physical"],
-    "category": "Pediatric Medical",
-    "badgeText": "Doctor Visit",
-    "candidateIconUrl": "https://cdn-icons-png.flaticon.com/512/2966/2966327.png",
-    "sourceDomain": "pediatrichealth.org",
+    "matchPatterns": ["urban", "dr. urban", "dr urban", "well visit", "pediatric", "doctor", "dr.", "checkup", "flu shot", "vaccine", "physical"],
+    "category": "Holliston Pediatrics",
+    "badgeText": "Dr. Urban",
+    "candidateIconUrl": "https://i0.wp.com/hollistonpediatricgroup.com/wp-content/uploads/2020/05/cropped-title-logo-5.png?w=532&ssl=1",
+    "sourceDomain": "hollistonpediatricgroup.com",
     "confidence": "high"
   },
   {

@@ -44,5 +44,13 @@
     "iconUrl": "/icons/general/therapy.png",
     "summaryPatterns": ["therapy", "counseling", "speech therapy", "ot therapy", "pt therapy"],
     "descriptionPatterns": ["therapy", "counseling"]
+  },
+  {
+    "id": "holliston-pediatrics-dr-urban",
+    "category": "Holliston Pediatrics",
+    "badgeText": "Dr. Urban",
+    "iconUrl": "/icons/general/holliston_pediatrics.png",
+    "summaryPatterns": ["dr. urban", "dr urban", "urban", "holliston pediatric", "holliston pediatrics", "pediatric group"],
+    "descriptionPatterns": ["dr. urban", "holliston pediatric group", "pediatric group"]
   }
 ]

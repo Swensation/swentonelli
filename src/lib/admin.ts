@@ -212,6 +212,10 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
     path.join(process.cwd(), "public", "icons", "general", "therapy.png")
   );
 
+  const hasPediatricsIcon = fs.existsSync(
+    path.join(process.cwd(), "public", "icons", "general", "holliston_pediatrics.png")
+  );
+
   const dadChecklist = [
     // Team & School Crests
     {
@@ -247,6 +251,13 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
       title: "Brighton & Aria Therapy Icon",
       description: "Therapy clinic logo configured and active.",
       status: (hasTherapyIcon ? "done" : "pending") as "done" | "pending",
+      category: "calendar" as const,
+    },
+    {
+      id: "task-pediatrics",
+      title: "Holliston Pediatrics / Dr. Urban Icon",
+      description: "Holliston Pediatric Group crest configured for Brighton & Bennett.",
+      status: (hasPediatricsIcon ? "done" : "pending") as "done" | "pending",
       category: "calendar" as const,
     },
     {

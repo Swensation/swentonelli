@@ -1,0 +1,199 @@
+{
+  "title": "June 2026 Elementary Schools Lunch Menu",
+  "month": "June",
+  "year": 2026,
+  "schoolType": "Elementary Schools",
+  "days": {
+    "2026-06-01": {
+      "date": "2026-06-01",
+      "dayOfWeek": "Monday",
+      "items": [
+        "BBQ Chicken Nuggets",
+        "Mashed Potatoes",
+        "Corn"
+      ],
+      "isNoSchool": false
+    },
+    "2026-06-02": {
+      "date": "2026-06-02",
+      "dayOfWeek": "Tuesday",
+      "items": [
+        "Toasted Ravioli with Marinara Sauce",
+        "Green Beans"
+      ],
+      "isNoSchool": false
+    },
+    "2026-06-03": {
+      "date": "2026-06-03",
+      "dayOfWeek": "Wednesday",
+      "items": [
+        "Mac & Cheese",
+        "Dinner Rolls",
+        "Salad"
+      ],
+      "isNoSchool": false
+    },
+    "2026-06-04": {
+      "date": "2026-06-04",
+      "dayOfWeek": "Thursday",
+      "items": [
+        "Waffles with Chicken Sausage Patty",
+        "Dragon Juice",
+        "Red Peppers"
+      ],
+      "isNoSchool": false
+    },
+    "2026-06-05": {
+      "date": "2026-06-05",
+      "dayOfWeek": "Friday",
+      "items": [
+        "Pizza",
+        "Finley Salad"
+      ],
+      "isNoSchool": false
+    },
+    "2026-06-08": {
+      "date": "2026-06-08",
+      "dayOfWeek": "Monday",
+      "items": [
+        "Mozzarella Sticks",
+        "Seasoned Fries",
+        "Mixed Vegetables"
+      ],
+      "isNoSchool": false
+    },
+    "2026-06-09": {
+      "date": "2026-06-09",
+      "dayOfWeek": "Tuesday",
+      "items": [
+        "Meatball Sub",
+        "Carrots"
+      ],
+      "isNoSchool": false
+    },
+    "2026-06-10": {
+      "date": "2026-06-10",
+      "dayOfWeek": "Wednesday",
+      "items": [
+        "Teriyaki Chicken with Rice",
+        "Broccoli"
+      ],
+      "isNoSchool": false
+    },
+    "2026-06-11": {
+      "date": "2026-06-11",
+      "dayOfWeek": "Thursday",
+      "items": [
+        "Egg & Cheese Croissants",
+        "Hash Brown",
+        "Corn"
+      ],
+      "isNoSchool": false
+    },
+    "2026-06-12": {
+      "date": "2026-06-12",
+      "dayOfWeek": "Friday",
+      "items": [
+        "Pizza",
+        "Roasted Chickpeas"
+      ],
+      "isNoSchool": false
+    },
+    "2026-06-15": {
+      "date": "2026-06-15",
+      "dayOfWeek": "Monday",
+      "items": [
+        "Chicken Nuggets",
+        "Mashed Potatoes",
+        "Peas"
+      ],
+      "isNoSchool": false
+    },
+    "2026-06-16": {
+      "date": "2026-06-16",
+      "dayOfWeek": "Tuesday",
+      "items": [
+        "Hamburger or Cheeseburger",
+        "Cucumber Salad",
+        "Pickles"
+      ],
+      "isNoSchool": false
+    },
+    "2026-06-17": {
+      "date": "2026-06-17",
+      "dayOfWeek": "Wednesday",
+      "items": [
+        "Pancakes with Chicken Sausage Patty",
+        "Red Peppers"
+      ],
+      "isNoSchool": false
+    },
+    "2026-06-18": {
+      "date": "2026-06-18",
+      "dayOfWeek": "Thursday",
+      "items": [
+        "Pizza",
+        "Broccoli"
+      ],
+      "isNoSchool": false
+    },
+    "2026-06-19": {
+      "date": "2026-06-19",
+      "dayOfWeek": "Friday",
+      "items": [
+        "No School"
+      ],
+      "isNoSchool": true,
+      "specialNote": "No School"
+    },
+    "2026-06-22": {
+      "date": "2026-06-22",
+      "dayOfWeek": "Monday",
+      "items": [
+        "Orange Chicken with Rice",
+        "Corn"
+      ],
+      "isNoSchool": false
+    },
+    "2026-06-23": {
+      "date": "2026-06-23",
+      "dayOfWeek": "Tuesday",
+      "items": [
+        "Pasta & Meatballs",
+        "Dinner Roll",
+        "Carrots"
+      ],
+      "isNoSchool": false
+    },
+    "2026-06-24": {
+      "date": "2026-06-24",
+      "dayOfWeek": "Wednesday",
+      "items": [
+        "Pizza",
+        "Green Beans"
+      ],
+      "isNoSchool": false
+    },
+    "2026-06-25": {
+      "date": "2026-06-25",
+      "dayOfWeek": "Thursday",
+      "items": [
+        "Sunbutter & Jelly Sandwich",
+        "Fruit"
+      ],
+      "isNoSchool": false,
+      "isEarlyRelease": true,
+      "isLastDay": true,
+      "specialNote": "Last Day! Early Release"
+    },
+    "2026-06-26": {
+      "date": "2026-06-26",
+      "dayOfWeek": "Friday",
+      "items": [
+        "Summer Break!"
+      ],
+      "isNoSchool": true,
+      "specialNote": "Have a great summer! See you soon"
+    }
+  }
+}

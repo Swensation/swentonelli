@@ -1,0 +1,238 @@
+import { CalendarAgenda, CalendarEvent, CalendarSource } from "@/types/calendar";
+import { getMockCalendarAgenda } from "@/lib/mockData";
+import {
+  addDays,
+  endOfDay,
+  format,
+  isAfter,
+  isBefore,
+  startOfDay,
+} from "date-fns";
+import ical from "node-ical";
+
+// Default color palette for multiple calendars
+const CALENDAR_COLORS = [
+  "#3b82f6", // blue
+  "#10b981", // green
+  "#8b5cf6", // purple
+  "#f59e0b", // amber
+  "#ec4899", // pink
+  "#06b6d4", // cyan
+  "#f97316", // orange
+  "#14b8a6", // teal
+];
+
+// In-memory cache for live polling
+let cachedAgenda: { data: CalendarAgenda; timestamp: number } | null = null;
+const CACHE_TTL_MS = 20 * 1000; // 20 seconds cache
+
+function sanitizeIcsUrl(url: string): string {
+  const trimmed = url.trim();
+  if (trimmed.startsWith("webcal://")) {
+    return "https://" + trimmed.slice(9);
+  }
+  return trimmed;
+}
+
+export function parseCalendarSourcesFromEnv(): CalendarSource[] {
+  const sources: CalendarSource[] = [];
+
+  // 1. Check for JSON array format: GOOGLE_CALENDAR_SOURCES
+  if (process.env.GOOGLE_CALENDAR_SOURCES) {
+    try {
+      const parsed = JSON.parse(process.env.GOOGLE_CALENDAR_SOURCES);
+      if (Array.isArray(parsed)) {
+        parsed.forEach((src, idx) => {
+          if (src && src.icsUrl && src.icsUrl.trim() !== "") {
+            sources.push({
+              id: src.id || `cal-${idx + 1}`,
+              name: src.name || `Calendar ${idx + 1}`,
+              color: src.color || CALENDAR_COLORS[idx % CALENDAR_COLORS.length],
+              icsUrl: sanitizeIcsUrl(src.icsUrl),
+            });
+          }
+        });
+      }
+    } catch (e) {
+      console.error("Failed to parse GOOGLE_CALENDAR_SOURCES JSON", e);
+    }
+  }
+
+  // 2. Check for GOOGLE_CALENDAR_ICAL_URL (supports single URL OR comma/newline-separated URLs)
+  if (process.env.GOOGLE_CALENDAR_ICAL_URL) {
+    const rawUrls = process.env.GOOGLE_CALENDAR_ICAL_URL.split(/[\n,]+/);
+    rawUrls.forEach((rawUrl, idx) => {
+      const cleaned = sanitizeIcsUrl(rawUrl);
+      if (cleaned && (cleaned.startsWith("http://") || cleaned.startsWith("https://"))) {
+        // avoid duplicating if already in sources
+        if (!sources.some((s) => s.icsUrl === cleaned)) {
+          const color =
+            idx === 0 && process.env.GOOGLE_CALENDAR_COLOR
+              ? process.env.GOOGLE_CALENDAR_COLOR
+              : CALENDAR_COLORS[(sources.length + idx) % CALENDAR_COLORS.length];
+
+          const name =
+            idx === 0 && process.env.GOOGLE_CALENDAR_NAME
+              ? process.env.GOOGLE_CALENDAR_NAME
+              : `Calendar ${sources.length + 1}`;
+
+          sources.push({
+            id: `env-cal-${sources.length + 1}`,
+            name,
+            color,
+            icsUrl: cleaned,
+          });
+        }
+      }
+    });
+  }
+
+  return sources;
+}
+
+export async function fetchCalendarAgenda(): Promise<CalendarAgenda> {
+  const now = new Date();
+
+  // Return cached result if fresh
+  if (cachedAgenda && Date.now() - cachedAgenda.timestamp < CACHE_TTL_MS) {
+    return cachedAgenda.data;
+  }
+
+  const sources = parseCalendarSourcesFromEnv();
+
+  // If no live sources are configured, return friendly mock demo data
+  if (sources.length === 0) {
+    const mock = getMockCalendarAgenda();
+    cachedAgenda = { data: mock, timestamp: Date.now() };
+    return mock;
+  }
+
+  const rangeStart = startOfDay(now);
+  const rangeEnd = endOfDay(addDays(now, 14));
+  const allEvents: CalendarEvent[] = [];
+
+  // Fetch all calendar feeds in parallel
+  await Promise.all(
+    sources.map(async (source, sourceIdx) => {
+      if (!source.icsUrl) return;
+
+      try {
+        const icsData = await ical.async.fromURL(source.icsUrl);
+
+        for (const k in icsData) {
+          if (!Object.prototype.hasOwnProperty.call(icsData, k)) continue;
+          const ev = icsData[k];
+          if (!ev || ev.type !== "VEVENT") continue;
+
+          const summary = ev.summary || "Untitled Event";
+          const description = ev.description ? String(ev.description) : undefined;
+          const location = ev.location ? String(ev.location) : undefined;
+          const color = source.color || CALENDAR_COLORS[sourceIdx % CALENDAR_COLORS.length];
+
+          // Handle regular (non-recurring) event
+          if (ev.start && !ev.rrule) {
+            const startDate = new Date(ev.start);
+            const endDate = ev.end ? new Date(ev.end) : startDate;
+            const allDay =
+              !ev.start.toISOString().includes("T") ||
+              endDate.getTime() - startDate.getTime() >= 23 * 3600 * 1000;
+
+            if (isAfter(endDate, rangeStart) && isBefore(startDate, rangeEnd)) {
+              allEvents.push({
+                id: `${source.id}-${ev.uid || k}-${startDate.getTime()}`,
+                summary,
+                description,
+                location,
+                start: startDate.toISOString(),
+                end: endDate.toISOString(),
+                allDay,
+                sourceId: source.id,
+                sourceName: source.name,
+                color,
+              });
+            }
+          } else if (ev.rrule) {
+            // Recurring event expansion using RRULE
+            try {
+              const dates = ev.rrule.between(rangeStart, rangeEnd, true);
+              const duration =
+                ev.end && ev.start ? ev.end.getTime() - ev.start.getTime() : 3600 * 1000;
+
+              for (const d of dates) {
+                const startDate = new Date(d);
+                const endDate = new Date(startDate.getTime() + duration);
+                const allDay = !startDate.toISOString().includes("T");
+
+                allEvents.push({
+                  id: `${source.id}-${ev.uid || k}-${startDate.getTime()}`,
+                  summary,
+                  description,
+                  location,
+                  start: startDate.toISOString(),
+                  end: endDate.toISOString(),
+                  allDay,
+                  sourceId: source.id,
+                  sourceName: source.name,
+                  color,
+                });
+              }
+            } catch (rruleErr) {
+              console.error("Failed to expand RRULE for event:", summary, rruleErr);
+            }
+          }
+        }
+      } catch (err: any) {
+        console.error(`Failed to fetch calendar feed (${source.name}):`, err.message);
+      }
+    })
+  );
+
+  // Chronologically sort all aggregated events
+  allEvents.sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
+
+  // Segment events into Today, Tomorrow, and Upcoming
+  const todayStr = format(now, "yyyy-MM-dd");
+  const tomorrowStr = format(addDays(now, 1), "yyyy-MM-dd");
+
+  const todayEvents: CalendarEvent[] = [];
+  const tomorrowEvents: CalendarEvent[] = [];
+  const upcomingMap: Record<string, CalendarEvent[]> = {};
+
+  allEvents.forEach((event) => {
+    const eventDate = new Date(event.start);
+    const dateKey = format(eventDate, "yyyy-MM-dd");
+
+    if (dateKey === todayStr) {
+      todayEvents.push(event);
+    } else if (dateKey === tomorrowStr) {
+      tomorrowEvents.push(event);
+    } else if (isAfter(eventDate, now)) {
+      if (!upcomingMap[dateKey]) {
+        upcomingMap[dateKey] = [];
+      }
+      upcomingMap[dateKey].push(event);
+    }
+  });
+
+  const upcoming = Object.keys(upcomingMap)
+    .sort()
+    .slice(0, 7)
+    .map((dateKey) => {
+      const parsedDate = new Date(dateKey + "T00:00:00");
+      return {
+        date: dateKey,
+        dateFormatted: format(parsedDate, "EEEE, MMM d"),
+        events: upcomingMap[dateKey],
+      };
+    });
+
+  const result: CalendarAgenda = {
+    today: todayEvents,
+    tomorrow: tomorrowEvents,
+    upcoming,
+    lastUpdated: new Date().toISOString(),
+  };
+
+  cachedAgenda = { data: result, timestamp: Date.now() };
+  return result;
+}

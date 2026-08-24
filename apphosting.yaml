@@ -1,0 +1,16 @@
+# Settings for Cloud Run & Next.js Serverless Execution
+runConfig:
+  cpu: 1
+  memoryMiB: 512
+  minInstances: 0
+  maxInstances: 5
+  concurrency: 80
+
+# Environment variables for cloud deployment
+env:
+  - variable: NEXT_PUBLIC_CALENDAR_REFRESH_MS
+    value: "30000"
+    availability:
+      - BUILD
+      - RUNTIME
+

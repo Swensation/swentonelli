@@ -35,7 +35,7 @@ export function LunchWidget() {
 
   return (
     <div className="glass-card p-6 flex flex-col h-full justify-between">
-      {/* Pure Icon + Title Header */}
+      {/* Pure Icon + Title Header (Zero Date String) */}
       <div>
         <div className="flex items-center pb-3 border-b border-slate-700/60 mb-4">
           <div className="flex items-center gap-2.5">
@@ -74,9 +74,9 @@ export function LunchWidget() {
             }}
             className="p-6 rounded-2xl bg-gradient-to-br from-amber-500/10 via-slate-800/80 to-slate-900/90 border border-amber-500/25 transition-all shadow-sm"
           >
-            {/* Day Title */}
+            {/* Meal Header (Zero Redundant Date) */}
             <div className="text-xs font-extrabold uppercase tracking-wider text-amber-400 mb-2">
-              {activeDay.dayOfWeek} • {activeDay.date}
+              {activeDay.dayOfWeek} Daily Menu
             </div>
 
             {/* Line-by-Line Menu Items */}

@@ -22,3 +22,4 @@ async function downloadMillerIcon() {
 }
 
 downloadMillerIcon().catch(console.error);
+

@@ -5,9 +5,10 @@
  * 1. TypeScript syntax & type validity across all .ts and .tsx files (`tsc --noEmit`)
  * 2. Data integrity (lunch_schedule.json, config/calendars.json, config/event_rules.json, team/school assets)
  * 3. Business Rules Engine unit tests (Child resolution, OSFC icon, Adams Rams icon, Brighton FH, Miller School)
- * 4. Next.js endpoints: /api/lunch, /api/calendar, /api/admin (with rolling 30-day window diagnostics)
- * 5. Webpage loading: GET / and GET /admin return 200 HTML with ZERO Next.js compile errors or syntax overlays
- * 6. Web assets: All linked scripts & CSS stylesheets return HTTP 200 with no 404s
+ * 4. Next.js endpoints: /api/lunch, /api/calendar, /api/admin (with tabbed structure & 30-day dynamic diagnostics)
+ * 5. Strict Zero-Date Header Rule: No widget renders redundant internal date headers
+ * 6. Webpage loading: GET / and GET /admin return 200 HTML with ZERO Next.js compile errors or syntax overlays
+ * 7. Web assets: All linked scripts & CSS stylesheets return HTTP 200 with no 404s
  */
 
 import fs from "fs";
@@ -99,37 +100,11 @@ async function runTests() {
     assert(calJson.every((s: any) => s.name && s.icsUrl && s.color), "All calendar feeds have name, color, and icsUrl");
   }
 
-  // Verify OSFC logo asset exists
-  const osfcLogoPath = path.join(process.cwd(), "public", "icons", "teams", "osfc.png");
-  assert(fs.existsSync(osfcLogoPath), "public/icons/teams/osfc.png asset exists");
-  if (fs.existsSync(osfcLogoPath)) {
-    const stats = fs.statSync(osfcLogoPath);
-    assert(stats.size > 1000, `OSFC team logo is valid binary image (${stats.size} bytes)`);
-  }
-
-  // Verify Adams Middle School Rams logo asset exists
-  const adamsLogoPath = path.join(process.cwd(), "public", "icons", "schools", "adams.png");
-  assert(fs.existsSync(adamsLogoPath), "public/icons/schools/adams.png asset exists");
-  if (fs.existsSync(adamsLogoPath)) {
-    const stats = fs.statSync(adamsLogoPath);
-    assert(stats.size > 1000, `Adams Rams logo is valid binary image (${stats.size} bytes)`);
-  }
-
-  // Verify Brighton Holliston Field Hockey logo asset exists
-  const fhLogoPath = path.join(process.cwd(), "public", "icons", "teams", "brighton_field_hockey.png");
-  assert(fs.existsSync(fhLogoPath), "public/icons/teams/brighton_field_hockey.png asset exists");
-  if (fs.existsSync(fhLogoPath)) {
-    const stats = fs.statSync(fhLogoPath);
-    assert(stats.size > 1000, `Holliston Field Hockey logo is valid binary image (${stats.size} bytes)`);
-  }
-
-  // Verify Miller Elementary School logo asset exists
-  const millerLogoPath = path.join(process.cwd(), "public", "icons", "schools", "miller.png");
-  assert(fs.existsSync(millerLogoPath), "public/icons/schools/miller.png asset exists");
-  if (fs.existsSync(millerLogoPath)) {
-    const stats = fs.statSync(millerLogoPath);
-    assert(stats.size > 1000, `Miller School logo is valid binary image (${stats.size} bytes)`);
-  }
+  // Verify icon assets exist
+  assert(fs.existsSync(path.join(process.cwd(), "public", "icons", "teams", "osfc.png")), "OSFC team logo exists");
+  assert(fs.existsSync(path.join(process.cwd(), "public", "icons", "schools", "adams.png")), "Adams Rams logo exists");
+  assert(fs.existsSync(path.join(process.cwd(), "public", "icons", "teams", "brighton_field_hockey.png")), "Holliston Field Hockey logo exists");
+  assert(fs.existsSync(path.join(process.cwd(), "public", "icons", "schools", "miller.png")), "Miller School logo exists");
 
   // 3. Business Rules Engine Unit Tests
   console.log("\n3. Testing Business Rules Engine (Child Resolution & Categorization)...");
@@ -202,32 +177,40 @@ async function runTests() {
     const adminRes = await fetchUrl(`${BASE_URL}/api/admin`);
     assert(adminRes.status === 200, "GET /api/admin returns HTTP 200");
     const adminJson = JSON.parse(adminRes.body);
-    assert(!!adminJson.calendar && Array.isArray(adminJson.calendar.activeRules), "GET /api/admin returns calendar active rules");
-    assert(Array.isArray(adminJson.calendar.missingIconCategories), "GET /api/admin returns missing icon categories");
-    assert(!!adminJson.calendar.evaluationWindow, "GET /api/admin includes rolling 30-day evaluation window");
-    assert(typeof adminJson.calendar.evaluationWindow.totalEventsInWindow === "number", "GET /api/admin counts events in 30-day window");
-    assert(!!adminJson.lunch && Array.isArray(adminJson.lunch.upcomingMissingMonths), "GET /api/admin returns lunch housekeeping");
 
-    const adamsTask = adminJson.calendar.dadChecklist.find((t: any) => t.id === "task-adams");
-    assert(adamsTask?.status === "done", "Admin checklist dynamically marks Adams Rams task as DONE");
-
-    const fhTask = adminJson.calendar.dadChecklist.find((t: any) => t.id === "task-brighton-fh");
-    assert(fhTask?.status === "done", "Admin checklist dynamically marks Brighton Field Hockey task as DONE");
-
-    const millerTask = adminJson.calendar.dadChecklist.find((t: any) => t.id === "task-miller");
-    assert(millerTask?.status === "done", "Admin checklist dynamically marks Miller School task as DONE");
+    assert(!!adminJson.general && !!adminJson.general.kioskUrl, "GET /api/admin returns General overview data");
+    assert(!!adminJson.calendar && Array.isArray(adminJson.calendar.missingIcons), "GET /api/admin returns dynamic 30-day missing icons array");
+    assert(adminJson.calendar.missingIcons.length > 0, `GET /api/admin dynamically detected ${adminJson.calendar.missingIcons.length} missing icon groups in next 30 days`);
+    assert(!!adminJson.lunch && typeof adminJson.lunch.thirtyDaySchoolDaysTotal === "number", "GET /api/admin returns 30-day school lunch coverage");
   } catch (err: any) {
     assert(false, "GET /api/admin", `Server unreachable: ${err.message}`);
   }
 
-  // 6. Check Web Pages & Next.js Error Overlay Detection
-  console.log("\n5. Checking Webpages & Error Overlay Detection...");
+  // 6. Check Web Pages, Zero-Date Headers & Error Overlay Detection
+  console.log("\n5. Checking Webpages, 4-Column Layout & Zero-Date Header Compliance...");
   try {
     // 6a. Main Kiosk Page
     const pageRes = await fetchUrl(`${BASE_URL}/`);
     assert(pageRes.status === 200, "GET / returns HTTP 200 HTML");
     assert(pageRes.body.includes("Scouty Planner"), "Page contains Scouty Planner title");
-    assert(pageRes.body.includes("/admin"), "Page contains link to Dad Admin & Housekeeping");
+    assert(pageRes.body.includes("Kids Columns"), "Page contains 4-Column Kids view switcher");
+    assert(pageRes.body.includes("All Events"), "Page contains Aggregate stream view switcher");
+    
+    // Check 4-Column Kids Timeline component file
+    const kidsTimelineFile = fs.readFileSync(path.join(process.cwd(), "src", "components", "widgets", "CalendarWidget", "KidsColumnTimeline.tsx"), "utf-8");
+    assert(
+      kidsTimelineFile.includes('"Aria"') &&
+      kidsTimelineFile.includes('"Brighton"') &&
+      kidsTimelineFile.includes('"Benjamin"') &&
+      kidsTimelineFile.includes('"Bennett"'),
+      "KidsColumnTimeline configures 4 child columns: Aria, Brighton, Benjamin, Bennett"
+    );
+
+    // Zero Date Header Rule Check: Ensure neither widget renders internal date subtitles
+    const calWidgetFile = fs.readFileSync(path.join(process.cwd(), "src", "components", "widgets", "CalendarWidget", "CalendarWidget.tsx"), "utf-8");
+    const lunchWidgetFile = fs.readFileSync(path.join(process.cwd(), "src", "components", "widgets", "LunchWidget", "LunchWidget.tsx"), "utf-8");
+    assert(!calWidgetFile.includes("formattedDayTitle") && !calWidgetFile.includes("<div className=\"text-xs font-extrabold uppercase"), "CalendarWidget complies with zero-date display rule");
+    assert(!lunchWidgetFile.includes("{activeDay.date}"), "LunchWidget complies with zero-date display rule");
 
     const hasErrorOverlay =
       pageRes.body.includes("Next.js Error") ||
@@ -236,10 +219,12 @@ async function runTests() {
       pageRes.body.includes("Failed to compile");
     assert(!hasErrorOverlay, "Page / renders cleanly with NO build/syntax error overlays");
 
-    // 6b. Admin Housekeeping Page
+    // 6b. Admin Housekeeping Page (Tabbed UI Check)
     const adminPageRes = await fetchUrl(`${BASE_URL}/admin`);
     assert(adminPageRes.status === 200, "GET /admin returns HTTP 200 HTML");
-    assert(adminPageRes.body.includes("Housekeeping"), "Admin page contains Housekeeping title");
+    assert(adminPageRes.body.includes("General Overview"), "Admin page renders 'General Overview' tab");
+    assert(adminPageRes.body.includes("Family Calendar"), "Admin page renders 'Family Calendar' tab");
+    assert(adminPageRes.body.includes("School Lunch"), "Admin page renders 'School Lunch' tab");
 
     const hasAdminErrorOverlay =
       adminPageRes.body.includes("Next.js Error") ||

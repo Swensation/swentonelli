@@ -22,12 +22,28 @@ For all widget creation, iterations, and data ingestion in this repository, foll
 
 ---
 
+## Strict Rule: Dual-View Architecture (Kiosk UI + Admin Housekeeping)
+
+1. **Every Widget Defines Two Views**:
+   - **Kiosk Presentation View**: The clean, kid-friendly main dashboard UI.
+   - **Admin Housekeeping View**: The diagnostic dashboard on `/admin` for Dad to identify missing assets, missing icons, unparsed menus, and maintenance tasks.
+2. **Admin Layout Mirrors Main Widgets**:
+   - The `/admin` page mirrors the 2-column layout of the main dashboard:
+     - **Left Column**: Family Calendar Housekeeping (active rules, missing team/school icons, unclassified events).
+     - **Right Column**: School Lunch Housekeeping (upcoming months missing PDF schedules, parsing warnings, coverage status).
+3. **Calendar Icon Fallback Rule**:
+   - On the main dashboard, calendar events **MUST** use the standard generic calendar icon by default.
+   - **Do NOT invent arbitrary icons**. Custom icons are only displayed if an explicit rule is configured in `config/event_rules.json` (such as Aria's OSFC team crest).
+   - The Admin panel surfaces all events needing custom icons (e.g. Placentino School in Holliston for son, Adams Middle School in Holliston for daughter) with actionable recommendations.
+
+---
+
 ## School Lunch Multiple Feeds & Monthly Ingestion Workflow
 
 1. **Support for Multiple School Lunch Feeds**:
-   - The family has children across different schools/grades (e.g., Elementary School, Middle School, High School).
+   - The family has children across different schools/grades (e.g., Placentino Elementary, Adams Middle School, High School).
    - The school lunch system **MUST** support multiple school lunch feeds simultaneously.
-   - Each feed is identified by a school ID/name (e.g., `elementary`, `middle`, `high`) and stores its own monthly schedule.
+   - Each feed is identified by a school ID/name and stores its own monthly schedule.
    - The UI presents the lunch menu for each configured school feed corresponding to the **Master Selected Date**.
 
 2. **Monthly Ingestion Process**:
@@ -36,7 +52,7 @@ For all widget creation, iterations, and data ingestion in this repository, foll
      2. Parse grid into clean `items: string[]` (each meal item on its own line).
      3. **Clean String Rule**: Strip any `(V)` or `(V) ` vegetarian tags. Do not create vegetarian badges.
      4. Store in `data/lunch_schedule.json` (or multi-feed data store).
-     5. Inform Dad of the exact file path and summary of parsed days for verification.
+     5. Surface parsing status and upcoming coverage in the Admin Housekeeping panel.
 
 ---
 
@@ -45,6 +61,6 @@ For all widget creation, iterations, and data ingestion in this repository, foll
 - `npm test` automatically verifies:
   1. Full TypeScript & JSX syntax validation (`tsc --noEmit`) across the entire codebase.
   2. Data file integrity and clean strings (no `(V)` substrings, array of items).
-  3. All API routes (`/api/lunch`, `/api/calendar`) respond with HTTP 200.
-  4. The homepage `/` renders HTTP 200 with zero Next.js compile/syntax error overlays.
+  3. All API routes (`/api/lunch`, `/api/calendar`, `/api/admin`) respond with HTTP 200.
+  4. The homepage `/` and `/admin` render HTTP 200 with zero Next.js compile/syntax error overlays.
   5. Every single script and stylesheet asset linked in the HTML resolves with HTTP 200 (ensuring 0 broken 404 chunks).

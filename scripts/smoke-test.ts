@@ -5,8 +5,8 @@
  * 1. TypeScript syntax & type validity across all .ts and .tsx files (`tsc --noEmit`)
  * 2. Data integrity (lunch_schedule.json, config/calendars.json, config/event_rules.json, team assets)
  * 3. Business Rules Engine unit tests (Child resolution & OSFC icon attribution)
- * 4. Next.js endpoints: /api/lunch, /api/calendar
- * 5. Webpage loading: GET / returns 200 HTML with ZERO Next.js compile errors or syntax overlays
+ * 4. Next.js endpoints: /api/lunch, /api/calendar, /api/admin
+ * 5. Webpage loading: GET / and GET /admin return 200 HTML with ZERO Next.js compile errors or syntax overlays
  * 6. Web assets: All linked scripts & CSS stylesheets return HTTP 200 with no 404s
  */
 
@@ -123,14 +123,7 @@ async function runTests() {
     sourceName: "Brighton and Bennett",
   });
   assert(brightonEnrichment?.child?.name === "Brighton", "Field hockey event resolves to Brighton");
-  assert(brightonEnrichment?.iconName === "Trophy", "Field hockey event attaches Trophy icon");
-
-  const docEnrichment = enrichCalendarEvent({
-    summary: "Bennett 6 Year Pediatric Well Visit",
-    sourceName: "Brighton and Bennett",
-  });
-  assert(docEnrichment?.child?.name === "Bennett", "Pediatric visit resolves to Bennett");
-  assert(docEnrichment?.iconName === "Stethoscope", "Medical visit attaches Stethoscope icon");
+  assert(brightonEnrichment?.iconName === "Calendar", "Default non-custom event uses generic Calendar icon");
 
   // 4. Discover active server port
   const activePort = await findActivePort();
@@ -154,7 +147,6 @@ async function runTests() {
     const calJson = JSON.parse(calRes.body);
     assert(Array.isArray(calJson.today) && Array.isArray(calJson.tomorrow) && !!calJson.byDate, "GET /api/calendar returns valid agenda with byDate map");
 
-    // Verify today's OSFC event has the enriched logo
     const todayOsfc = calJson.today.find((e: any) => e.summary.includes("OSFC"));
     if (todayOsfc) {
       assert(todayOsfc.enrichment?.iconUrl === "/icons/teams/osfc.png", "Today's OSFC event is enriched with OSFC logo in live API");
@@ -164,20 +156,46 @@ async function runTests() {
     assert(false, "GET /api/calendar", `Server unreachable: ${err.message}`);
   }
 
-  // 6. Check Web Page & Next.js Error Overlay Detection
-  console.log("\n5. Checking Webpage & Error Overlay Detection...");
   try {
+    const adminRes = await fetchUrl(`${BASE_URL}/api/admin`);
+    assert(adminRes.status === 200, "GET /api/admin returns HTTP 200");
+    const adminJson = JSON.parse(adminRes.body);
+    assert(!!adminJson.calendar && Array.isArray(adminJson.calendar.activeRules), "GET /api/admin returns calendar active rules");
+    assert(Array.isArray(adminJson.calendar.missingIconCategories), "GET /api/admin returns missing icon categories");
+    assert(!!adminJson.lunch && Array.isArray(adminJson.lunch.upcomingMissingMonths), "GET /api/admin returns lunch housekeeping");
+  } catch (err: any) {
+    assert(false, "GET /api/admin", `Server unreachable: ${err.message}`);
+  }
+
+  // 6. Check Web Pages & Next.js Error Overlay Detection
+  console.log("\n5. Checking Webpages & Error Overlay Detection...");
+  try {
+    // 6a. Main Kiosk Page
     const pageRes = await fetchUrl(`${BASE_URL}/`);
     assert(pageRes.status === 200, "GET / returns HTTP 200 HTML");
     assert(pageRes.body.includes("Scouty Planner"), "Page contains Scouty Planner title");
+    assert(pageRes.body.includes("/admin"), "Page contains link to Dad Admin & Housekeeping");
 
     const hasErrorOverlay =
       pageRes.body.includes("Next.js Error") ||
       pageRes.body.includes("Unhandled Runtime Error") ||
       pageRes.body.includes("Syntax Error") ||
       pageRes.body.includes("Failed to compile");
-    assert(!hasErrorOverlay, "Page renders cleanly with NO build/syntax error overlays");
+    assert(!hasErrorOverlay, "Page / renders cleanly with NO build/syntax error overlays");
 
+    // 6b. Admin Housekeeping Page
+    const adminPageRes = await fetchUrl(`${BASE_URL}/admin`);
+    assert(adminPageRes.status === 200, "GET /admin returns HTTP 200 HTML");
+    assert(adminPageRes.body.includes("Housekeeping"), "Admin page contains Housekeeping title");
+
+    const hasAdminErrorOverlay =
+      adminPageRes.body.includes("Next.js Error") ||
+      adminPageRes.body.includes("Unhandled Runtime Error") ||
+      adminPageRes.body.includes("Syntax Error") ||
+      adminPageRes.body.includes("Failed to compile");
+    assert(!hasAdminErrorOverlay, "Page /admin renders cleanly with NO build/syntax error overlays");
+
+    // 6c. Check static JS/CSS assets
     const assetRegex = /(?:src|href)="(\/_next\/[^"]+)"/g;
     const matches = Array.from(pageRes.body.matchAll(assetRegex)).map((m) => m[1]);
     const uniqueAssets = Array.from(new Set(matches));
@@ -193,7 +211,7 @@ async function runTests() {
     }
     assert(allAssets200, "All static scripts and CSS load with HTTP 200 (No 404 errors)");
   } catch (err: any) {
-    assert(false, "GET /", `Server unreachable: ${err.message}`);
+    assert(false, "Webpage checks", `Server unreachable: ${err.message}`);
   }
 
   console.log("\n==========================================");

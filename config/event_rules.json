@@ -9,57 +9,5 @@
     "iconUrl": "/icons/teams/osfc.png",
     "summaryPatterns": ["osfc", "old school"],
     "descriptionPatterns": ["old school football club", "teamsnapone.com", "osfc"]
-  },
-  {
-    "id": "brighton-field-hockey",
-    "childId": "brighton",
-    "childName": "Brighton",
-    "childColor": "#f97316",
-    "category": "Field Hockey",
-    "badgeText": "Field Hockey",
-    "iconName": "Trophy",
-    "summaryPatterns": ["field hockey", "patoma", "softball"]
-  },
-  {
-    "id": "school-events",
-    "category": "School",
-    "badgeText": "School",
-    "iconName": "GraduationCap",
-    "summaryPatterns": ["meet and greet", "classroom", "school", "grade", "teacher", "orientation", "bus"]
-  },
-  {
-    "id": "sports-general",
-    "category": "Sports & Activities",
-    "badgeText": "Sports",
-    "iconName": "Trophy",
-    "summaryPatterns": ["soccer", "practice", "training", "game", "tournament", "karate", "swim", "piano"]
-  },
-  {
-    "id": "family-schedule",
-    "category": "Family Schedule",
-    "badgeText": "Family",
-    "iconName": "Users",
-    "summaryPatterns": ["callie kids", "liz kids", "kids vacation", "family dinner"]
-  },
-  {
-    "id": "vacation-camp",
-    "category": "Vacation & Camps",
-    "badgeText": "Camp / Trip",
-    "iconName": "Palmtree",
-    "summaryPatterns": ["camp", "vacation", "trip", "hotel"]
-  },
-  {
-    "id": "celebration-party",
-    "category": "Celebration",
-    "badgeText": "Party / Birthday",
-    "iconName": "Cake",
-    "summaryPatterns": ["birthday", "party", "bday"]
-  },
-  {
-    "id": "medical-doctor-visit",
-    "category": "Doctor / Medical",
-    "badgeText": "Doctor Visit",
-    "iconName": "Stethoscope",
-    "summaryPatterns": ["doctor", "well visit", "pediatric", "dentist", "orthodontist", "dr.", "flu"]
   }
 ]

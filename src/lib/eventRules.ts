@@ -17,7 +17,7 @@ export interface EventRule {
 
 let cachedRules: EventRule[] | null = null;
 
-function loadEventRules(): EventRule[] {
+export function loadEventRules(): EventRule[] {
   if (cachedRules) return cachedRules;
 
   try {
@@ -37,7 +37,8 @@ function loadEventRules(): EventRule[] {
 /**
  * 2-Stage Business Rules Engine:
  * Stage 1: Identify which family member / child the event belongs to
- * Stage 2: Match activity categorization and guarantee a uniform icon
+ * Stage 2: Match explicit custom rules from config/event_rules.json.
+ *          If no explicit custom rule is matched, strictly default to the generic calendar icon.
  */
 export function enrichCalendarEvent(event: {
   summary: string;
@@ -101,7 +102,7 @@ export function enrichCalendarEvent(event: {
     child = { id: "liz", name: "Liz (Mom)", color: "#ec4899" };
   }
 
-  // 3. Guaranteed Icon & Category Attribution
+  // 3. Construct EventEnrichment result
   if (matchedRule) {
     return {
       child,
@@ -116,11 +117,11 @@ export function enrichCalendarEvent(event: {
     return {
       child,
       badgeText: child.name,
-      iconName: "User",
+      iconName: "Calendar", // Strictly default to generic calendar icon
     };
   }
 
-  // Default fallback for any unmatched event
+  // Standard generic calendar icon for any general event
   return {
     iconName: "Calendar",
     badgeText: event.sourceName,

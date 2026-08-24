@@ -47,3 +47,4 @@ Specific activities attach high-res team crests, activity icons, and category ba
 1. **Title & Timing**: Keep existing event title, start/end time, and location chips.
 2. **Team / Activity Crest**: If `iconUrl` is present, display a high-resolution rounded logo avatar (`w-10 h-10 rounded-xl bg-white/10 p-1 border border-slate-700`).
 3. **Child & Activity Badge**: Display a pill badge showing the child's name and team/activity (e.g. `[ ⚽ Aria • OSFC U13 ]`).
+

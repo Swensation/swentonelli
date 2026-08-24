@@ -37,13 +37,13 @@ function loadEventRules(): EventRule[] {
 /**
  * 2-Stage Business Rules Engine:
  * Stage 1: Identify which family member / child the event belongs to
- * Stage 2: Match activity categorization and attach custom icons / team badges
+ * Stage 2: Match activity categorization and guarantee a uniform icon
  */
 export function enrichCalendarEvent(event: {
   summary: string;
   description?: string;
   sourceName: string;
-}): EventEnrichment | undefined {
+}): EventEnrichment {
   const summaryLower = (event.summary || "").toLowerCase();
   const descLower = (event.description || "").toLowerCase();
   const sourceLower = (event.sourceName || "").toLowerCase();
@@ -101,14 +101,14 @@ export function enrichCalendarEvent(event: {
     child = { id: "liz", name: "Liz (Mom)", color: "#ec4899" };
   }
 
-  // 3. Construct EventEnrichment result
+  // 3. Guaranteed Icon & Category Attribution
   if (matchedRule) {
     return {
       child,
       category: matchedRule.category,
       badgeText: matchedRule.badgeText,
       iconUrl: matchedRule.iconUrl,
-      iconName: matchedRule.iconName,
+      iconName: matchedRule.iconName || "Calendar",
     };
   }
 
@@ -116,8 +116,13 @@ export function enrichCalendarEvent(event: {
     return {
       child,
       badgeText: child.name,
+      iconName: "User",
     };
   }
 
-  return undefined;
+  // Default fallback for any unmatched event
+  return {
+    iconName: "Calendar",
+    badgeText: event.sourceName,
+  };
 }

@@ -3,14 +3,19 @@
 import { CalendarEvent } from "@/types/calendar";
 import { format, parseISO } from "date-fns";
 import {
+  Briefcase,
+  Cake,
+  Calendar,
   Clock,
   GraduationCap,
   HeartPulse,
   MapPin,
+  Palmtree,
   Sparkles,
   Stethoscope,
   Trophy,
   User,
+  Users,
 } from "lucide-react";
 
 interface EventItemProps {
@@ -27,7 +32,7 @@ export function EventItem({ event }: EventItemProps) {
 
   const enrichment = event.enrichment;
 
-  // Render optional vector icon if no custom image icon
+  // Render vector icon matching the category
   const renderLucideIcon = (name?: string) => {
     switch (name) {
       case "Trophy":
@@ -38,14 +43,25 @@ export function EventItem({ event }: EventItemProps) {
         return <HeartPulse className="w-5 h-5 text-rose-400" />;
       case "GraduationCap":
         return <GraduationCap className="w-5 h-5 text-indigo-400" />;
+      case "Users":
+        return <Users className="w-5 h-5 text-emerald-400" />;
+      case "Palmtree":
+        return <Palmtree className="w-5 h-5 text-teal-400" />;
+      case "Cake":
+        return <Cake className="w-5 h-5 text-pink-400" />;
+      case "Briefcase":
+        return <Briefcase className="w-5 h-5 text-blue-400" />;
+      case "User":
+        return <User className="w-5 h-5 text-sky-400" />;
+      case "Calendar":
       default:
-        return null;
+        return <Calendar className="w-5 h-5 text-slate-400" />;
     }
   };
 
   return (
     <div
-      className={`relative p-4 rounded-xl border transition-all ${
+      className={`relative p-3.5 md:p-4 rounded-xl border transition-all ${
         event.isHappeningNow
           ? "bg-blue-950/40 border-blue-500/50 shadow-glow"
           : "bg-slate-800/60 border-slate-700/60 hover:bg-slate-800/90"
@@ -58,20 +74,18 @@ export function EventItem({ event }: EventItemProps) {
       />
 
       <div className="pl-3 flex items-start gap-3.5">
-        {/* Leading Custom Activity / Team Crest Icon */}
-        {enrichment?.iconUrl ? (
-          <div className="w-12 h-12 rounded-2xl bg-white/10 p-1.5 border border-slate-700/80 shadow-md flex-shrink-0 flex items-center justify-center overflow-hidden">
+        {/* Uniform Fixed-Size Avatar Container (w-12 h-12 / 48px) for EVERY event */}
+        <div className="w-12 h-12 rounded-2xl bg-slate-900/90 border border-slate-700/80 shadow-md flex-shrink-0 flex items-center justify-center overflow-hidden p-1.5">
+          {enrichment?.iconUrl ? (
             <img
               src={enrichment.iconUrl}
-              alt={enrichment.badgeText || "Activity Logo"}
+              alt={enrichment.badgeText || "Activity Crest"}
               className="w-full h-full object-contain"
             />
-          </div>
-        ) : enrichment?.iconName ? (
-          <div className="w-11 h-11 rounded-2xl bg-slate-900/80 p-2.5 border border-slate-700 shadow-sm flex-shrink-0 flex items-center justify-center">
-            {renderLucideIcon(enrichment.iconName)}
-          </div>
-        ) : null}
+          ) : (
+            renderLucideIcon(enrichment?.iconName)
+          )}
+        </div>
 
         {/* Event Details */}
         <div className="flex-1 min-w-0">

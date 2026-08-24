@@ -18,6 +18,9 @@
 - **Content Area**:
   - Displays the timeline / agenda for the **Master Selected Date** from the top header (`selectedDate`).
   - Supports historical browsing (past days) as well as future days (+/- 60 day range).
+  - **Uniform Icon Container**: Every event card features a leading fixed-size (`48px / w-12 h-12`) rounded container:
+    - Custom team/activity logo (e.g. OSFC soccer crest) if available.
+    - Category vector icon (Trophy, Stethoscope, GraduationCap, Palmtree, Users, etc.) as default.
   - Left colored border stripe matching each family member's calendar color.
   - Event time range chip with font-mono digital clock styling.
   - Location chip with map pin icon if an address/room is specified.
@@ -29,6 +32,18 @@
 ## 3. Data Contract & Schema (`src/types/calendar.ts`)
 
 ```typescript
+export interface EventEnrichment {
+  child?: {
+    id: string;
+    name: string;
+    color?: string;
+  };
+  category?: string;
+  badgeText?: string;
+  iconUrl?: string;     // Custom image URL (e.g. /icons/teams/osfc.png)
+  iconName?: string;    // Lucide icon name
+}
+
 export interface CalendarEvent {
   id: string;
   summary: string;
@@ -42,6 +57,7 @@ export interface CalendarEvent {
   color: string;
   isHappeningNow?: boolean;
   minutesUntilStart?: number;
+  enrichment?: EventEnrichment;
 }
 
 export interface CalendarAgenda {
@@ -60,6 +76,8 @@ export interface CalendarAgenda {
 ---
 
 ## 4. Acceptance Criteria Checklist
+- [x] Every event has a uniform-sized (48px / `w-12 h-12`) leading icon container.
+- [x] Custom team crests render at full resolution inside the container.
 - [x] Supports past date navigation (displays historical events when stepping backward in time).
 - [x] Header contains ONLY Icon + Title (zero internal date toggles or tabs).
 - [x] Subscribes strictly to master date from `useDashboard()`.

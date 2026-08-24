@@ -22,3 +22,4 @@ async function downloadIcon() {
 }
 
 downloadIcon().catch(console.error);
+

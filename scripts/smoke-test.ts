@@ -3,8 +3,8 @@
  *
  * Runs end-to-end checks on:
  * 1. TypeScript syntax & type validity across all .ts and .tsx files (`tsc --noEmit`)
- * 2. Data integrity (lunch_schedule.json, config/calendars.json, config/event_rules.json, team assets)
- * 3. Business Rules Engine unit tests (Child resolution & OSFC icon attribution)
+ * 2. Data integrity (lunch_schedule.json, config/calendars.json, config/event_rules.json, team/school assets)
+ * 3. Business Rules Engine unit tests (Child resolution, OSFC icon, Adams Middle School Rams icon)
  * 4. Next.js endpoints: /api/lunch, /api/calendar, /api/admin
  * 5. Webpage loading: GET / and GET /admin return 200 HTML with ZERO Next.js compile errors or syntax overlays
  * 6. Web assets: All linked scripts & CSS stylesheets return HTTP 200 with no 404s
@@ -107,6 +107,14 @@ async function runTests() {
     assert(stats.size > 1000, `OSFC team logo is valid binary image (${stats.size} bytes)`);
   }
 
+  // Verify Adams Middle School Rams logo asset exists
+  const adamsLogoPath = path.join(process.cwd(), "public", "icons", "schools", "adams.png");
+  assert(fs.existsSync(adamsLogoPath), "public/icons/schools/adams.png asset exists");
+  if (fs.existsSync(adamsLogoPath)) {
+    const stats = fs.statSync(adamsLogoPath);
+    assert(stats.size > 1000, `Adams Rams logo is valid binary image (${stats.size} bytes)`);
+  }
+
   // 3. Business Rules Engine Unit Tests
   console.log("\n3. Testing Business Rules Engine (Child Resolution & Categorization)...");
   const osfcEnrichment = enrichCalendarEvent({
@@ -117,6 +125,14 @@ async function runTests() {
   assert(osfcEnrichment?.child?.name === "Aria", "OSFC event resolves to Aria");
   assert(osfcEnrichment?.category === "OSFC Soccer", "OSFC event category is 'OSFC Soccer'");
   assert(osfcEnrichment?.iconUrl === "/icons/teams/osfc.png", "OSFC event attaches '/icons/teams/osfc.png' logo");
+
+  const adamsEnrichment = enrichCalendarEvent({
+    summary: "Adams Middle School 8th Grade Orientation",
+    description: "Welcome to Adams Middle School Rams orientation",
+    sourceName: "Aria and Ben",
+  });
+  assert(adamsEnrichment?.category === "Adams Middle School", "Adams orientation resolves to 'Adams Middle School'");
+  assert(adamsEnrichment?.iconUrl === "/icons/schools/adams.png", "Adams event attaches '/icons/schools/adams.png' logo");
 
   const brightonEnrichment = enrichCalendarEvent({
     summary: "Brighton Field Hockey Game vs Westwood",
@@ -163,6 +179,9 @@ async function runTests() {
     assert(!!adminJson.calendar && Array.isArray(adminJson.calendar.activeRules), "GET /api/admin returns calendar active rules");
     assert(Array.isArray(adminJson.calendar.missingIconCategories), "GET /api/admin returns missing icon categories");
     assert(!!adminJson.lunch && Array.isArray(adminJson.lunch.upcomingMissingMonths), "GET /api/admin returns lunch housekeeping");
+
+    const adamsTask = adminJson.calendar.dadChecklist.find((t: any) => t.id === "task-adams");
+    assert(adamsTask?.status === "done", "Admin checklist dynamically marks Adams Rams task as DONE");
   } catch (err: any) {
     assert(false, "GET /api/admin", `Server unreachable: ${err.message}`);
   }

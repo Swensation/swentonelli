@@ -2,6 +2,8 @@ import { loadEventRules } from "@/lib/eventRules";
 import { fetchCalendarAgenda } from "@/lib/calendar";
 import { getLunchForDates } from "@/lib/lunch";
 import { DailyLunchMenu } from "@/types/lunch";
+import fs from "fs";
+import path from "path";
 
 export interface AdminCalendarHousekeeping {
   activeRules: Array<{
@@ -56,7 +58,6 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
 
   // Identify sample events for known missing icon clusters
   const placentinoSamples: string[] = [];
-  const adamsSamples: string[] = [];
   const fieldHockeySamples: string[] = [];
   const medicalSamples: string[] = [];
 
@@ -70,12 +71,6 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
       sLower.includes("elementary")
     ) {
       if (!placentinoSamples.includes(e.summary)) placentinoSamples.push(e.summary);
-    } else if (
-      sLower.includes("adams") ||
-      sLower.includes("middle school") ||
-      sLower.includes("8th grade")
-    ) {
-      if (!adamsSamples.includes(e.summary)) adamsSamples.push(e.summary);
     } else if (sLower.includes("field hockey") || sLower.includes("patoma")) {
       if (!fieldHockeySamples.includes(e.summary)) fieldHockeySamples.push(e.summary);
     } else if (
@@ -102,17 +97,6 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
         "Provide Placentino School logo/crest image or URL to replace generic calendar icon.",
     },
     {
-      id: "adams-middle-school",
-      name: "Adams Middle School (Holliston)",
-      child: "Aria & Brighton (Middle School)",
-      description:
-        "Middle school orientation, 6th/7th/8th grade events, and Adams school schedules.",
-      sampleEvents: adamsSamples.slice(0, 3),
-      suggestedIconPath: "/icons/schools/adams.png",
-      actionNeeded:
-        "Provide Adams Middle School logo/crest image or URL to replace generic calendar icon.",
-    },
-    {
       id: "brighton-field-hockey",
       name: "Brighton Field Hockey / Softball",
       child: "Brighton",
@@ -133,12 +117,24 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
     },
   ];
 
+  const hasAdamsIcon = fs.existsSync(
+    path.join(process.cwd(), "public", "icons", "schools", "adams.png")
+  );
+
   const dadChecklist = [
     {
       id: "task-osfc",
       title: "Aria OSFC Soccer Crest",
       description: "Old School Football Club logo configured and active.",
       status: "done" as const,
+      category: "calendar" as const,
+    },
+    {
+      id: "task-adams",
+      title: "Adams Middle School Rams Icon",
+      description:
+        "Adams Middle School (Holliston) Rams crest configured and active.",
+      status: (hasAdamsIcon ? "done" : "pending") as "done" | "pending",
       category: "calendar" as const,
     },
     {
@@ -150,10 +146,10 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
       category: "calendar" as const,
     },
     {
-      id: "task-adams",
-      title: "Add Adams Middle School Icon",
+      id: "task-brighton-fh",
+      title: "Add Brighton Field Hockey Crest",
       description:
-        "Find and add Adams Middle School (Holliston) emblem for Aria/Brighton.",
+        "Find and add team crest for Brighton's field hockey games & practices at Patoma.",
       status: "pending" as const,
       category: "calendar" as const,
     },

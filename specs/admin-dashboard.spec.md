@@ -73,3 +73,4 @@ The `/admin` subpage uses the exact same 2-column dashboard layout as the main s
 - [x] Lunch housekeeping shows coverage status, missing upcoming month alerts, and parsing diagnostics.
 - [x] Main dashboard events use generic calendar icon unless an explicit custom icon rule is matched.
 - [x] `npm test` passes with zero failures.
+

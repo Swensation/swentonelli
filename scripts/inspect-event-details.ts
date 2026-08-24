@@ -24,3 +24,4 @@ async function inspectEventDetails() {
 }
 
 inspectEventDetails().catch(console.error);
+

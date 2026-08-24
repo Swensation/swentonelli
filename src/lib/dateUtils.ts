@@ -38,3 +38,4 @@ export function getEasternMinutes(date: Date | string): number {
   const m = Number(parts.find((p) => p.type === "minute")?.value || 0);
   return h * 60 + m;
 }
+

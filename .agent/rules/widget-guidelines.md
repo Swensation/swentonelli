@@ -22,7 +22,7 @@ For all widget creation, iterations, and data ingestion in this repository, foll
 
 ---
 
-## Strict Rule: Dual-View Architecture (Kiosk UI + Admin Housekeeping)
+## Strict Rule: Dual-View Architecture & 30-Day Admin Housekeeping Window
 
 1. **Every Widget Defines Two Views**:
    - **Kiosk Presentation View**: The clean, kid-friendly main dashboard UI.
@@ -31,10 +31,12 @@ For all widget creation, iterations, and data ingestion in this repository, foll
    - The `/admin` page mirrors the 2-column layout of the main dashboard:
      - **Left Column**: Family Calendar Housekeeping (active rules, missing team/school icons, unclassified events).
      - **Right Column**: School Lunch Housekeeping (upcoming months missing PDF schedules, parsing warnings, coverage status).
-3. **Calendar Icon Fallback Rule**:
+3. **Rolling 30-Day Evaluation Window for Calendar Warnings**:
+   - All calendar housekeeping warnings (missing icons, missing locations, uncategorized events, unassigned children) **MUST strictly evaluate events occurring in the rolling 30-day window**: `[Today ... Today + 30 Days]`.
+   - Historical events (< Today) and distant future events (> 30 days away) MUST NOT trigger housekeeping warnings, keeping Dad's task list focused on actionable, upcoming items.
+4. **Calendar Icon Fallback Rule**:
    - On the main dashboard, calendar events **MUST** use the standard generic calendar icon by default.
-   - **Do NOT invent arbitrary icons**. Custom icons are only displayed if an explicit rule is configured in `config/event_rules.json` (such as Aria's OSFC team crest).
-   - The Admin panel surfaces all events needing custom icons (e.g. Placentino School in Holliston for son, Adams Middle School in Holliston for daughter) with actionable recommendations.
+   - **Do NOT invent arbitrary icons**. Custom icons are only displayed if an explicit rule is configured in `config/event_rules.json` (such as Aria's OSFC team crest or Adams Rams crest).
 
 ---
 

@@ -22,3 +22,4 @@ async function downloadAdamsIcon() {
 }
 
 downloadAdamsIcon().catch(console.error);
+

@@ -2,6 +2,7 @@ import { loadEventRules } from "@/lib/eventRules";
 import { fetchCalendarAgenda } from "@/lib/calendar";
 import { getLunchForDates } from "@/lib/lunch";
 import { DailyLunchMenu } from "@/types/lunch";
+import { addDays, endOfDay, isAfter, isBefore, parseISO, startOfDay } from "date-fns";
 import fs from "fs";
 import path from "path";
 
@@ -24,6 +25,14 @@ export interface AdminCalendarHousekeeping {
     suggestedIconPath: string;
     actionNeeded: string;
   }>;
+  missingDetailsWarnings: Array<{
+    id: string;
+    type: "missing_location" | "unassigned_child";
+    title: string;
+    eventSummary: string;
+    eventDate: string;
+    detail: string;
+  }>;
   dadChecklist: Array<{
     id: string;
     title: string;
@@ -31,6 +40,11 @@ export interface AdminCalendarHousekeeping {
     status: "done" | "pending";
     category: "calendar" | "lunch";
   }>;
+  evaluationWindow: {
+    startDate: string;
+    endDate: string;
+    totalEventsInWindow: number;
+  };
 }
 
 export interface AdminLunchHousekeeping {
@@ -53,15 +67,24 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
   const agenda = await fetchCalendarAgenda();
   const lunchData = getLunchForDates();
 
-  // Collect all event summaries across the entire 120-day calendar window
-  const allEvents = Object.values(agenda.byDate).flat();
+  const now = new Date();
+  const windowStart = startOfDay(now);
+  const windowEnd = endOfDay(addDays(now, 30));
 
-  // Identify sample events for known missing icon clusters
+  // Collect all events occurring strictly within the rolling 30-day window [today ... today + 30 days]
+  const upcoming30DayEvents = Object.entries(agenda.byDate)
+    .filter(([dateKey]) => {
+      const d = parseISO(dateKey);
+      return !isBefore(d, windowStart) && !isAfter(d, windowEnd);
+    })
+    .flatMap(([, events]) => events);
+
+  // Identify sample events for missing icon clusters in the next 30 days
   const placentinoSamples: string[] = [];
   const fieldHockeySamples: string[] = [];
   const medicalSamples: string[] = [];
 
-  allEvents.forEach((e) => {
+  upcoming30DayEvents.forEach((e) => {
     const sLower = (e.summary || "").toLowerCase();
 
     if (
@@ -84,38 +107,65 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
     }
   });
 
-  const missingIconCategories = [
-    {
+  const missingIconCategories = [];
+
+  if (placentinoSamples.length > 0) {
+    missingIconCategories.push({
       id: "placentino-school",
       name: "Placentino Elementary School (Holliston)",
       child: "Bennett & Brighton (Elementary)",
       description:
-        "Elementary school meet-and-greets, teacher conferences, and school calendar events.",
+        "Elementary school meet-and-greets, teacher conferences, and school calendar events in next 30 days.",
       sampleEvents: placentinoSamples.slice(0, 3),
       suggestedIconPath: "/icons/schools/placentino.png",
       actionNeeded:
         "Provide Placentino School logo/crest image or URL to replace generic calendar icon.",
-    },
-    {
+    });
+  }
+
+  if (fieldHockeySamples.length > 0) {
+    missingIconCategories.push({
       id: "brighton-field-hockey",
       name: "Brighton Field Hockey / Softball",
       child: "Brighton",
-      description: "Patoma field practices, town league games, and tournaments.",
+      description: "Patoma field practices, town league games, and tournaments in next 30 days.",
       sampleEvents: fieldHockeySamples.slice(0, 3),
       suggestedIconPath: "/icons/teams/brighton_field_hockey.png",
       actionNeeded:
         "Provide team logo or emblem for Brighton's Field Hockey & Softball team.",
-    },
-    {
+    });
+  }
+
+  if (medicalSamples.length > 0) {
+    missingIconCategories.push({
       id: "pediatric-medical",
       name: "Pediatric & Dental Checkups",
       child: "All Children",
-      description: "Annual well visits, dental cleanings, orthodontist checkups.",
+      description: "Annual well visits, dental cleanings, orthodontist checkups in next 30 days.",
       sampleEvents: medicalSamples.slice(0, 3),
       suggestedIconPath: "/icons/general/medical.png",
       actionNeeded: "Assign custom health/medical icon rule for pediatric appointments.",
-    },
-  ];
+    });
+  }
+
+  // Scan for missing details (e.g. games/practices in next 30 days with no location specified)
+  const missingDetailsWarnings: AdminCalendarHousekeeping["missingDetailsWarnings"] = [];
+  upcoming30DayEvents.forEach((e) => {
+    const sLower = (e.summary || "").toLowerCase();
+    if (
+      !e.location &&
+      (sLower.includes("game") || sLower.includes("vs ") || sLower.includes("tournament"))
+    ) {
+      missingDetailsWarnings.push({
+        id: `loc-${e.id}`,
+        type: "missing_location",
+        title: "Missing Location on Match / Game",
+        eventSummary: e.summary,
+        eventDate: e.start,
+        detail: "Event has no field or address attached in Google Calendar.",
+      });
+    }
+  });
 
   const hasAdamsIcon = fs.existsSync(
     path.join(process.cwd(), "public", "icons", "schools", "adams.png")
@@ -189,7 +239,13 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
         descriptionPatterns: r.descriptionPatterns,
       })),
       missingIconCategories,
+      missingDetailsWarnings: missingDetailsWarnings.slice(0, 5),
       dadChecklist,
+      evaluationWindow: {
+        startDate: windowStart.toISOString(),
+        endDate: windowEnd.toISOString(),
+        totalEventsInWindow: upcoming30DayEvents.length,
+      },
     },
     lunch: lunchHousekeeping,
     lastChecked: new Date().toISOString(),

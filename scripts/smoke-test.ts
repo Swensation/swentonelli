@@ -5,7 +5,7 @@
  * 1. TypeScript syntax & type validity across all .ts and .tsx files (`tsc --noEmit`)
  * 2. Data integrity (lunch_schedule.json, config/calendars.json, config/event_rules.json, team/school assets)
  * 3. Business Rules Engine unit tests (Child resolution, OSFC icon, Adams Middle School Rams icon)
- * 4. Next.js endpoints: /api/lunch, /api/calendar, /api/admin
+ * 4. Next.js endpoints: /api/lunch, /api/calendar, /api/admin (with rolling 30-day window diagnostics)
  * 5. Webpage loading: GET / and GET /admin return 200 HTML with ZERO Next.js compile errors or syntax overlays
  * 6. Web assets: All linked scripts & CSS stylesheets return HTTP 200 with no 404s
  */
@@ -178,6 +178,8 @@ async function runTests() {
     const adminJson = JSON.parse(adminRes.body);
     assert(!!adminJson.calendar && Array.isArray(adminJson.calendar.activeRules), "GET /api/admin returns calendar active rules");
     assert(Array.isArray(adminJson.calendar.missingIconCategories), "GET /api/admin returns missing icon categories");
+    assert(!!adminJson.calendar.evaluationWindow, "GET /api/admin includes rolling 30-day evaluation window");
+    assert(typeof adminJson.calendar.evaluationWindow.totalEventsInWindow === "number", "GET /api/admin counts events in 30-day window");
     assert(!!adminJson.lunch && Array.isArray(adminJson.lunch.upcomingMissingMonths), "GET /api/admin returns lunch housekeeping");
 
     const adamsTask = adminJson.calendar.dadChecklist.find((t: any) => t.id === "task-adams");

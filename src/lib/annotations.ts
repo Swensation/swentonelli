@@ -89,7 +89,7 @@ export function extractChildAnnotations(
           parentName: "Liz",
           town: "Holliston",
           label: "Mom's",
-          badgeClass: "bg-red-600/25 text-red-300 border-red-500/50",
+          badgeClass: "bg-red-600 text-white border-red-400 shadow-sm",
         };
       } else if (summary.includes("andrew kids") || summary.includes("swen kids")) {
         custody = {
@@ -97,7 +97,7 @@ export function extractChildAnnotations(
           parentName: "Andrew",
           town: "Millis",
           label: "Dad's",
-          badgeClass: "bg-[#800020]/35 text-rose-200 border-[#9f1239]/70",
+          badgeClass: "bg-[#800020] text-rose-50 border-[#9f1239] shadow-sm",
         };
       }
     }
@@ -110,7 +110,7 @@ export function extractChildAnnotations(
           parentName: "Callie",
           town: "Millis",
           label: "Mom's",
-          badgeClass: "bg-[#800020]/35 text-rose-200 border-[#9f1239]/70",
+          badgeClass: "bg-[#800020] text-rose-50 border-[#9f1239] shadow-sm",
         };
       }
     }
@@ -150,7 +150,7 @@ export function extractChildAnnotations(
       parentName: "Chris",
       town: "Franklin",
       label: "Dad's",
-      badgeClass: "bg-blue-600/25 text-blue-300 border-blue-500/50",
+      badgeClass: "bg-blue-600 text-white border-blue-400 shadow-sm",
     };
   }
 

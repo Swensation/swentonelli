@@ -76,8 +76,8 @@ export function KidsColumnTimeline({ events }: KidsColumnTimelineProps) {
 
   return (
     <div className="space-y-4">
-      {/* 4-Column Child Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-3.5 items-start">
+      {/* 4-Column Child Grid (All columns stretched to equal height of tallest column) */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-3.5 items-stretch">
         {KIDS.map((kid) => {
           const kidEvents = eventsByKid[kid.id];
           const annotations = extractChildAnnotations(events, kid.id);
@@ -85,7 +85,7 @@ export function KidsColumnTimeline({ events }: KidsColumnTimelineProps) {
           return (
             <div
               key={kid.id}
-              className="rounded-2xl p-3.5 bg-slate-900/85 border-2 flex flex-col min-h-[360px] shadow-lg transition-all"
+              className="rounded-2xl p-3.5 bg-slate-900/85 border-2 flex flex-col h-full min-h-[360px] shadow-lg transition-all"
               style={{ borderColor: `${kid.color}99` }}
             >
               {/* Column Header: Larger Avatar + Child Name on Left, Badges Strictly Top-Right Justified on One Line */}

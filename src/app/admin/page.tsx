@@ -9,14 +9,19 @@ import {
   AlertTriangle,
   ArrowLeft,
   Calendar as CalendarIcon,
+  Check,
   CheckCircle2,
   ChevronRight,
   Clock,
   ExternalLink,
   FileText,
+  Globe,
   HeartPulse,
   HelpCircle,
+  Image as ImageIcon,
   Layers,
+  Link2,
+  Loader2,
   MapPin,
   QrCode,
   Radio,
@@ -29,7 +34,7 @@ import {
   Utensils,
   Wifi,
 } from "lucide-react";
-import { AdminDashboardData } from "@/lib/admin";
+import { AdminDashboardData, MissingIconItem } from "@/lib/admin";
 import { format, parseISO } from "date-fns";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
@@ -38,14 +43,68 @@ type AdminTab = "general" | "calendar" | "lunch";
 
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<AdminTab>("general");
+  const [approvingId, setApprovingId] = useState<string | null>(null);
+  const [customUrls, setCustomUrls] = useState<Record<string, string>>({});
+  const [showCustomInput, setShowCustomInput] = useState<Record<string, boolean>>({});
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const { data, error, isLoading, mutate } = useSWR<AdminDashboardData>("/api/admin", fetcher, {
     revalidateOnFocus: true,
   });
 
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 4000);
+  };
+
+  const handleApproveIcon = async (item: MissingIconItem, overrideUrl?: string) => {
+    const iconUrl = overrideUrl || item.suggestion?.candidateIconUrl || customUrls[item.id];
+    if (!iconUrl) {
+      alert("Please provide an image URL to approve.");
+      return;
+    }
+
+    setApprovingId(item.id);
+    try {
+      const res = await fetch("/api/admin/approve-icon", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: item.suggestion?.id || item.summaryGroup,
+          category: item.suggestion?.category || item.summaryGroup,
+          badgeText: item.suggestion?.badgeText || item.summaryGroup,
+          iconUrl,
+          summaryPatterns: item.suggestion?.summaryPatterns || [item.summaryGroup.toLowerCase()],
+          childName: item.childName,
+        }),
+      });
+
+      const result = await res.json();
+      if (!res.ok) {
+        throw new Error(result.error || "Failed to approve icon");
+      }
+
+      showToast(`✅ Approved icon for "${item.summaryGroup}"!`);
+      await mutate();
+    } catch (err: any) {
+      console.error("Failed to approve icon:", err);
+      alert(`Error approving icon: ${err.message}`);
+    } finally {
+      setApprovingId(null);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 p-4 md:p-8 bg-ambient font-sans">
       <div className="max-w-6xl mx-auto space-y-6">
+        {/* Toast Notification */}
+        {toastMessage && (
+          <div className="fixed top-5 right-5 z-50 p-4 rounded-2xl bg-emerald-600 text-white shadow-2xl font-bold text-sm flex items-center gap-2 animate-bounce">
+            <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
+            <span>{toastMessage}</span>
+          </div>
+        )}
+
         {/* Top Header Ribbon */}
         <header className="w-full py-4 px-6 glass-card flex items-center justify-between gap-4">
           <div className="flex items-center gap-3.5">
@@ -69,7 +128,7 @@ export default function AdminPage() {
                 </span>
               </div>
               <p className="text-xs text-slate-400 mt-1">
-                Diagnostic audits and actionable housekeeping strictly for upcoming events in the next 30 days.
+                Diagnostic audits, 1-click icon approvals, and actionable housekeeping for the next 30 days.
               </p>
             </div>
           </div>
@@ -248,7 +307,7 @@ export default function AdminPage() {
           </div>
         )}
 
-        {/* TAB 2: FAMILY CALENDAR (Single Column) */}
+        {/* TAB 2: FAMILY CALENDAR (Single Column with 1-Click Approvals) */}
         {data && activeTab === "calendar" && (
           <div className="space-y-6">
             {/* Top Attention Section: Missing Custom Icons in Next 30 Days */}
@@ -256,17 +315,19 @@ export default function AdminPage() {
               <div className="flex items-center justify-between pb-3 border-b border-slate-700/60 mb-4">
                 <div className="flex items-center gap-2.5">
                   <div className="p-2 rounded-xl bg-amber-500/20 text-amber-400">
-                    <AlertTriangle className="w-5 h-5" />
+                    <Sparkles className="w-5 h-5" />
                   </div>
                   <div>
-                    <h2 className="text-lg font-black text-white">⚠️ Attention Needed: Missing Custom Icons (Next 30 Days)</h2>
+                    <h2 className="text-lg font-black text-white">
+                      AI Discovered Icon Suggestions & Approvals (Next 30 Days)
+                    </h2>
                     <p className="text-xs text-slate-400">
-                      All events occurring between now and {format(parseISO(data.calendar.evaluationWindow.endDate), "MMMM d, yyyy")} that currently fall back to the generic calendar icon
+                      Discovered logos and candidate crests for upcoming unbranded events. Click &quot;Approve&quot; to apply instantly.
                     </p>
                   </div>
                 </div>
                 <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                  {data.calendar.missingIcons.length} Groups Flagged
+                  {data.calendar.missingIcons.length} Groups
                 </span>
               </div>
 
@@ -279,38 +340,127 @@ export default function AdminPage() {
                   </div>
                 </div>
               ) : (
-                <div className="space-y-3">
-                  {data.calendar.missingIcons.map((item) => (
-                    <div
-                      key={item.id}
-                      className="p-4 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 transition-all flex flex-col md:flex-row md:items-center justify-between gap-3"
-                    >
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <h4 className="font-bold text-white text-base">{item.summaryGroup}</h4>
-                          <span className="text-xs font-black px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                            {item.countIn30Days}x in 30 days
-                          </span>
-                          {item.childName && (
-                            <span className="text-xs font-bold px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30">
-                              {item.childName}
-                            </span>
-                          )}
+                <div className="space-y-3.5">
+                  {data.calendar.missingIcons.map((item) => {
+                    const isApproving = approvingId === item.id;
+                    const hasSuggestion = !!item.suggestion?.candidateIconUrl;
+                    const candidateUrl = item.suggestion?.candidateIconUrl || customUrls[item.id];
+                    const isCustomOpen = showCustomInput[item.id];
+
+                    return (
+                      <div
+                        key={item.id}
+                        className="p-4 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 transition-all flex flex-col gap-3"
+                      >
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                          {/* Left: Candidate Thumbnail Preview + Details */}
+                          <div className="flex items-start gap-3.5">
+                            {/* Candidate Image Preview */}
+                            <div className="w-14 h-14 rounded-2xl bg-slate-950/80 border border-slate-700 p-2 flex-shrink-0 flex items-center justify-center shadow-inner relative group">
+                              {candidateUrl ? (
+                                <img
+                                  src={candidateUrl}
+                                  alt="Candidate Logo"
+                                  className="w-full h-full object-contain"
+                                  onError={(e) => {
+                                    (e.target as HTMLElement).style.display = "none";
+                                  }}
+                                />
+                              ) : (
+                                <HelpCircle className="w-6 h-6 text-slate-500" />
+                              )}
+                            </div>
+
+                            <div className="space-y-1 min-w-0">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <h4 className="font-bold text-white text-base leading-tight">
+                                  {item.summaryGroup}
+                                </h4>
+                                <span className="text-xs font-black px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                                  {item.countIn30Days}x in 30d
+                                </span>
+                                {item.childName && (
+                                  <span className="text-xs font-bold px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                                    {item.childName}
+                                  </span>
+                                )}
+                              </div>
+
+                              {item.suggestion && (
+                                <div className="flex items-center gap-2 text-xs text-slate-300 font-semibold">
+                                  <span className="text-emerald-400">✨ Discovered: {item.suggestion.category}</span>
+                                  {item.suggestion.sourceDomain && (
+                                    <span className="text-[10px] text-slate-400 font-mono flex items-center gap-1">
+                                      <Globe className="w-3 h-3" />
+                                      {item.suggestion.sourceDomain}
+                                    </span>
+                                  )}
+                                </div>
+                              )}
+
+                              {item.sampleEvents.length > 0 && (
+                                <div className="text-xs text-slate-400 truncate max-w-xl">
+                                  <span className="text-slate-500 font-semibold">Sample: </span>
+                                  {item.sampleEvents[0]}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Right: 1-Click Action Buttons */}
+                          <div className="flex items-center gap-2 self-start md:self-center flex-shrink-0">
+                            {hasSuggestion && (
+                              <button
+                                onClick={() => handleApproveIcon(item)}
+                                disabled={isApproving}
+                                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md transition-all active:scale-95 disabled:opacity-50"
+                              >
+                                {isApproving ? (
+                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : (
+                                  <Check className="w-4 h-4" />
+                                )}
+                                <span>Approve & Apply</span>
+                              </button>
+                            )}
+
+                            <button
+                              onClick={() =>
+                                setShowCustomInput((prev) => ({ ...prev, [item.id]: !prev[item.id] }))
+                              }
+                              className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition-all text-xs font-semibold flex items-center gap-1"
+                              title="Provide custom image link"
+                            >
+                              <Link2 className="w-3.5 h-3.5 text-amber-400" />
+                              <span className="hidden sm:inline">Custom URL</span>
+                            </button>
+                          </div>
                         </div>
 
-                        {item.sampleEvents.length > 0 && (
-                          <div className="text-xs text-slate-400">
-                            <span className="text-slate-500 font-semibold">Samples: </span>
-                            {item.sampleEvents.join(" • ")}
+                        {/* Expandable Custom URL Input */}
+                        {isCustomOpen && (
+                          <div className="pt-2 border-t border-slate-800/80 flex items-center gap-2">
+                            <input
+                              type="url"
+                              placeholder="Paste custom logo image URL (https://...)"
+                              value={customUrls[item.id] || ""}
+                              onChange={(e) =>
+                                setCustomUrls((prev) => ({ ...prev, [item.id]: e.target.value }))
+                              }
+                              className="flex-1 px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400"
+                            />
+                            <button
+                              onClick={() => handleApproveIcon(item, customUrls[item.id])}
+                              disabled={!customUrls[item.id] || isApproving}
+                              className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition-all disabled:opacity-40"
+                            >
+                              Save & Apply
+                            </button>
                           </div>
                         )}
                       </div>
-
-                      <div className="text-xs font-semibold text-amber-400 bg-amber-500/10 px-3 py-2 rounded-lg border border-amber-500/20 whitespace-nowrap self-start md:self-auto">
-                        {item.suggestedAction}
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>

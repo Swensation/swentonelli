@@ -2,6 +2,7 @@ import { loadEventRules } from "@/lib/eventRules";
 import { fetchCalendarAgenda } from "@/lib/calendar";
 import { getLunchForDates } from "@/lib/lunch";
 import { DailyLunchMenu } from "@/types/lunch";
+import { discoverIconForEventGroup, DiscoveredIconSuggestion } from "@/lib/iconDiscovery";
 import { addDays, endOfDay, format, isAfter, isBefore, isWeekend, parseISO, startOfDay } from "date-fns";
 import fs from "fs";
 import path from "path";
@@ -13,6 +14,7 @@ export interface MissingIconItem {
   childName?: string;
   sampleEvents: string[];
   suggestedAction: string;
+  suggestion?: DiscoveredIconSuggestion | null;
 }
 
 export interface MissingDetailWarning {
@@ -136,14 +138,20 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
 
   const missingIcons: MissingIconItem[] = Object.entries(groups)
     .sort((a, b) => b[1].count - a[1].count)
-    .map(([key, info], idx) => ({
-      id: `missing-icon-${idx}`,
-      summaryGroup: key,
-      countIn30Days: info.count,
-      childName: info.child,
-      sampleEvents: info.samples,
-      suggestedAction: `Provide custom icon or image URL to replace generic calendar icon for "${key}".`,
-    }));
+    .map(([key, info], idx) => {
+      const suggestion = discoverIconForEventGroup(key, info.samples);
+      return {
+        id: `missing-icon-${idx}`,
+        summaryGroup: key,
+        countIn30Days: info.count,
+        childName: info.child,
+        sampleEvents: info.samples,
+        suggestedAction: suggestion
+          ? `AI Discovered Candidate: ${suggestion.category} (${suggestion.sourceDomain || "verified"})`
+          : `Provide custom icon or image URL to replace generic calendar icon for "${key}".`,
+        suggestion,
+      };
+    });
 
   // Scan for missing locations on matches, games, or appointments in next 30 days
   const missingDetailsWarnings: MissingDetailWarning[] = [];

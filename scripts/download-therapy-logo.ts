@@ -22,3 +22,4 @@ async function downloadTherapyIcon() {
 }
 
 downloadTherapyIcon().catch(console.error);
+

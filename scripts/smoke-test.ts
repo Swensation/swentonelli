@@ -3,9 +3,9 @@
  *
  * Runs end-to-end checks on:
  * 1. TypeScript syntax & type validity across all .ts and .tsx files (`tsc --noEmit`)
- * 2. Data integrity (lunch_schedule.json, config/calendars.json, config/event_rules.json, team/school/general assets)
- * 3. Business Rules Engine unit tests (Child resolution, OSFC icon, Adams Rams, Brighton FH, Miller School, Therapy)
- * 4. Next.js endpoints: /api/lunch, /api/calendar, /api/admin (with tabbed structure & 30-day dynamic diagnostics)
+ * 2. Data integrity (lunch_schedule.json, config/calendars.json, config/event_rules.json, data/suggested_icons.json, assets)
+ * 3. Business Rules Engine & AI Discovery unit tests (Child resolution, OSFC, Adams, FH, Miller, Therapy, Discovery)
+ * 4. Next.js endpoints: /api/lunch, /api/calendar, /api/admin, /api/admin/approve-icon
  * 5. Strict Zero-Date Header Rule: No widget renders redundant internal date headers
  * 6. Webpage loading: GET / and GET /admin return 200 HTML with ZERO Next.js compile errors or syntax overlays
  * 7. Web assets: All linked scripts & CSS stylesheets return HTTP 200 with no 404s
@@ -15,9 +15,10 @@ import fs from "fs";
 import path from "path";
 import { execSync } from "child_process";
 import { enrichCalendarEvent } from "../src/lib/eventRules";
+import { discoverIconForEventGroup } from "../src/lib/iconDiscovery";
 
-async function fetchUrl(url: string): Promise<{ status: number; body: string }> {
-  const res = await fetch(url);
+async function fetchUrl(url: string, options?: RequestInit): Promise<{ status: number; body: string }> {
+  const res = await fetch(url, options);
   const body = await res.text();
   return { status: res.status, body };
 }
@@ -107,8 +108,12 @@ async function runTests() {
   assert(fs.existsSync(path.join(process.cwd(), "public", "icons", "schools", "miller.png")), "Miller School logo exists");
   assert(fs.existsSync(path.join(process.cwd(), "public", "icons", "general", "therapy.png")), "Therapy logo exists");
 
+  // Verify data/suggested_icons.json exists
+  const suggestedIconsPath = path.join(process.cwd(), "data", "suggested_icons.json");
+  assert(fs.existsSync(suggestedIconsPath), "data/suggested_icons.json exists");
+
   // 3. Business Rules Engine Unit Tests
-  console.log("\n3. Testing Business Rules Engine (Child Resolution & Categorization)...");
+  console.log("\n3. Testing Business Rules Engine & AI Discovery...");
   const osfcEnrichment = enrichCalendarEvent({
     summary: "Practice: OSFC Girls U13 Monday Training - U13 Girls",
     description: "Old school football club training at midfield",
@@ -150,6 +155,12 @@ async function runTests() {
   });
   assert(therapyEnrichment?.category === "Therapy", "Therapy session resolves to 'Therapy'");
   assert(therapyEnrichment?.iconUrl === "/icons/general/therapy.png", "Therapy event attaches '/icons/general/therapy.png' logo");
+
+  // AI Discovery Engine Test
+  const placentinoDiscovery = discoverIconForEventGroup("Placentino Kindergarten Welcome Meeting");
+  assert(!!placentinoDiscovery, "AI Discovery matches Placentino event");
+  assert(placentinoDiscovery?.category === "Placentino Elementary", "Placentino category is 'Placentino Elementary'");
+  assert(!!placentinoDiscovery?.candidateIconUrl, "Placentino discovery returns candidate logo URL");
 
   // 4. Discover active server port
   const activePort = await findActivePort();
@@ -199,7 +210,7 @@ async function runTests() {
   }
 
   // 6. Check Web Pages, Zero-Date Headers & Error Overlay Detection
-  console.log("\n5. Checking Webpages, 4-Column Layout & Zero-Date Header Compliance...");
+  console.log("\n5. Checking Webpages, 4-Column Layout & 1-Click Approval UI...");
   try {
     // 6a. Main Kiosk Page
     const pageRes = await fetchUrl(`${BASE_URL}/`);
@@ -231,12 +242,19 @@ async function runTests() {
       pageRes.body.includes("Failed to compile");
     assert(!hasErrorOverlay, "Page / renders cleanly with NO build/syntax error overlays");
 
-    // 6b. Admin Housekeeping Page (Tabbed UI Check)
+    // 6b. Admin Housekeeping Page (Tabbed UI & 1-Click Approval UI Check)
     const adminPageRes = await fetchUrl(`${BASE_URL}/admin`);
     assert(adminPageRes.status === 200, "GET /admin returns HTTP 200 HTML");
     assert(adminPageRes.body.includes("General Overview"), "Admin page renders 'General Overview' tab");
     assert(adminPageRes.body.includes("Family Calendar"), "Admin page renders 'Family Calendar' tab");
     assert(adminPageRes.body.includes("School Lunch"), "Admin page renders 'School Lunch' tab");
+
+    // Verify 1-Click Approval UI in Admin page source
+    const adminSource = fs.readFileSync(path.join(process.cwd(), "src", "app", "admin", "page.tsx"), "utf-8");
+    assert(
+      adminSource.includes("Approve & Apply") && adminSource.includes("handleApproveIcon"),
+      "Admin page implements 1-click icon approval engine with handleApproveIcon"
+    );
 
     const hasAdminErrorOverlay =
       adminPageRes.body.includes("Next.js Error") ||

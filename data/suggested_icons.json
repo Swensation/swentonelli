@@ -1,0 +1,47 @@
+[
+  {
+    "id": "placentino-school",
+    "matchPatterns": ["placentino", "sam placentino", "elementary", "kindergarten", "1st grade", "2nd grade"],
+    "category": "Placentino Elementary",
+    "badgeText": "Placentino",
+    "candidateIconUrl": "https://resources.finalsite.net/images/f_auto,q_auto/v1598277235/hollistonk12maus/x6msntdeahcwu1wrdlil/logo-no-words.png",
+    "sourceDomain": "holliston.k12.ma.us",
+    "confidence": "high"
+  },
+  {
+    "id": "holliston-football",
+    "matchPatterns": ["football", "pop warner", "tackle", "flag football", "panthers football"],
+    "category": "Holliston Youth Football",
+    "badgeText": "Panthers Football",
+    "candidateIconUrl": "https://resources.finalsite.net/images/f_auto,q_auto,t_image_size_1/v1614003270/hollistonk12maus/kmg9nl5nqnctzz67kf8h/rams-logo-colored-final.png",
+    "sourceDomain": "hollistonyouthfootball.com",
+    "confidence": "medium"
+  },
+  {
+    "id": "holliston-soccer-rec",
+    "matchPatterns": ["hysa", "holliston soccer", "intramural soccer", "bays soccer"],
+    "category": "Holliston Youth Soccer",
+    "badgeText": "HYSA Soccer",
+    "candidateIconUrl": "https://static.wixstatic.com/media/17d4a4_9cf4748b173f49a9b1bf1367a9c892f0~mv2.png/v1/fill/w_158,h_159,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/old%20school%20png.png",
+    "sourceDomain": "hollistonsoccer.org",
+    "confidence": "medium"
+  },
+  {
+    "id": "pediatric-well-visit",
+    "matchPatterns": ["well visit", "pediatric", "doctor", "dr.", "checkup", "flu shot", "vaccine", "physical"],
+    "category": "Pediatric Medical",
+    "badgeText": "Doctor Visit",
+    "candidateIconUrl": "https://cdn-icons-png.flaticon.com/512/2966/2966327.png",
+    "sourceDomain": "pediatrichealth.org",
+    "confidence": "high"
+  },
+  {
+    "id": "dental-orthodontics",
+    "matchPatterns": ["dentist", "dental", "orthodontist", "braces", "teeth cleaning"],
+    "category": "Dental & Ortho",
+    "badgeText": "Dentist",
+    "candidateIconUrl": "https://cdn-icons-png.flaticon.com/512/3034/3034873.png",
+    "sourceDomain": "familydental.org",
+    "confidence": "high"
+  }
+]

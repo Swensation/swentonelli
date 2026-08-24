@@ -23,9 +23,9 @@ interface KidsColumnTimelineProps {
 
 const KIDS = [
   { id: "aria", name: "Aria", color: "#3b82f6", bgLight: "bg-blue-500/10", border: "border-blue-500/30", text: "text-blue-400" },
-  { id: "brighton", name: "Brighton", color: "#f97316", bgLight: "bg-orange-500/10", border: "border-orange-500/30", text: "text-orange-400" },
-  { id: "benjamin", name: "Benjamin", color: "#8b5cf6", bgLight: "bg-purple-500/10", border: "border-purple-500/30", text: "text-purple-400" },
-  { id: "bennett", name: "Bennett", color: "#f59e0b", bgLight: "bg-amber-500/10", border: "border-amber-500/30", text: "text-amber-400" },
+  { id: "brighton", name: "Brighton", color: "#f472b6", bgLight: "bg-pink-500/10", border: "border-pink-500/30", text: "text-pink-400" },
+  { id: "benjamin", name: "Benjamin", color: "#ef4444", bgLight: "bg-red-500/10", border: "border-red-500/30", text: "text-red-400" },
+  { id: "bennett", name: "Bennett", color: "#22c55e", bgLight: "bg-emerald-500/10", border: "border-emerald-500/30", text: "text-emerald-400" },
 ];
 
 export function KidsColumnTimeline({ events }: KidsColumnTimelineProps) {
@@ -93,11 +93,12 @@ export function KidsColumnTimeline({ events }: KidsColumnTimelineProps) {
               key={kid.id}
               className={`rounded-2xl p-3.5 bg-slate-900/60 border ${kid.border} flex flex-col min-h-[360px] shadow-sm`}
             >
-              {/* Column Header with Child Avatar + Custody & School Badges */}
-              <div className="flex items-center justify-between pb-2.5 mb-3 border-b border-slate-800 flex-wrap gap-2">
-                <div className="flex items-center gap-2.5">
+              {/* Column Header: Larger Avatar + Child Name on Left, Badges Strictly Top-Right Justified on One Line */}
+              <div className="flex items-center justify-between gap-2 pb-2.5 mb-3 border-b border-slate-800">
+                {/* Left: Avatar + Name */}
+                <div className="flex items-center gap-2.5 min-w-0">
                   <div
-                    className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center bg-slate-800 border-2 flex-shrink-0 shadow-md"
+                    className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center bg-slate-800 border-2 flex-shrink-0 shadow-md"
                     style={{ borderColor: kid.color }}
                   >
                     <img
@@ -109,29 +110,29 @@ export function KidsColumnTimeline({ events }: KidsColumnTimelineProps) {
                       }}
                     />
                   </div>
-                  <h3 className="font-black text-white text-base md:text-lg tracking-tight">{kid.name}</h3>
+                  <h3 className="font-black text-white text-base md:text-lg tracking-tight truncate">{kid.name}</h3>
                 </div>
 
-                {/* Badges Container */}
-                <div className="flex items-center gap-1.5 flex-wrap">
+                {/* Right: Top-Right Justified Badges (Never wrap to new line) */}
+                <div className="flex items-center gap-1.5 flex-shrink-0 whitespace-nowrap ml-auto">
                   {/* Custody Badge */}
                   {annotations.custody && (
                     <span
-                      className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border flex items-center gap-1 ${annotations.custody.badgeClass}`}
+                      className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border flex items-center gap-1 shadow-sm ${annotations.custody.badgeClass}`}
                       title={`Custody: ${annotations.custody.label} (${annotations.custody.parentName})`}
                     >
-                      <Home className="w-2.5 h-2.5" />
-                      <span>{annotations.custody.label}</span>
+                      <Home className="w-2.5 h-2.5 flex-shrink-0" />
+                      <span className="whitespace-nowrap">{annotations.custody.label}</span>
                     </span>
                   )}
 
                   {/* School Status Badge */}
                   {annotations.school && (
                     <span
-                      className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border flex items-center gap-1 ${annotations.school.badgeClass}`}
+                      className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded-full border flex items-center gap-1 shadow-sm ${annotations.school.badgeClass}`}
                     >
-                      <GraduationCap className="w-2.5 h-2.5" />
-                      <span>{annotations.school.label}</span>
+                      <GraduationCap className="w-2.5 h-2.5 flex-shrink-0" />
+                      <span className="whitespace-nowrap">{annotations.school.label}</span>
                     </span>
                   )}
                 </div>

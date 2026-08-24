@@ -155,3 +155,4 @@ export function extractChildAnnotations(
 export function filterActivityEvents(events: CalendarEvent[]): CalendarEvent[] {
   return events.filter((e) => !isAnnotationEvent(e));
 }
+

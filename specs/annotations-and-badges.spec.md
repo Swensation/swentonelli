@@ -66,3 +66,4 @@ To prevent visual clutter, **Annotations & Badges** are extracted from the raw c
  • Chronological timeline display       • School: { status, label }
                                         • Rendered in Column Headers
 ```
+

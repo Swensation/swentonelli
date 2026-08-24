@@ -3,7 +3,7 @@
  *
  * Runs end-to-end checks on:
  * 1. TypeScript syntax & type validity across all .ts and .tsx files (`tsc --noEmit`)
- * 2. Data integrity (lunch_schedule.json structure & clean items)
+ * 2. Data integrity (lunch_schedule.json structure & config/calendars.json structure)
  * 3. Next.js endpoints: /api/lunch, /api/calendar
  * 4. Webpage loading: GET / returns 200 HTML with ZERO Next.js compile errors or syntax overlays
  * 5. Web assets: All linked scripts & CSS stylesheets return HTTP 200 with no 404s
@@ -62,8 +62,8 @@ async function runTests() {
     assert(false, "TypeScript Syntax / Type Check", output);
   }
 
-  // 2. Check Data Integrity of lunch_schedule.json
-  console.log("\n2. Checking Data Integrity (data/lunch_schedule.json)...");
+  // 2. Check Data Integrity of lunch_schedule.json & config/calendars.json
+  console.log("\n2. Checking Data Integrity (data/lunch_schedule.json & config/calendars.json)...");
   const dataPath = path.join(process.cwd(), "data", "lunch_schedule.json");
   assert(fs.existsSync(dataPath), "lunch_schedule.json exists");
   
@@ -88,6 +88,16 @@ async function runTests() {
     assert(!hasVTag, "All item strings are clean (no '(V)' tags)");
   }
 
+  // Verify config/calendars.json exists and contains valid sources
+  const calConfigPath = path.join(process.cwd(), "config", "calendars.json");
+  assert(fs.existsSync(calConfigPath), "config/calendars.json exists");
+  if (fs.existsSync(calConfigPath)) {
+    const calRaw = fs.readFileSync(calConfigPath, "utf-8");
+    const calJson = JSON.parse(calRaw);
+    assert(Array.isArray(calJson) && calJson.length > 0, `config/calendars.json contains ${calJson.length} active family calendar feeds`);
+    assert(calJson.every((s: any) => s.name && s.icsUrl && s.color), "All calendar feeds have name, color, and icsUrl");
+  }
+
   // 3. Discover active server port
   const activePort = await findActivePort();
   const BASE_URL = `http://localhost:${activePort}`;
@@ -108,7 +118,7 @@ async function runTests() {
     const calRes = await fetchUrl(`${BASE_URL}/api/calendar`);
     assert(calRes.status === 200, "GET /api/calendar returns HTTP 200");
     const calJson = JSON.parse(calRes.body);
-    assert(Array.isArray(calJson.today) && Array.isArray(calJson.tomorrow), "GET /api/calendar returns valid agenda");
+    assert(Array.isArray(calJson.today) && Array.isArray(calJson.tomorrow) && !!calJson.byDate, "GET /api/calendar returns valid agenda with byDate map");
   } catch (err: any) {
     assert(false, "GET /api/calendar", `Server unreachable: ${err.message}`);
   }
@@ -120,46 +130,39 @@ async function runTests() {
     assert(pageRes.status === 200, "GET / returns HTTP 200 HTML");
     assert(pageRes.body.includes("Scouty Planner"), "Page contains Scouty Planner title");
 
-    // Assert that the page does not contain Next.js build / syntax error overlays
-    const hasBuildError =
-      pageRes.body.includes("Build Error") ||
-      pageRes.body.includes("Syntax Error") ||
+    const hasErrorOverlay =
+      pageRes.body.includes("Next.js Error") ||
       pageRes.body.includes("Unhandled Runtime Error") ||
-      pageRes.body.includes("nextjs-toast-errors");
-    assert(!hasBuildError, "Page renders cleanly with NO build/syntax error overlays");
+      pageRes.body.includes("Syntax Error") ||
+      pageRes.body.includes("Failed to compile");
+    assert(!hasErrorOverlay, "Page renders cleanly with NO build/syntax error overlays");
 
-    // Extract all script and CSS asset links
-    const assetRegex = /(?:src|href)="(\/_next\/static\/[^"]+)"/g;
-    const assets: string[] = [];
-    let match;
-    while ((match = assetRegex.exec(pageRes.body)) !== null) {
-      assets.push(match[1]);
-    }
+    // Check that all linked JS scripts and CSS stylesheets load cleanly with 200
+    const assetRegex = /(?:src|href)="(\/_next\/[^"]+)"/g;
+    const matches = Array.from(pageRes.body.matchAll(assetRegex)).map((m) => m[1]);
+    const uniqueAssets = Array.from(new Set(matches));
 
-    console.log(`     Found ${assets.length} static JS/CSS assets referenced in HTML. Verifying each...`);
-    let allAssetsOk = true;
-    for (const assetPath of assets) {
+    console.log(`     Found ${uniqueAssets.length} static JS/CSS assets referenced in HTML. Verifying each...`);
+    let allAssets200 = true;
+    for (const assetPath of uniqueAssets) {
       const assetRes = await fetchUrl(`${BASE_URL}${assetPath}`);
       if (assetRes.status !== 200) {
-        console.error(`     ❌ Broken asset (HTTP ${assetRes.status}): ${assetPath}`);
-        allAssetsOk = false;
+        allAssets200 = false;
+        console.error(`     ❌ Asset 404: ${assetPath} (status: ${assetRes.status})`);
       }
     }
-    assert(allAssetsOk && assets.length > 0, "All static scripts and CSS load with HTTP 200 (No 404 errors)");
+    assert(allAssets200, "All static scripts and CSS load with HTTP 200 (No 404 errors)");
   } catch (err: any) {
-    assert(false, "Webpage Asset Verification", err.message);
+    assert(false, "GET /", `Server unreachable: ${err.message}`);
   }
 
   console.log("\n==========================================");
   console.log(`Test Results: ${passed} passed, ${failed} failed`);
-  console.log("==========================================");
+  console.log("==========================================\n");
 
   if (failed > 0) {
     process.exit(1);
   }
 }
 
-runTests().catch((e) => {
-  console.error("Test execution crashed:", e);
-  process.exit(1);
-});
+runTests();

@@ -9,6 +9,8 @@ import {
   startOfDay,
 } from "date-fns";
 import ical from "node-ical";
+import fs from "fs";
+import path from "path";
 
 // Default color palette for multiple calendars
 const CALENDAR_COLORS = [
@@ -37,10 +39,12 @@ function sanitizeIcsUrl(url: string): string {
 export function parseCalendarSourcesFromEnv(): CalendarSource[] {
   const sources: CalendarSource[] = [];
 
-  // 1. Check for JSON array format: GOOGLE_CALENDAR_SOURCES
-  if (process.env.GOOGLE_CALENDAR_SOURCES) {
-    try {
-      const parsed = JSON.parse(process.env.GOOGLE_CALENDAR_SOURCES);
+  // 1. Primary Source of Truth: config/calendars.json (version-controlled, auto-deployed to cloud)
+  try {
+    const configPath = path.join(process.cwd(), "config", "calendars.json");
+    if (fs.existsSync(configPath)) {
+      const raw = fs.readFileSync(configPath, "utf-8");
+      const parsed = JSON.parse(raw);
       if (Array.isArray(parsed)) {
         parsed.forEach((src, idx) => {
           if (src && src.icsUrl && src.icsUrl.trim() !== "") {
@@ -53,12 +57,36 @@ export function parseCalendarSourcesFromEnv(): CalendarSource[] {
           }
         });
       }
+    }
+  } catch (err) {
+    console.error("Failed to read config/calendars.json:", err);
+  }
+
+  // 2. Optional Environment Variable overrides: GOOGLE_CALENDAR_SOURCES
+  if (process.env.GOOGLE_CALENDAR_SOURCES) {
+    try {
+      const parsed = JSON.parse(process.env.GOOGLE_CALENDAR_SOURCES);
+      if (Array.isArray(parsed)) {
+        parsed.forEach((src, idx) => {
+          if (src && src.icsUrl && src.icsUrl.trim() !== "") {
+            const sanitized = sanitizeIcsUrl(src.icsUrl);
+            if (!sources.some((s) => s.icsUrl === sanitized)) {
+              sources.push({
+                id: src.id || `env-cal-${idx + 1}`,
+                name: src.name || `Calendar ${idx + 1}`,
+                color: src.color || CALENDAR_COLORS[(sources.length + idx) % CALENDAR_COLORS.length],
+                icsUrl: sanitized,
+              });
+            }
+          }
+        });
+      }
     } catch (e) {
       console.error("Failed to parse GOOGLE_CALENDAR_SOURCES JSON", e);
     }
   }
 
-  // 2. Check for GOOGLE_CALENDAR_ICAL_URL (supports single URL OR comma/newline-separated URLs)
+  // 3. Optional Environment Variable overrides: GOOGLE_CALENDAR_ICAL_URL
   if (process.env.GOOGLE_CALENDAR_ICAL_URL) {
     const rawUrls = process.env.GOOGLE_CALENDAR_ICAL_URL.split(/[\n,]+/);
     rawUrls.forEach((rawUrl, idx) => {

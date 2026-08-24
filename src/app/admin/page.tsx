@@ -343,7 +343,7 @@ export default function AdminPage() {
                   <div>
                     <h2 className="text-lg font-black text-white">Family Child Profiles & Schedule Hub</h2>
                     <p className="text-xs text-slate-400">
-                      Central registry for schools, teachers, doctors, therapists, sports leagues, and grandparent share links
+                      Central registry for schools, teachers, doctors, therapists, sports, and grandparent share links
                     </p>
                   </div>
                 </div>
@@ -383,7 +383,7 @@ export default function AdminPage() {
                       <div className="p-2.5 rounded-xl bg-slate-950/70 border border-slate-800">
                         <span className="text-[10px] font-extrabold uppercase text-slate-500 flex items-center gap-1 mb-0.5">
                           <GraduationCap className="w-3 h-3 text-blue-400" />
-                          School & Grade
+                          School &amp; Grade
                         </span>
                         <div className="font-bold text-white">{child.school}</div>
                         <div className="text-amber-400 font-semibold">{child.grade}</div>
@@ -402,20 +402,23 @@ export default function AdminPage() {
                       <div className="p-2.5 rounded-xl bg-slate-950/70 border border-slate-800">
                         <span className="text-[10px] font-extrabold uppercase text-slate-500 flex items-center gap-1 mb-0.5">
                           <HeartPulse className="w-3 h-3 text-rose-400" />
-                          Medical & Therapy
+                          Medical &amp; Therapy
                         </span>
-                        <div className="font-semibold text-slate-300">{child.pediatrician}</div>
-                        <div className="text-[11px] text-slate-400 mt-0.5">{child.therapist}</div>
+                        <div className="font-semibold text-slate-300">
+                          {child.pediatrician !== "TBD" ? child.pediatrician : "Pediatrician: TBD"}
+                        </div>
+                        <div className="text-[11px] text-emerald-400 font-semibold mt-0.5">
+                          Therapist: {child.therapist}
+                        </div>
                       </div>
 
                       {/* Sports & Activities */}
                       <div className="p-2.5 rounded-xl bg-slate-950/70 border border-slate-800">
                         <span className="text-[10px] font-extrabold uppercase text-slate-500 flex items-center gap-1 mb-0.5">
                           <Trophy className="w-3 h-3 text-amber-400" />
-                          Athletics & Teams
+                          Primary Sport / Activity
                         </span>
                         <div className="font-bold text-amber-300">{child.primarySport}</div>
-                        <div className="text-[11px] text-slate-400 mt-0.5">{child.secondaryActivity}</div>
                       </div>
 
                       {/* Custody Rule */}
@@ -427,11 +430,11 @@ export default function AdminPage() {
                         <div className="font-semibold text-slate-300">{child.custody}</div>
                       </div>
 
-                      {/* External Schedule Share Links (For Grandparents & Family) */}
+                      {/* Integrated Schedule Links (For Grandparents & Family) */}
                       <div className="p-2.5 rounded-xl bg-slate-950/70 border border-slate-800 space-y-1.5">
                         <span className="text-[10px] font-extrabold uppercase text-slate-500 flex items-center gap-1">
                           <Link2 className="w-3 h-3 text-purple-400" />
-                          Grandparent Schedule Links
+                          Schedule &amp; Share Links
                         </span>
                         {child.scheduleLinks.map((link, idx) => (
                           <a

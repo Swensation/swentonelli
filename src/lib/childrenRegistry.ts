@@ -69,3 +69,4 @@ export function getChildProfile(childId: string): ChildProfile | undefined {
   const registry = getChildrenRegistry();
   return registry.find((c) => c.id.toLowerCase() === childId.toLowerCase());
 }
+

@@ -45,3 +45,4 @@ This registry serves two key purposes:
 - **Helper Module**: `src/lib/childrenRegistry.ts`
 - **Rules Engine Integration**: `src/lib/eventRules.ts` resolves child by matching keywords and grade levels against this registry.
 - **Admin Dashboard**: `/admin` renders a dedicated **"Child Profiles"** tab presenting this matrix interactively.
+

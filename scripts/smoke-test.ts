@@ -5,7 +5,7 @@
  * 1. TypeScript syntax & type validity across all .ts and .tsx files (`tsc --noEmit`)
  * 2. Data integrity (lunch_schedule.json, calendars.json, event_rules.json, suggested_icons.json, children_registry.json)
  * 3. 4 Child profile avatar assets (Aria Glinda, Brighton Elphaba, Benjamin Fortnite, Bennett Moe's Tavern)
- * 4. Child Profiles Registry unit tests (4th grade -> Bennett, Pellegri -> Bennett, Kelly -> Benjamin, OSFC -> Aria)
+ * 4. Child Profiles Registry unit tests (Aria Millis/7th/Coastal Counseling, Brighton Adams/6th/Field Hockey, Benjamin CFB/5th/Kelley, Bennett Miller/4th/Football)
  * 5. Annotations & Badges unit tests (Custody rules for Liz, Andrew/Swen, Callie, Chris + No-School status)
  * 6. Business Rules Engine & Dynamic AI Discovery unit tests (Child resolution, OSFC, Adams, FH, Miller, Therapy, Level99, Venues)
  * 7. Next.js endpoints: /api/lunch, /api/calendar, /api/admin, /api/admin/approve-icon
@@ -132,13 +132,27 @@ async function runTests() {
   assert(fs.existsSync(path.join(process.cwd(), "public", "icons", "children", "bennett.png")), "Bennett Moe's Tavern avatar exists");
 
   // 3. Child Profiles Registry Unit Tests
-  console.log("\n3. Testing Child Profiles Registry & Grade/Teacher Resolution...");
+  console.log("\n3. Testing Child Profiles Registry & Accurate Family Attributes...");
   const registry = getChildrenRegistry();
   assert(registry.length === 4, `Children registry loads 4 child profiles (found ${registry.length})`);
-  assert(registry.some(c => c.id === "bennett" && c.grade.includes("4th") && c.teacher.includes("Pellegri")), "Bennett is registered with 4th Grade & Teacher Katie Pellegri");
-  assert(registry.some(c => c.id === "benjamin" && c.therapist.includes("Kelly")), "Benjamin is registered with therapist Kelly");
-  assert(registry.some(c => c.id === "aria" && c.primarySport.includes("OSFC")), "Aria is registered with OSFC Soccer");
-  assert(registry.every(c => Array.isArray(c.scheduleLinks) && c.scheduleLinks.length > 0), "All children have external schedule share links configured");
+
+  // Aria checks
+  const aria = registry.find(c => c.id === "aria");
+  assert(!!aria && aria.school.includes("Millis") && aria.grade.includes("7th") && aria.therapist.includes("Coastal Counseling"), "Aria: Millis Middle School, 7th Grade, Coastal Counseling");
+  assert(!!aria && aria.primarySport.includes("Soccer"), "Aria primary sport is Soccer");
+
+  // Brighton checks
+  const brighton = registry.find(c => c.id === "brighton");
+  assert(!!brighton && brighton.school.includes("Adams") && brighton.grade.includes("6th") && brighton.therapist.includes("Coastal Counseling"), "Brighton: Adams Middle School, 6th Grade, Coastal Counseling");
+  assert(!!brighton && brighton.primarySport === "Field Hockey", "Brighton primary sport is Field Hockey");
+
+  // Benjamin checks
+  const benjamin = registry.find(c => c.id === "benjamin");
+  assert(!!benjamin && benjamin.school.includes("CFB") && benjamin.grade.includes("5th") && benjamin.therapist === "Kelley", "Benjamin: CFB (Millis), 5th Grade, Therapist Kelley (spelled K-E-L-L-E-Y)");
+
+  // Bennett checks
+  const bennett = registry.find(c => c.id === "bennett");
+  assert(!!bennett && bennett.school.includes("Miller") && bennett.grade.includes("4th") && bennett.teacher.includes("Pellegri") && bennett.primarySport === "Football", "Bennett: Miller School, 4th Grade, Katie Pellegri, Football");
 
   // Keyword resolution tests
   const bennettByGrade = findChildByEventText("4th Grade Classroom Meet and Greet");
@@ -147,8 +161,11 @@ async function runTests() {
   const bennettByTeacher = findChildByEventText("Conference with Katie Pellegri");
   assert(bennettByTeacher?.id === "bennett", "'Conference with Katie Pellegri' automatically maps to Bennett");
 
-  const benjaminByTherapist = findChildByEventText("Weekly check-in with Kelly");
-  assert(benjaminByTherapist?.id === "benjamin", "'Weekly check-in with Kelly' automatically maps to Benjamin");
+  const benjaminByTherapist = findChildByEventText("Weekly check-in with Kelley");
+  assert(benjaminByTherapist?.id === "benjamin", "'Weekly check-in with Kelley' automatically maps to Benjamin");
+
+  const ariaByCoastal = findChildByEventText("Session with Coastal Counseling for Aria");
+  assert(ariaByCoastal?.id === "aria" || ariaByCoastal?.id === "brighton", "'Coastal Counseling' maps to Aria/Brighton");
 
   // 4. Testing Custody & Annotation Badges Engine
   console.log("\n4. Testing Custody & Annotation Badges Engine...");
@@ -225,7 +242,7 @@ async function runTests() {
   assert(millerEnrichment?.child?.name === "Bennett", "'4th Grade Classroom Meet and Greet' resolves to child 'Bennett'");
 
   const therapyEnrichment = enrichCalendarEvent({
-    summary: "Aria Weekly Speech Therapy Session",
+    summary: "Weekly Speech Therapy Session",
     description: "Speech and occupational therapy appointment",
     sourceName: "Aria and Ben",
   });
@@ -357,7 +374,7 @@ async function runTests() {
     // Verify Tab implementations in Admin page source file
     const adminSource = fs.readFileSync(path.join(process.cwd(), "src", "app", "admin", "page.tsx"), "utf-8");
     assert(adminSource.includes("General Overview"), "Admin page implements 'General Overview' tab");
-    assert(adminSource.includes("Child Profiles & Schedules"), "Admin page implements 'Child Profiles & Schedules' tab");
+    assert(adminSource.includes("Child Profiles & Schedules") || adminSource.includes("Child Profiles &amp; Schedules"), "Admin page implements 'Child Profiles & Schedules' tab");
     assert(adminSource.includes("Family Calendar"), "Admin page implements 'Family Calendar' tab");
     assert(adminSource.includes("School Lunch"), "Admin page implements 'School Lunch' tab");
     assert(

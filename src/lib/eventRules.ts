@@ -79,7 +79,7 @@ export function enrichCalendarEvent(event: {
       color: matchedRule.childColor,
     };
   } else {
-    // Dynamic resolution via Child Profiles Registry (checks grades, teachers, therapists, sports)
+    // Dynamic resolution via Child Profiles Registry (checks grades, teachers, therapists, sports, friends)
     const registryChild = findChildByEventText(event.summary, event.description);
     if (registryChild) {
       child = {
@@ -87,6 +87,10 @@ export function enrichCalendarEvent(event: {
         name: registryChild.name,
         color: registryChild.color,
       };
+    } else if (summaryLower.includes("parent session") && sourceLower.includes("ben")) {
+      child = { id: "benjamin", name: "Benjamin", color: "#ef4444" };
+    } else if (summaryLower.includes("urban") && sourceLower.includes("brighton")) {
+      child = { id: "brighton", name: "Brighton", color: "#f472b6" };
     } else if (summaryLower.includes("andrew") || sourceLower.includes("andrew")) {
       child = { id: "andrew", name: "Andrew (Dad)", color: "#10b981" };
     } else if (summaryLower.includes("liz")) {

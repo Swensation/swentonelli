@@ -9,7 +9,8 @@
     "iconUrl": "/icons/teams/osfc.png",
     "summaryPatterns": [
       "osfc",
-      "old school"
+      "old school",
+      "soccer"
     ],
     "descriptionPatterns": [
       "old school football club",
@@ -18,21 +19,38 @@
     ]
   },
   {
-    "id": "adams-middle-school",
-    "category": "Adams Middle School",
-    "badgeText": "Adams Rams",
-    "iconUrl": "/icons/schools/adams.png",
+    "id": "bennett-youth-football",
+    "childId": "bennett",
+    "childName": "Bennett",
+    "childColor": "#22c55e",
+    "category": "Youth Football",
+    "badgeText": "🏈 Football",
+    "iconUrl": "/icons/sports/football.png",
     "summaryPatterns": [
-      "adams",
-      "rams",
-      "middle school",
-      "8th grade",
-      "7th grade",
-      "6th grade"
+      "football",
+      "broncos",
+      "chiefs",
+      "packers",
+      "chargers",
+      "vikings"
     ],
     "descriptionPatterns": [
-      "adams middle school",
-      "holliston middle school"
+      "youth football",
+      "flag football"
+    ]
+  },
+  {
+    "id": "brighton-basketball",
+    "childId": "brighton",
+    "childName": "Brighton",
+    "childColor": "#f472b6",
+    "category": "Basketball",
+    "badgeText": "🏀 Basketball",
+    "iconUrl": "/icons/sports/basketball.png",
+    "summaryPatterns": [
+      "basketball",
+      "basketball tryout",
+      "hoops"
     ]
   },
   {
@@ -51,6 +69,24 @@
     "descriptionPatterns": [
       "field hockey",
       "holliston youth field hockey"
+    ]
+  },
+  {
+    "id": "adams-middle-school",
+    "category": "Adams Middle School",
+    "badgeText": "Adams Rams",
+    "iconUrl": "/icons/schools/adams.png",
+    "summaryPatterns": [
+      "adams",
+      "rams",
+      "middle school",
+      "8th grade",
+      "7th grade",
+      "6th grade"
+    ],
+    "descriptionPatterns": [
+      "adams middle school",
+      "holliston middle school"
     ]
   },
   {
@@ -79,6 +115,31 @@
     ]
   },
   {
+    "id": "first-day-of-school",
+    "category": "First Day of School",
+    "badgeText": "🎒 First Day",
+    "iconUrl": "/icons/schools/first_day.png",
+    "summaryPatterns": [
+      "first day of school",
+      "back to school",
+      "school start"
+    ]
+  },
+  {
+    "id": "benjamin-ortho",
+    "childId": "benjamin",
+    "childName": "Benjamin",
+    "childColor": "#ef4444",
+    "category": "Orthodontics",
+    "badgeText": "🦷 Ortho",
+    "iconUrl": "/icons/general/ortho.png",
+    "summaryPatterns": [
+      "ortho",
+      "orthodontics",
+      "braces"
+    ]
+  },
+  {
     "id": "therapy-appointment",
     "category": "Therapy",
     "badgeText": "Therapy",
@@ -86,13 +147,17 @@
     "summaryPatterns": [
       "therapy",
       "counseling",
+      "parent session",
       "speech therapy",
       "ot therapy",
-      "pt therapy"
+      "coastal counseling",
+      "kelley",
+      "dermatology"
     ],
     "descriptionPatterns": [
       "therapy",
-      "counseling"
+      "counseling",
+      "coastal counseling"
     ]
   },
   {
@@ -103,6 +168,8 @@
     "summaryPatterns": [
       "dr. urban",
       "dr urban",
+      "andrea urban",
+      "urban, md",
       "urban",
       "holliston pediatric",
       "holliston pediatrics",
@@ -110,6 +177,7 @@
     ],
     "descriptionPatterns": [
       "dr. urban",
+      "andrea urban",
       "holliston pediatric group",
       "pediatric group"
     ]
@@ -121,7 +189,21 @@
     "iconUrl": "/icons/approved/suggest_venue_level99_com.png",
     "summaryPatterns": [
       "level99",
+      "level 99",
       "juliana’s bday level99 in natick"
+    ]
+  },
+  {
+    "id": "andrew-becket-trip",
+    "childId": "andrew",
+    "childName": "Andrew (Dad)",
+    "childColor": "#10b981",
+    "category": "Travel & Trips",
+    "badgeText": "🏕️ Becket",
+    "iconUrl": "/icons/approved/suggest_venue_level99_com.png",
+    "summaryPatterns": [
+      "becket",
+      "weekend away at becket"
     ]
   }
 ]

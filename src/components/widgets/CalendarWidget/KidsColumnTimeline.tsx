@@ -2,6 +2,7 @@
 
 import { CalendarEvent } from "@/types/calendar";
 import { extractChildAnnotations, filterActivityEvents } from "@/lib/annotations";
+import { formatEasternTime, getEasternMinutes } from "@/lib/dateUtils";
 import { format, parseISO } from "date-fns";
 import {
   Calendar as CalendarIcon,
@@ -37,15 +38,8 @@ export function KidsColumnTimeline({ events }: KidsColumnTimelineProps) {
     return new Date(a.start).getTime() - new Date(b.start).getTime();
   });
 
-  // Calculate day time range for time-proportional staggering
-  const getEventMinutes = (isoString: string) => {
-    try {
-      const d = parseISO(isoString);
-      return d.getHours() * 60 + d.getMinutes();
-    } catch {
-      return 480; // 8 AM default
-    }
-  };
+  // Calculate day time range for time-proportional staggering in Eastern Time
+  const getEventMinutes = (isoString: string) => getEasternMinutes(isoString);
 
   // Group activity events by child
   const eventsByKid: Record<string, CalendarEvent[]> = {
@@ -154,7 +148,7 @@ export function KidsColumnTimeline({ events }: KidsColumnTimelineProps) {
 
                     const formattedTime = ev.allDay
                       ? "All Day"
-                      : `${format(parseISO(ev.start), "h:mm a")} - ${format(parseISO(ev.end), "h:mm a")}`;
+                      : `${formatEasternTime(ev.start)} - ${formatEasternTime(ev.end)}`;
 
                     const googleCalUrl =
                       ev.url ||

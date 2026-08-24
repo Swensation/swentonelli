@@ -1,6 +1,7 @@
 "use client";
 
 import { CalendarEvent } from "@/types/calendar";
+import { formatEasternTime } from "@/lib/dateUtils";
 import { format, parseISO } from "date-fns";
 import {
   Briefcase,
@@ -24,12 +25,9 @@ interface EventItemProps {
 }
 
 export function EventItem({ event }: EventItemProps) {
-  const startDate = parseISO(event.start);
-  const endDate = parseISO(event.end);
-
   const formattedTime = event.allDay
     ? "All Day"
-    : `${format(startDate, "h:mm a")} - ${format(endDate, "h:mm a")}`;
+    : `${formatEasternTime(event.start)} - ${formatEasternTime(event.end)}`;
 
   const enrichment = event.enrichment;
 

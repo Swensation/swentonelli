@@ -249,6 +249,14 @@ async function runTests() {
   assert(therapyEnrichment?.category === "Therapy", "Therapy session resolves to 'Therapy'");
   assert(therapyEnrichment?.iconUrl === "/icons/general/therapy.png", "Therapy event attaches '/icons/general/therapy.png' logo");
 
+  // Disambiguation Test: Brighton Therapy on Brighton & Bennett calendar MUST map to Brighton (never Aria)
+  const brightonTherapyEnrichment = enrichCalendarEvent({
+    summary: "Brighton Therapy @ Coastal Counseling Medway",
+    description: "Session at Coastal Counseling",
+    sourceName: "Brighton and Bennett",
+  });
+  assert(brightonTherapyEnrichment?.child?.name === "Brighton", "Brighton Therapy @ Coastal Counseling strictly maps to Brighton, not Aria");
+
   const pediatricsEnrichment = enrichCalendarEvent({
     summary: "Bennett Annual Well Visit with Dr. Urban",
     description: "Holliston pediatric group yearly checkup",

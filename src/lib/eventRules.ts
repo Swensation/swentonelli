@@ -79,8 +79,8 @@ export function enrichCalendarEvent(event: {
       color: matchedRule.childColor,
     };
   } else {
-    // Dynamic resolution via Child Profiles Registry (checks grades, teachers, therapists, sports, friends)
-    const registryChild = findChildByEventText(event.summary, event.description);
+    // Dynamic resolution via Child Profiles Registry (direct name matching + feed boundary isolation)
+    const registryChild = findChildByEventText(event.summary, event.description, event.sourceName);
     if (registryChild) {
       child = {
         id: registryChild.id,

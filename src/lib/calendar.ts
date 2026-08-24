@@ -30,6 +30,8 @@ const CALENDAR_COLORS = [
 let cachedAgenda: { data: CalendarAgenda; timestamp: number } | null = null;
 const CACHE_TTL_MS = 20 * 1000; // 20 seconds cache
 
+import { getEasternDateKey, formatEasternTime } from "@/lib/dateUtils";
+
 function sanitizeIcsUrl(url: string): string {
   const trimmed = url.trim();
   if (trimmed.startsWith("webcal://")) {
@@ -37,6 +39,8 @@ function sanitizeIcsUrl(url: string): string {
   }
   return trimmed;
 }
+
+export { getEasternDateKey, formatEasternTime };
 
 export function parseCalendarSourcesFromEnv(): CalendarSource[] {
   const sources: CalendarSource[] = [];
@@ -198,9 +202,17 @@ export async function fetchCalendarAgenda(): Promise<CalendarAgenda> {
               const duration =
                 ev.end && ev.start ? ev.end.getTime() - ev.start.getTime() : 3600 * 1000;
 
+              // Correct node-ical / rrule UTC-stripping by computing timezone offset between master ev.start and dtstart
+              const rruleDtstart = ev.rrule.options?.dtstart;
+              const offsetCorrection =
+                ev.start && rruleDtstart
+                  ? ev.start.getTime() - new Date(rruleDtstart).getTime()
+                  : 0;
+
               for (const d of dates) {
-                const startDate = new Date(d);
-                const endDate = new Date(startDate.getTime() + duration);
+                const correctedStartMs = d.getTime() + offsetCorrection;
+                const startDate = new Date(correctedStartMs);
+                const endDate = new Date(correctedStartMs + duration);
                 const allDay = !startDate.toISOString().includes("T");
 
                 allEvents.push({
@@ -232,15 +244,12 @@ export async function fetchCalendarAgenda(): Promise<CalendarAgenda> {
   // Chronologically sort all aggregated events
   allEvents.sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
 
-  // Index events into byDate map for all past and future dates
-  const todayStr = format(now, "yyyy-MM-dd");
-  const tomorrowStr = format(addDays(now, 1), "yyyy-MM-dd");
-
+  // Index events into byDate map in America/New_York Eastern Time
   const byDate: Record<string, CalendarEvent[]> = {};
 
   allEvents.forEach((ev) => {
     try {
-      const dateKey = format(parseISO(ev.start), "yyyy-MM-dd");
+      const dateKey = getEasternDateKey(ev.start);
       if (!byDate[dateKey]) {
         byDate[dateKey] = [];
       }
@@ -266,6 +275,9 @@ export async function fetchCalendarAgenda(): Promise<CalendarAgenda> {
       minutesUntilStart,
     };
   });
+
+  const todayStr = getEasternDateKey(now);
+  const tomorrowStr = getEasternDateKey(addDays(now, 1));
 
   const todayEvents = byDate[todayStr] || enrichedEvents.filter((e) => {
     const d = new Date(e.start);

@@ -1,5 +1,6 @@
 import { CalendarAgenda, CalendarEvent, CalendarSource } from "@/types/calendar";
 import { getMockCalendarAgenda } from "@/lib/mockData";
+import { enrichCalendarEvent } from "@/lib/eventRules";
 import {
   addDays,
   endOfDay,
@@ -157,6 +158,13 @@ export async function fetchCalendarAgenda(): Promise<CalendarAgenda> {
           const location = ev.location ? String(ev.location) : undefined;
           const color = source.color || CALENDAR_COLORS[sourceIdx % CALENDAR_COLORS.length];
 
+          // Enrich with business rules (child detection, category, team crest)
+          const enrichment = enrichCalendarEvent({
+            summary,
+            description,
+            sourceName: source.name,
+          });
+
           // Handle regular (non-recurring) event
           if (ev.start && !ev.rrule) {
             const startDate = new Date(ev.start);
@@ -177,6 +185,7 @@ export async function fetchCalendarAgenda(): Promise<CalendarAgenda> {
                 sourceId: source.id,
                 sourceName: source.name,
                 color,
+                enrichment,
               });
             }
           } else if (ev.rrule) {
@@ -202,6 +211,7 @@ export async function fetchCalendarAgenda(): Promise<CalendarAgenda> {
                   sourceId: source.id,
                   sourceName: source.name,
                   color,
+                  enrichment,
                 });
               }
             } catch (rruleErr) {

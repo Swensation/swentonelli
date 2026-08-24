@@ -3,15 +3,17 @@
  *
  * Runs end-to-end checks on:
  * 1. TypeScript syntax & type validity across all .ts and .tsx files (`tsc --noEmit`)
- * 2. Data integrity (lunch_schedule.json structure & config/calendars.json structure)
- * 3. Next.js endpoints: /api/lunch, /api/calendar
- * 4. Webpage loading: GET / returns 200 HTML with ZERO Next.js compile errors or syntax overlays
- * 5. Web assets: All linked scripts & CSS stylesheets return HTTP 200 with no 404s
+ * 2. Data integrity (lunch_schedule.json, config/calendars.json, config/event_rules.json, team assets)
+ * 3. Business Rules Engine unit tests (Child resolution & OSFC icon attribution)
+ * 4. Next.js endpoints: /api/lunch, /api/calendar
+ * 5. Webpage loading: GET / returns 200 HTML with ZERO Next.js compile errors or syntax overlays
+ * 6. Web assets: All linked scripts & CSS stylesheets return HTTP 200 with no 404s
  */
 
 import fs from "fs";
 import path from "path";
 import { execSync } from "child_process";
+import { enrichCalendarEvent } from "../src/lib/eventRules";
 
 async function fetchUrl(url: string): Promise<{ status: number; body: string }> {
   const res = await fetch(url);
@@ -62,8 +64,8 @@ async function runTests() {
     assert(false, "TypeScript Syntax / Type Check", output);
   }
 
-  // 2. Check Data Integrity of lunch_schedule.json & config/calendars.json
-  console.log("\n2. Checking Data Integrity (data/lunch_schedule.json & config/calendars.json)...");
+  // 2. Check Data Integrity
+  console.log("\n2. Checking Data Integrity & Configuration Files...");
   const dataPath = path.join(process.cwd(), "data", "lunch_schedule.json");
   assert(fs.existsSync(dataPath), "lunch_schedule.json exists");
   
@@ -73,7 +75,6 @@ async function runTests() {
     assert(!!json.month && !!json.year, "JSON contains month and year");
     assert(Object.keys(json.days).length > 0, `JSON contains ${Object.keys(json.days).length} menu days`);
 
-    // Ensure items array exists and no (V) substrings remain
     let hasVTag = false;
     let hasItemsArray = true;
     for (const [date, day] of Object.entries<any>(json.days)) {
@@ -98,13 +99,46 @@ async function runTests() {
     assert(calJson.every((s: any) => s.name && s.icsUrl && s.color), "All calendar feeds have name, color, and icsUrl");
   }
 
-  // 3. Discover active server port
+  // Verify OSFC logo asset exists
+  const osfcLogoPath = path.join(process.cwd(), "public", "icons", "teams", "osfc.png");
+  assert(fs.existsSync(osfcLogoPath), "public/icons/teams/osfc.png asset exists");
+  if (fs.existsSync(osfcLogoPath)) {
+    const stats = fs.statSync(osfcLogoPath);
+    assert(stats.size > 1000, `OSFC team logo is valid binary image (${stats.size} bytes)`);
+  }
+
+  // 3. Business Rules Engine Unit Tests
+  console.log("\n3. Testing Business Rules Engine (Child Resolution & Categorization)...");
+  const osfcEnrichment = enrichCalendarEvent({
+    summary: "Practice: OSFC Girls U13 Monday Training - U13 Girls",
+    description: "Old school football club training at midfield",
+    sourceName: "Aria and Ben",
+  });
+  assert(osfcEnrichment?.child?.name === "Aria", "OSFC event resolves to Aria");
+  assert(osfcEnrichment?.category === "OSFC Soccer", "OSFC event category is 'OSFC Soccer'");
+  assert(osfcEnrichment?.iconUrl === "/icons/teams/osfc.png", "OSFC event attaches '/icons/teams/osfc.png' logo");
+
+  const brightonEnrichment = enrichCalendarEvent({
+    summary: "Brighton Field Hockey Game vs Westwood",
+    sourceName: "Brighton and Bennett",
+  });
+  assert(brightonEnrichment?.child?.name === "Brighton", "Field hockey event resolves to Brighton");
+  assert(brightonEnrichment?.iconName === "Trophy", "Field hockey event attaches Trophy icon");
+
+  const docEnrichment = enrichCalendarEvent({
+    summary: "Bennett 6 Year Pediatric Well Visit",
+    sourceName: "Brighton and Bennett",
+  });
+  assert(docEnrichment?.child?.name === "Bennett", "Pediatric visit resolves to Bennett");
+  assert(docEnrichment?.iconName === "Stethoscope", "Medical visit attaches Stethoscope icon");
+
+  // 4. Discover active server port
   const activePort = await findActivePort();
   const BASE_URL = `http://localhost:${activePort}`;
   console.log(`\nActive Server Detected on: ${BASE_URL}`);
 
-  // 4. Check API Endpoints
-  console.log("\n3. Checking API Endpoints...");
+  // 5. Check API Endpoints
+  console.log("\n4. Checking API Endpoints...");
   try {
     const lunchRes = await fetchUrl(`${BASE_URL}/api/lunch`);
     assert(lunchRes.status === 200, "GET /api/lunch returns HTTP 200");
@@ -119,12 +153,19 @@ async function runTests() {
     assert(calRes.status === 200, "GET /api/calendar returns HTTP 200");
     const calJson = JSON.parse(calRes.body);
     assert(Array.isArray(calJson.today) && Array.isArray(calJson.tomorrow) && !!calJson.byDate, "GET /api/calendar returns valid agenda with byDate map");
+
+    // Verify today's OSFC event has the enriched logo
+    const todayOsfc = calJson.today.find((e: any) => e.summary.includes("OSFC"));
+    if (todayOsfc) {
+      assert(todayOsfc.enrichment?.iconUrl === "/icons/teams/osfc.png", "Today's OSFC event is enriched with OSFC logo in live API");
+      assert(todayOsfc.enrichment?.child?.name === "Aria", "Today's OSFC event has Aria child badge");
+    }
   } catch (err: any) {
     assert(false, "GET /api/calendar", `Server unreachable: ${err.message}`);
   }
 
-  // 5. Check Web Page & Next.js Error Overlay Detection
-  console.log("\n4. Checking Webpage & Error Overlay Detection...");
+  // 6. Check Web Page & Next.js Error Overlay Detection
+  console.log("\n5. Checking Webpage & Error Overlay Detection...");
   try {
     const pageRes = await fetchUrl(`${BASE_URL}/`);
     assert(pageRes.status === 200, "GET / returns HTTP 200 HTML");
@@ -137,7 +178,6 @@ async function runTests() {
       pageRes.body.includes("Failed to compile");
     assert(!hasErrorOverlay, "Page renders cleanly with NO build/syntax error overlays");
 
-    // Check that all linked JS scripts and CSS stylesheets load cleanly with 200
     const assetRegex = /(?:src|href)="(\/_next\/[^"]+)"/g;
     const matches = Array.from(pageRes.body.matchAll(assetRegex)).map((m) => m[1]);
     const uniqueAssets = Array.from(new Set(matches));

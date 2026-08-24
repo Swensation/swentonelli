@@ -1,0 +1,30 @@
+[
+  {
+    "id": "aria-osfc-soccer",
+    "childId": "aria",
+    "childName": "Aria",
+    "childColor": "#3b82f6",
+    "category": "OSFC Soccer",
+    "badgeText": "OSFC U13",
+    "iconUrl": "/icons/teams/osfc.png",
+    "summaryPatterns": ["osfc", "old school"],
+    "descriptionPatterns": ["old school football club", "teamsnapone.com", "osfc"]
+  },
+  {
+    "id": "brighton-field-hockey",
+    "childId": "brighton",
+    "childName": "Brighton",
+    "childColor": "#f97316",
+    "category": "Field Hockey",
+    "badgeText": "Field Hockey",
+    "iconName": "Trophy",
+    "summaryPatterns": ["field hockey", "patoma", "softball"]
+  },
+  {
+    "id": "medical-doctor-visit",
+    "category": "Doctor / Medical",
+    "badgeText": "Doctor Visit",
+    "iconName": "Stethoscope",
+    "summaryPatterns": ["doctor", "well visit", "pediatric", "dentist", "orthodontist", "dr.", "flu"]
+  }
+]

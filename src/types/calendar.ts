@@ -6,6 +6,18 @@ export interface CalendarSource {
   icsUrl?: string;
 }
 
+export interface EventEnrichment {
+  child?: {
+    id: string;
+    name: string;
+    color?: string;
+  };
+  category?: string;
+  badgeText?: string;
+  iconUrl?: string;     // Custom image URL (e.g. /icons/teams/osfc.png)
+  iconName?: string;    // Lucide icon name (e.g. Trophy, Stethoscope, School)
+}
+
 export interface CalendarEvent {
   id: string;
   summary: string;
@@ -19,6 +31,7 @@ export interface CalendarEvent {
   color: string;
   isHappeningNow?: boolean;
   minutesUntilStart?: number;
+  enrichment?: EventEnrichment;
 }
 
 export interface CalendarAgenda {

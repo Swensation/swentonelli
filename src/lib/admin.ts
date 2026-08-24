@@ -200,6 +200,10 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
     path.join(process.cwd(), "public", "icons", "schools", "miller.png")
   );
 
+  const hasTherapyIcon = fs.existsSync(
+    path.join(process.cwd(), "public", "icons", "general", "therapy.png")
+  );
+
   const dadChecklist = [
     // Team & School Crests
     {
@@ -228,6 +232,13 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
       title: "Miller Elementary School Logo",
       description: "Miller Elementary School (Holliston) logo configured and active.",
       status: (hasMillerIcon ? "done" : "pending") as "done" | "pending",
+      category: "calendar" as const,
+    },
+    {
+      id: "task-therapy",
+      title: "Brighton & Aria Therapy Icon",
+      description: "Therapy clinic logo configured and active.",
+      status: (hasTherapyIcon ? "done" : "pending") as "done" | "pending",
       category: "calendar" as const,
     },
     {

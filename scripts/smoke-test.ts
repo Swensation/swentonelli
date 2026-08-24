@@ -3,8 +3,8 @@
  *
  * Runs end-to-end checks on:
  * 1. TypeScript syntax & type validity across all .ts and .tsx files (`tsc --noEmit`)
- * 2. Data integrity (lunch_schedule.json, config/calendars.json, config/event_rules.json, team/school assets)
- * 3. Business Rules Engine unit tests (Child resolution, OSFC icon, Adams Rams icon, Brighton FH, Miller School)
+ * 2. Data integrity (lunch_schedule.json, config/calendars.json, config/event_rules.json, team/school/general assets)
+ * 3. Business Rules Engine unit tests (Child resolution, OSFC icon, Adams Rams, Brighton FH, Miller School, Therapy)
  * 4. Next.js endpoints: /api/lunch, /api/calendar, /api/admin (with tabbed structure & 30-day dynamic diagnostics)
  * 5. Strict Zero-Date Header Rule: No widget renders redundant internal date headers
  * 6. Webpage loading: GET / and GET /admin return 200 HTML with ZERO Next.js compile errors or syntax overlays
@@ -105,6 +105,7 @@ async function runTests() {
   assert(fs.existsSync(path.join(process.cwd(), "public", "icons", "schools", "adams.png")), "Adams Rams logo exists");
   assert(fs.existsSync(path.join(process.cwd(), "public", "icons", "teams", "brighton_field_hockey.png")), "Holliston Field Hockey logo exists");
   assert(fs.existsSync(path.join(process.cwd(), "public", "icons", "schools", "miller.png")), "Miller School logo exists");
+  assert(fs.existsSync(path.join(process.cwd(), "public", "icons", "general", "therapy.png")), "Therapy logo exists");
 
   // 3. Business Rules Engine Unit Tests
   console.log("\n3. Testing Business Rules Engine (Child Resolution & Categorization)...");
@@ -141,6 +142,14 @@ async function runTests() {
   });
   assert(millerEnrichment?.category === "Miller Elementary School", "Teacher meet & greet resolves to 'Miller Elementary School'");
   assert(millerEnrichment?.iconUrl === "/icons/schools/miller.png", "Miller event attaches '/icons/schools/miller.png' logo");
+
+  const therapyEnrichment = enrichCalendarEvent({
+    summary: "Aria Weekly Speech Therapy Session",
+    description: "Speech and occupational therapy appointment",
+    sourceName: "Aria and Ben",
+  });
+  assert(therapyEnrichment?.category === "Therapy", "Therapy session resolves to 'Therapy'");
+  assert(therapyEnrichment?.iconUrl === "/icons/general/therapy.png", "Therapy event attaches '/icons/general/therapy.png' logo");
 
   // 4. Discover active server port
   const activePort = await findActivePort();
@@ -182,6 +191,9 @@ async function runTests() {
     assert(!!adminJson.calendar && Array.isArray(adminJson.calendar.missingIcons), "GET /api/admin returns dynamic 30-day missing icons array");
     assert(adminJson.calendar.missingIcons.length > 0, `GET /api/admin dynamically detected ${adminJson.calendar.missingIcons.length} missing icon groups in next 30 days`);
     assert(!!adminJson.lunch && typeof adminJson.lunch.thirtyDaySchoolDaysTotal === "number", "GET /api/admin returns 30-day school lunch coverage");
+
+    const childTasks = adminJson.calendar.dadChecklist.filter((t: any) => t.category === "children");
+    assert(childTasks.length === 4, "Admin checklist contains 4 child profile icon to-dos (Aria, Brighton, Benjamin, Bennett)");
   } catch (err: any) {
     assert(false, "GET /api/admin", `Server unreachable: ${err.message}`);
   }

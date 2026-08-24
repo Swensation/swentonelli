@@ -36,5 +36,13 @@
     "iconUrl": "/icons/schools/miller.png",
     "summaryPatterns": ["miller", "katie pellegri"],
     "descriptionPatterns": ["miller elementary school", "fred w. miller", "miller school"]
+  },
+  {
+    "id": "therapy-appointment",
+    "category": "Therapy",
+    "badgeText": "Therapy",
+    "iconUrl": "/icons/general/therapy.png",
+    "summaryPatterns": ["therapy", "counseling", "speech therapy", "ot therapy", "pt therapy"],
+    "descriptionPatterns": ["therapy", "counseling"]
   }
 ]

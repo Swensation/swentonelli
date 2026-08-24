@@ -105,3 +105,4 @@ testEvents.forEach(evt => {
   console.log("-> Inferred Domain:", result?.inferredDomain);
   console.log("-> Candidate Logo:", result?.candidateLogos[0]);
 });
+

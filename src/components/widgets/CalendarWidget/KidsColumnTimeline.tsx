@@ -87,11 +87,11 @@ export function KidsColumnTimeline({ events }: KidsColumnTimelineProps) {
               key={kid.id}
               className={`rounded-2xl p-3.5 bg-slate-900/60 border ${kid.border} flex flex-col min-h-[360px] shadow-sm`}
             >
-              {/* Column Header with Child Icon Avatar Support */}
-              <div className="flex items-center justify-between pb-2.5 mb-3 border-b border-slate-800">
-                <div className="flex items-center gap-2">
+              {/* Column Header with Child Icon Avatar (Clean, no noisy # Events text) */}
+              <div className="flex items-center pb-2.5 mb-3 border-b border-slate-800">
+                <div className="flex items-center gap-2.5">
                   <div
-                    className="w-6 h-6 rounded-full overflow-hidden flex items-center justify-center bg-slate-800 border flex-shrink-0"
+                    className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center bg-slate-800 border-2 flex-shrink-0 shadow-md"
                     style={{ borderColor: kid.color }}
                   >
                     <img
@@ -102,16 +102,9 @@ export function KidsColumnTimeline({ events }: KidsColumnTimelineProps) {
                         (e.target as HTMLElement).style.display = "none";
                       }}
                     />
-                    <span
-                      className="w-2.5 h-2.5 rounded-full"
-                      style={{ backgroundColor: kid.color }}
-                    />
                   </div>
-                  <h3 className="font-black text-white text-base tracking-tight">{kid.name}</h3>
+                  <h3 className="font-black text-white text-base md:text-lg tracking-tight">{kid.name}</h3>
                 </div>
-                <span className="text-xs font-extrabold px-2 py-0.5 rounded-full bg-slate-800 text-slate-300">
-                  {kidEvents.length} {kidEvents.length === 1 ? "Event" : "Events"}
-                </span>
               </div>
 
               {/* Chronological Event Cards with Staggered Time Position */}

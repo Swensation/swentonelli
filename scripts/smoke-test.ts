@@ -4,11 +4,12 @@
  * Runs end-to-end checks on:
  * 1. TypeScript syntax & type validity across all .ts and .tsx files (`tsc --noEmit`)
  * 2. Data integrity (lunch_schedule.json, config/calendars.json, config/event_rules.json, data/suggested_icons.json, assets)
- * 3. Business Rules Engine & Dynamic AI Discovery unit tests (Child resolution, OSFC, Adams, FH, Miller, Therapy, Level99, Venues)
- * 4. Next.js endpoints: /api/lunch, /api/calendar, /api/admin, /api/admin/approve-icon
- * 5. Strict Zero-Date Header Rule: No widget renders redundant internal date headers
- * 6. Webpage loading: GET / and GET /admin return 200 HTML with ZERO Next.js compile errors or syntax overlays
- * 7. Web assets: All linked scripts & CSS stylesheets return HTTP 200 with no 404s
+ * 3. 4 Child profile avatar assets (Aria Glinda, Brighton Elphaba, Benjamin Fortnite, Bennett Moe's Tavern)
+ * 4. Business Rules Engine & Dynamic AI Discovery unit tests (Child resolution, OSFC, Adams, FH, Miller, Therapy, Level99, Venues)
+ * 5. Next.js endpoints: /api/lunch, /api/calendar, /api/admin, /api/admin/approve-icon
+ * 6. Strict Zero-Date Header Rule: No widget renders redundant internal date headers
+ * 7. Webpage loading: GET / and GET /admin return 200 HTML with ZERO Next.js compile errors or syntax overlays
+ * 8. Web assets: All linked scripts & CSS stylesheets return HTTP 200 with no 404s
  */
 
 import fs from "fs";
@@ -108,6 +109,12 @@ async function runTests() {
   assert(fs.existsSync(path.join(process.cwd(), "public", "icons", "schools", "miller.png")), "Miller School logo exists");
   assert(fs.existsSync(path.join(process.cwd(), "public", "icons", "general", "therapy.png")), "Therapy logo exists");
   assert(fs.existsSync(path.join(process.cwd(), "public", "icons", "general", "holliston_pediatrics.png")), "Holliston Pediatrics logo exists");
+
+  // Verify 4 child avatar profile icons exist
+  assert(fs.existsSync(path.join(process.cwd(), "public", "icons", "children", "aria.png")), "Aria Galinda (Wicked) avatar exists");
+  assert(fs.existsSync(path.join(process.cwd(), "public", "icons", "children", "brighton.png")), "Brighton Elphaba (Wicked) avatar exists");
+  assert(fs.existsSync(path.join(process.cwd(), "public", "icons", "children", "benjamin.png")), "Benjamin Fortnite avatar exists");
+  assert(fs.existsSync(path.join(process.cwd(), "public", "icons", "children", "bennett.png")), "Bennett Moe's Tavern avatar exists");
 
   // Verify data/suggested_icons.json exists
   const suggestedIconsPath = path.join(process.cwd(), "data", "suggested_icons.json");
@@ -221,6 +228,7 @@ async function runTests() {
 
     const childTasks = adminJson.calendar.dadChecklist.filter((t: any) => t.category === "children");
     assert(childTasks.length === 4, "Admin checklist contains 4 child profile icon to-dos (Aria, Brighton, Benjamin, Bennett)");
+    assert(childTasks.every((t: any) => t.status === "done"), "All 4 child profile avatars are marked DONE in Dad's checklist");
   } catch (err: any) {
     assert(false, "GET /api/admin", `Server unreachable: ${err.message}`);
   }
@@ -244,6 +252,7 @@ async function runTests() {
       kidsTimelineFile.includes('"Bennett"'),
       "KidsColumnTimeline configures 4 child columns: Aria, Brighton, Benjamin, Bennett"
     );
+    assert(!kidsTimelineFile.includes("kidEvents.length === 1"), "KidsColumnTimeline removes noisy '# Events' text from header");
 
     // Zero Date Header Rule Check: Ensure neither widget renders internal date subtitles
     const calWidgetFile = fs.readFileSync(path.join(process.cwd(), "src", "components", "widgets", "CalendarWidget", "CalendarWidget.tsx"), "utf-8");

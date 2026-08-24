@@ -7,16 +7,33 @@
     "category": "OSFC Soccer",
     "badgeText": "OSFC U13",
     "iconUrl": "/icons/teams/osfc.png",
-    "summaryPatterns": ["osfc", "old school"],
-    "descriptionPatterns": ["old school football club", "teamsnapone.com", "osfc"]
+    "summaryPatterns": [
+      "osfc",
+      "old school"
+    ],
+    "descriptionPatterns": [
+      "old school football club",
+      "teamsnapone.com",
+      "osfc"
+    ]
   },
   {
     "id": "adams-middle-school",
     "category": "Adams Middle School",
     "badgeText": "Adams Rams",
     "iconUrl": "/icons/schools/adams.png",
-    "summaryPatterns": ["adams", "rams", "middle school", "8th grade", "7th grade", "6th grade"],
-    "descriptionPatterns": ["adams middle school", "holliston middle school"]
+    "summaryPatterns": [
+      "adams",
+      "rams",
+      "middle school",
+      "8th grade",
+      "7th grade",
+      "6th grade"
+    ],
+    "descriptionPatterns": [
+      "adams middle school",
+      "holliston middle school"
+    ]
   },
   {
     "id": "brighton-field-hockey",
@@ -26,31 +43,75 @@
     "category": "Field Hockey",
     "badgeText": "Holliston FH",
     "iconUrl": "/icons/teams/brighton_field_hockey.png",
-    "summaryPatterns": ["field hockey", "patoma", "softball"],
-    "descriptionPatterns": ["field hockey", "holliston youth field hockey"]
+    "summaryPatterns": [
+      "field hockey",
+      "patoma",
+      "softball"
+    ],
+    "descriptionPatterns": [
+      "field hockey",
+      "holliston youth field hockey"
+    ]
   },
   {
     "id": "miller-school",
     "category": "Miller Elementary School",
     "badgeText": "Miller School",
     "iconUrl": "/icons/schools/miller.png",
-    "summaryPatterns": ["miller", "katie pellegri"],
-    "descriptionPatterns": ["miller elementary school", "fred w. miller", "miller school"]
+    "summaryPatterns": [
+      "miller",
+      "katie pellegri"
+    ],
+    "descriptionPatterns": [
+      "miller elementary school",
+      "fred w. miller",
+      "miller school"
+    ]
   },
   {
     "id": "therapy-appointment",
     "category": "Therapy",
     "badgeText": "Therapy",
     "iconUrl": "/icons/general/therapy.png",
-    "summaryPatterns": ["therapy", "counseling", "speech therapy", "ot therapy", "pt therapy"],
-    "descriptionPatterns": ["therapy", "counseling"]
+    "summaryPatterns": [
+      "therapy",
+      "counseling",
+      "speech therapy",
+      "ot therapy",
+      "pt therapy"
+    ],
+    "descriptionPatterns": [
+      "therapy",
+      "counseling"
+    ]
   },
   {
     "id": "holliston-pediatrics-dr-urban",
     "category": "Holliston Pediatrics",
     "badgeText": "Dr. Urban",
     "iconUrl": "/icons/general/holliston_pediatrics.png",
-    "summaryPatterns": ["dr. urban", "dr urban", "urban", "holliston pediatric", "holliston pediatrics", "pediatric group"],
-    "descriptionPatterns": ["dr. urban", "holliston pediatric group", "pediatric group"]
+    "summaryPatterns": [
+      "dr. urban",
+      "dr urban",
+      "urban",
+      "holliston pediatric",
+      "holliston pediatrics",
+      "pediatric group"
+    ],
+    "descriptionPatterns": [
+      "dr. urban",
+      "holliston pediatric group",
+      "pediatric group"
+    ]
+  },
+  {
+    "id": "rule-suggest_venue_level99_com",
+    "category": "Birthday @ Level99",
+    "badgeText": "🎂 Level99",
+    "iconUrl": "/icons/approved/suggest_venue_level99_com.png",
+    "summaryPatterns": [
+      "level99",
+      "juliana’s bday level99 in natick"
+    ]
   }
 ]

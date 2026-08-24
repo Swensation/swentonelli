@@ -1,6 +1,7 @@
 "use client";
 
 import { CalendarEvent } from "@/types/calendar";
+import { extractChildAnnotations, filterActivityEvents } from "@/lib/annotations";
 import { format, parseISO } from "date-fns";
 import {
   Calendar as CalendarIcon,
@@ -9,6 +10,7 @@ import {
   GraduationCap,
   HeartPulse,
   HelpCircle,
+  Home,
   MapPin,
   Sparkles,
   Trophy,
@@ -27,8 +29,11 @@ const KIDS = [
 ];
 
 export function KidsColumnTimeline({ events }: KidsColumnTimelineProps) {
-  // Sort events chronologically
-  const sortedEvents = [...events].sort((a, b) => {
+  // Filter out custody and no-school banner events so they don't clutter the activity stream
+  const activityEvents = filterActivityEvents(events);
+
+  // Sort activity events chronologically
+  const sortedEvents = [...activityEvents].sort((a, b) => {
     return new Date(a.start).getTime() - new Date(b.start).getTime();
   });
 
@@ -42,7 +47,7 @@ export function KidsColumnTimeline({ events }: KidsColumnTimelineProps) {
     }
   };
 
-  // Group events by child
+  // Group activity events by child
   const eventsByKid: Record<string, CalendarEvent[]> = {
     aria: [],
     brighton: [],
@@ -81,14 +86,15 @@ export function KidsColumnTimeline({ events }: KidsColumnTimelineProps) {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-3.5 items-start">
         {KIDS.map((kid) => {
           const kidEvents = eventsByKid[kid.id];
+          const annotations = extractChildAnnotations(events, kid.id);
 
           return (
             <div
               key={kid.id}
               className={`rounded-2xl p-3.5 bg-slate-900/60 border ${kid.border} flex flex-col min-h-[360px] shadow-sm`}
             >
-              {/* Column Header with Child Icon Avatar (Clean, no noisy # Events text) */}
-              <div className="flex items-center pb-2.5 mb-3 border-b border-slate-800">
+              {/* Column Header with Child Avatar + Custody & School Badges */}
+              <div className="flex items-center justify-between pb-2.5 mb-3 border-b border-slate-800 flex-wrap gap-2">
                 <div className="flex items-center gap-2.5">
                   <div
                     className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center bg-slate-800 border-2 flex-shrink-0 shadow-md"
@@ -105,12 +111,36 @@ export function KidsColumnTimeline({ events }: KidsColumnTimelineProps) {
                   </div>
                   <h3 className="font-black text-white text-base md:text-lg tracking-tight">{kid.name}</h3>
                 </div>
+
+                {/* Badges Container */}
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  {/* Custody Badge */}
+                  {annotations.custody && (
+                    <span
+                      className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border flex items-center gap-1 ${annotations.custody.badgeClass}`}
+                      title={`Custody: ${annotations.custody.label} (${annotations.custody.parentName})`}
+                    >
+                      <Home className="w-2.5 h-2.5" />
+                      <span>{annotations.custody.label}</span>
+                    </span>
+                  )}
+
+                  {/* School Status Badge */}
+                  {annotations.school && (
+                    <span
+                      className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border flex items-center gap-1 ${annotations.school.badgeClass}`}
+                    >
+                      <GraduationCap className="w-2.5 h-2.5" />
+                      <span>{annotations.school.label}</span>
+                    </span>
+                  )}
+                </div>
               </div>
 
               {/* Chronological Event Cards with Staggered Time Position */}
               {kidEvents.length === 0 ? (
                 <div className="flex-1 flex flex-col items-center justify-center text-slate-500 py-8 text-center">
-                  <p className="text-xs font-semibold">No scheduled events</p>
+                  <p className="text-xs font-semibold">No scheduled activities</p>
                 </div>
               ) : (
                 <div className="space-y-3 flex-1">
@@ -190,7 +220,7 @@ export function KidsColumnTimeline({ events }: KidsColumnTimelineProps) {
           <div className="flex items-center gap-2 mb-2.5">
             <Sparkles className="w-4 h-4 text-amber-400" />
             <h4 className="font-bold text-white text-xs uppercase tracking-wider">
-              Family & Shared Events ({sharedEvents.length})
+              Family & Shared Activities ({sharedEvents.length})
             </h4>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">

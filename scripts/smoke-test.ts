@@ -5,18 +5,21 @@
  * 1. TypeScript syntax & type validity across all .ts and .tsx files (`tsc --noEmit`)
  * 2. Data integrity (lunch_schedule.json, config/calendars.json, config/event_rules.json, data/suggested_icons.json, assets)
  * 3. 4 Child profile avatar assets (Aria Glinda, Brighton Elphaba, Benjamin Fortnite, Bennett Moe's Tavern)
- * 4. Business Rules Engine & Dynamic AI Discovery unit tests (Child resolution, OSFC, Adams, FH, Miller, Therapy, Level99, Venues)
- * 5. Next.js endpoints: /api/lunch, /api/calendar, /api/admin, /api/admin/approve-icon
- * 6. Strict Zero-Date Header Rule: No widget renders redundant internal date headers
- * 7. Webpage loading: GET / and GET /admin return 200 HTML with ZERO Next.js compile errors or syntax overlays
- * 8. Web assets: All linked scripts & CSS stylesheets return HTTP 200 with no 404s
+ * 4. Annotations & Badges unit tests (Custody rules for Liz, Andrew/Swen, Callie, Chris + No-School status)
+ * 5. Business Rules Engine & Dynamic AI Discovery unit tests (Child resolution, OSFC, Adams, FH, Miller, Therapy, Level99, Venues)
+ * 6. Next.js endpoints: /api/lunch, /api/calendar, /api/admin, /api/admin/approve-icon
+ * 7. Strict Zero-Date Header Rule: No widget renders redundant internal date headers
+ * 8. Webpage loading: GET / and GET /admin return 200 HTML with ZERO Next.js compile errors or syntax overlays
+ * 9. Web assets: All linked scripts & CSS stylesheets return HTTP 200 with no 404s
  */
 
 import fs from "fs";
 import path from "path";
 import { execSync } from "child_process";
+import { CalendarEvent } from "../src/types/calendar";
 import { enrichCalendarEvent } from "../src/lib/eventRules";
 import { discoverIconForEventGroup } from "../src/lib/iconDiscovery";
+import { extractChildAnnotations, isAnnotationEvent, filterActivityEvents } from "../src/lib/annotations";
 
 async function fetchUrl(url: string, options?: RequestInit): Promise<{ status: number; body: string }> {
   const res = await fetch(url, options);
@@ -67,11 +70,14 @@ async function runTests() {
     assert(false, "TypeScript Syntax / Type Check", output);
   }
 
-  // 2. Check Data Integrity
-  console.log("\n2. Checking Data Integrity & Configuration Files...");
+  // 2. Check Data Integrity & Specs
+  console.log("\n2. Checking Data Integrity & Specs...");
   const dataPath = path.join(process.cwd(), "data", "lunch_schedule.json");
   assert(fs.existsSync(dataPath), "lunch_schedule.json exists");
   
+  const annotationsSpecPath = path.join(process.cwd(), "specs", "annotations-and-badges.spec.md");
+  assert(fs.existsSync(annotationsSpecPath), "specs/annotations-and-badges.spec.md exists");
+
   if (fs.existsSync(dataPath)) {
     const raw = fs.readFileSync(dataPath, "utf-8");
     const json = JSON.parse(raw);
@@ -120,8 +126,44 @@ async function runTests() {
   const suggestedIconsPath = path.join(process.cwd(), "data", "suggested_icons.json");
   assert(fs.existsSync(suggestedIconsPath), "data/suggested_icons.json exists");
 
-  // 3. Business Rules Engine Unit Tests
-  console.log("\n3. Testing Business Rules Engine & Dynamic AI Discovery...");
+  // 3. Testing Custody & Annotation Badges Engine
+  console.log("\n3. Testing Custody & Annotation Badges Engine...");
+  const mockLizEvent: CalendarEvent = { id: "1", sourceId: "mock", color: "#3b82f6", summary: "Liz kids", start: "2026-08-24T00:00:00Z", end: "2026-08-24T23:59:59Z", allDay: true, sourceName: "Family" };
+  const mockSwenEvent: CalendarEvent = { id: "2", sourceId: "mock", color: "#3b82f6", summary: "Swen kids", start: "2026-08-24T00:00:00Z", end: "2026-08-24T23:59:59Z", allDay: true, sourceName: "Family" };
+  const mockCallieEvent: CalendarEvent = { id: "3", sourceId: "mock", color: "#3b82f6", summary: "Callie kids", start: "2026-08-24T00:00:00Z", end: "2026-08-24T23:59:59Z", allDay: true, sourceName: "Family" };
+  const mockNoSchoolEvent: CalendarEvent = { id: "4", sourceId: "mock", color: "#3b82f6", summary: "No School - Teacher Professional Day", start: "2026-08-24T00:00:00Z", end: "2026-08-24T23:59:59Z", allDay: true, sourceName: "Holliston Schools" };
+  const mockSoccerEvent: CalendarEvent = { id: "5", sourceId: "mock", color: "#3b82f6", summary: "OSFC U13 Soccer Practice", start: "2026-08-24T17:00:00Z", end: "2026-08-24T18:30:00Z", allDay: false, sourceName: "Aria and Ben" };
+
+  // Annotation filter checks
+  assert(isAnnotationEvent(mockLizEvent), "isAnnotationEvent returns true for 'Liz kids'");
+  assert(isAnnotationEvent(mockSwenEvent), "isAnnotationEvent returns true for 'Swen kids'");
+  assert(isAnnotationEvent(mockCallieEvent), "isAnnotationEvent returns true for 'Callie kids'");
+  assert(isAnnotationEvent(mockNoSchoolEvent), "isAnnotationEvent returns true for 'No School'");
+  assert(!isAnnotationEvent(mockSoccerEvent), "isAnnotationEvent returns false for regular 'OSFC U13 Soccer Practice'");
+
+  const filtered = filterActivityEvents([mockLizEvent, mockNoSchoolEvent, mockSoccerEvent]);
+  assert(filtered.length === 1 && filtered[0].summary === "OSFC U13 Soccer Practice", "filterActivityEvents excludes custody/no-school banners from timeline cards");
+
+  // Brighton / Bennett Custody extraction
+  const brightonMomAnno = extractChildAnnotations([mockLizEvent, mockSoccerEvent], "brighton");
+  assert(brightonMomAnno.custody?.status === "mom" && brightonMomAnno.custody?.parentName === "Liz", "Brighton with 'Liz kids' resolves to With Mom (Liz)");
+
+  const bennettDadAnno = extractChildAnnotations([mockSwenEvent, mockSoccerEvent], "bennett");
+  assert(bennettDadAnno.custody?.status === "dad" && bennettDadAnno.custody?.parentName === "Andrew", "Bennett with 'Swen kids' resolves to With Dad (Andrew)");
+
+  // Aria / Benjamin Custody extraction
+  const ariaMomAnno = extractChildAnnotations([mockCallieEvent], "aria");
+  assert(ariaMomAnno.custody?.status === "mom" && ariaMomAnno.custody?.parentName === "Callie", "Aria with 'Callie kids' resolves to With Mom (Callie)");
+
+  const benDadAnno = extractChildAnnotations([], "benjamin");
+  assert(benDadAnno.custody?.status === "dad" && benDadAnno.custody?.parentName === "Chris", "Benjamin without 'Callie kids' defaults to With Dad (Chris)");
+
+  // No-School extraction
+  const schoolAnno = extractChildAnnotations([mockNoSchoolEvent], "aria");
+  assert(schoolAnno.school?.status === "no_school" && schoolAnno.school?.label === "No School", "Child with no-school event resolves to 'No School' badge");
+
+  // 4. Business Rules Engine Unit Tests
+  console.log("\n4. Testing Business Rules Engine & Dynamic AI Discovery...");
   const osfcEnrichment = enrichCalendarEvent({
     summary: "Practice: OSFC Girls U13 Monday Training - U13 Girls",
     description: "Old school football club training at midfield",
@@ -185,13 +227,13 @@ async function runTests() {
   const danceDiscovery = discoverIconForEventGroup("Spring Ballet & Dance Recital");
   assert(!!danceDiscovery && Boolean(danceDiscovery.badgeText.includes("Recital")), "AI Discovery resolves dance recital to performing arts badge");
 
-  // 4. Discover active server port
+  // 5. Discover active server port
   const activePort = await findActivePort();
   const BASE_URL = `http://localhost:${activePort}`;
   console.log(`\nActive Server Detected on: ${BASE_URL}`);
 
-  // 5. Check API Endpoints
-  console.log("\n4. Checking API Endpoints...");
+  // 6. Check API Endpoints
+  console.log("\n5. Checking API Endpoints...");
   try {
     const lunchRes = await fetchUrl(`${BASE_URL}/api/lunch`);
     assert(lunchRes.status === 200, "GET /api/lunch returns HTTP 200");
@@ -233,10 +275,10 @@ async function runTests() {
     assert(false, "GET /api/admin", `Server unreachable: ${err.message}`);
   }
 
-  // 6. Check Web Pages, Zero-Date Headers & Error Overlay Detection
-  console.log("\n5. Checking Webpages, 4-Column Layout & 1-Click Approval UI...");
+  // 7. Check Web Pages, Zero-Date Headers & Error Overlay Detection
+  console.log("\n6. Checking Webpages, 4-Column Layout & Badges UI...");
   try {
-    // 6a. Main Kiosk Page
+    // 7a. Main Kiosk Page
     const pageRes = await fetchUrl(`${BASE_URL}/`);
     assert(pageRes.status === 200, "GET / returns HTTP 200 HTML");
     assert(pageRes.body.includes("Scouty Planner"), "Page contains Scouty Planner title");
@@ -252,7 +294,10 @@ async function runTests() {
       kidsTimelineFile.includes('"Bennett"'),
       "KidsColumnTimeline configures 4 child columns: Aria, Brighton, Benjamin, Bennett"
     );
-    assert(!kidsTimelineFile.includes("kidEvents.length === 1"), "KidsColumnTimeline removes noisy '# Events' text from header");
+    assert(
+      kidsTimelineFile.includes("extractChildAnnotations") && kidsTimelineFile.includes("filterActivityEvents"),
+      "KidsColumnTimeline integrates annotations engine for custody and no-school badges"
+    );
 
     // Zero Date Header Rule Check: Ensure neither widget renders internal date subtitles
     const calWidgetFile = fs.readFileSync(path.join(process.cwd(), "src", "components", "widgets", "CalendarWidget", "CalendarWidget.tsx"), "utf-8");
@@ -267,7 +312,7 @@ async function runTests() {
       pageRes.body.includes("Failed to compile");
     assert(!hasErrorOverlay, "Page / renders cleanly with NO build/syntax error overlays");
 
-    // 6b. Admin Housekeeping Page (Tabbed UI & 1-Click Approval UI Check)
+    // 7b. Admin Housekeeping Page (Tabbed UI & 1-Click Approval UI Check)
     const adminPageRes = await fetchUrl(`${BASE_URL}/admin`);
     assert(adminPageRes.status === 200, "GET /admin returns HTTP 200 HTML");
     assert(adminPageRes.body.includes("General Overview"), "Admin page renders 'General Overview' tab");
@@ -288,7 +333,7 @@ async function runTests() {
       adminPageRes.body.includes("Failed to compile");
     assert(!hasAdminErrorOverlay, "Page /admin renders cleanly with NO build/syntax error overlays");
 
-    // 6c. Check static JS/CSS assets
+    // 7c. Check static JS/CSS assets
     const assetRegex = /(?:src|href)="(\/_next\/[^"]+)"/g;
     const matches = Array.from(pageRes.body.matchAll(assetRegex)).map((m) => m[1]);
     const uniqueAssets = Array.from(new Set(matches));

@@ -4,7 +4,7 @@
  * Runs end-to-end checks on:
  * 1. TypeScript syntax & type validity across all .ts and .tsx files (`tsc --noEmit`)
  * 2. Data integrity (lunch_schedule.json, config/calendars.json, config/event_rules.json, team/school assets)
- * 3. Business Rules Engine unit tests (Child resolution, OSFC icon, Adams Middle School Rams icon)
+ * 3. Business Rules Engine unit tests (Child resolution, OSFC icon, Adams Rams icon, Brighton Holliston FH icon)
  * 4. Next.js endpoints: /api/lunch, /api/calendar, /api/admin (with rolling 30-day window diagnostics)
  * 5. Webpage loading: GET / and GET /admin return 200 HTML with ZERO Next.js compile errors or syntax overlays
  * 6. Web assets: All linked scripts & CSS stylesheets return HTTP 200 with no 404s
@@ -115,6 +115,14 @@ async function runTests() {
     assert(stats.size > 1000, `Adams Rams logo is valid binary image (${stats.size} bytes)`);
   }
 
+  // Verify Brighton Holliston Field Hockey logo asset exists
+  const fhLogoPath = path.join(process.cwd(), "public", "icons", "teams", "brighton_field_hockey.png");
+  assert(fs.existsSync(fhLogoPath), "public/icons/teams/brighton_field_hockey.png asset exists");
+  if (fs.existsSync(fhLogoPath)) {
+    const stats = fs.statSync(fhLogoPath);
+    assert(stats.size > 1000, `Holliston Field Hockey logo is valid binary image (${stats.size} bytes)`);
+  }
+
   // 3. Business Rules Engine Unit Tests
   console.log("\n3. Testing Business Rules Engine (Child Resolution & Categorization)...");
   const osfcEnrichment = enrichCalendarEvent({
@@ -135,11 +143,13 @@ async function runTests() {
   assert(adamsEnrichment?.iconUrl === "/icons/schools/adams.png", "Adams event attaches '/icons/schools/adams.png' logo");
 
   const brightonEnrichment = enrichCalendarEvent({
-    summary: "Brighton Field Hockey Game vs Westwood",
+    summary: "Brighton Practice @ Patoma (Field Hockey)",
+    description: "Holliston youth field hockey practice at Patoma",
     sourceName: "Brighton and Bennett",
   });
   assert(brightonEnrichment?.child?.name === "Brighton", "Field hockey event resolves to Brighton");
-  assert(brightonEnrichment?.iconName === "Calendar", "Default non-custom event uses generic Calendar icon");
+  assert(brightonEnrichment?.category === "Field Hockey", "Field hockey event category is 'Field Hockey'");
+  assert(brightonEnrichment?.iconUrl === "/icons/teams/brighton_field_hockey.png", "Field hockey event attaches '/icons/teams/brighton_field_hockey.png' logo");
 
   // 4. Discover active server port
   const activePort = await findActivePort();
@@ -184,6 +194,9 @@ async function runTests() {
 
     const adamsTask = adminJson.calendar.dadChecklist.find((t: any) => t.id === "task-adams");
     assert(adamsTask?.status === "done", "Admin checklist dynamically marks Adams Rams task as DONE");
+
+    const fhTask = adminJson.calendar.dadChecklist.find((t: any) => t.id === "task-brighton-fh");
+    assert(fhTask?.status === "done", "Admin checklist dynamically marks Brighton Field Hockey task as DONE");
   } catch (err: any) {
     assert(false, "GET /api/admin", `Server unreachable: ${err.message}`);
   }

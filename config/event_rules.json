@@ -17,5 +17,16 @@
     "iconUrl": "/icons/schools/adams.png",
     "summaryPatterns": ["adams", "rams", "middle school", "8th grade", "7th grade", "6th grade"],
     "descriptionPatterns": ["adams middle school", "holliston middle school"]
+  },
+  {
+    "id": "brighton-field-hockey",
+    "childId": "brighton",
+    "childName": "Brighton",
+    "childColor": "#f97316",
+    "category": "Field Hockey",
+    "badgeText": "Holliston FH",
+    "iconUrl": "/icons/teams/brighton_field_hockey.png",
+    "summaryPatterns": ["field hockey", "patoma", "softball"],
+    "descriptionPatterns": ["field hockey", "holliston youth field hockey"]
   }
 ]

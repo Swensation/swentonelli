@@ -81,7 +81,6 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
 
   // Identify sample events for missing icon clusters in the next 30 days
   const placentinoSamples: string[] = [];
-  const fieldHockeySamples: string[] = [];
   const medicalSamples: string[] = [];
 
   upcoming30DayEvents.forEach((e) => {
@@ -94,8 +93,6 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
       sLower.includes("elementary")
     ) {
       if (!placentinoSamples.includes(e.summary)) placentinoSamples.push(e.summary);
-    } else if (sLower.includes("field hockey") || sLower.includes("patoma")) {
-      if (!fieldHockeySamples.includes(e.summary)) fieldHockeySamples.push(e.summary);
     } else if (
       sLower.includes("dr.") ||
       sLower.includes("doctor") ||
@@ -120,19 +117,6 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
       suggestedIconPath: "/icons/schools/placentino.png",
       actionNeeded:
         "Provide Placentino School logo/crest image or URL to replace generic calendar icon.",
-    });
-  }
-
-  if (fieldHockeySamples.length > 0) {
-    missingIconCategories.push({
-      id: "brighton-field-hockey",
-      name: "Brighton Field Hockey / Softball",
-      child: "Brighton",
-      description: "Patoma field practices, town league games, and tournaments in next 30 days.",
-      sampleEvents: fieldHockeySamples.slice(0, 3),
-      suggestedIconPath: "/icons/teams/brighton_field_hockey.png",
-      actionNeeded:
-        "Provide team logo or emblem for Brighton's Field Hockey & Softball team.",
     });
   }
 
@@ -171,6 +155,10 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
     path.join(process.cwd(), "public", "icons", "schools", "adams.png")
   );
 
+  const hasBrightonFieldHockeyIcon = fs.existsSync(
+    path.join(process.cwd(), "public", "icons", "teams", "brighton_field_hockey.png")
+  );
+
   const dadChecklist = [
     {
       id: "task-osfc",
@@ -188,18 +176,18 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
       category: "calendar" as const,
     },
     {
+      id: "task-brighton-fh",
+      title: "Brighton Holliston Field Hockey Crest",
+      description:
+        "Holliston Field Hockey crossed-sticks emblem extracted and active.",
+      status: (hasBrightonFieldHockeyIcon ? "done" : "pending") as "done" | "pending",
+      category: "calendar" as const,
+    },
+    {
       id: "task-placentino",
       title: "Add Placentino School Icon",
       description:
         "Find and add Placentino Elementary School (Holliston) emblem for Bennett/Brighton.",
-      status: "pending" as const,
-      category: "calendar" as const,
-    },
-    {
-      id: "task-brighton-fh",
-      title: "Add Brighton Field Hockey Crest",
-      description:
-        "Find and add team crest for Brighton's field hockey games & practices at Patoma.",
       status: "pending" as const,
       category: "calendar" as const,
     },

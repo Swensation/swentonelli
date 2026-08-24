@@ -8,9 +8,10 @@
  * 4. Annotations & Badges unit tests (Custody rules for Liz, Andrew/Swen, Callie, Chris + No-School status)
  * 5. Business Rules Engine & Dynamic AI Discovery unit tests (Child resolution, OSFC, Adams, FH, Miller, Therapy, Level99, Venues)
  * 6. Next.js endpoints: /api/lunch, /api/calendar, /api/admin, /api/admin/approve-icon
- * 7. Strict Zero-Date Header Rule: No widget renders redundant internal date headers
- * 8. Webpage loading: GET / and GET /admin return 200 HTML with ZERO Next.js compile errors or syntax overlays
- * 9. Web assets: All linked scripts & CSS stylesheets return HTTP 200 with no 404s
+ * 7. Admin Radar Check: Custody and No-School events are strictly excluded from Missing Icon lists
+ * 8. Strict Zero-Date Header Rule: No widget renders redundant internal date headers
+ * 9. Webpage loading: GET / and GET /admin return 200 HTML with ZERO Next.js compile errors or syntax overlays
+ * 10. Web assets: All linked scripts & CSS stylesheets return HTTP 200 with no 404s
  */
 
 import fs from "fs";
@@ -265,7 +266,18 @@ async function runTests() {
 
     assert(!!adminJson.general && !!adminJson.general.kioskUrl, "GET /api/admin returns General overview data");
     assert(!!adminJson.calendar && Array.isArray(adminJson.calendar.missingIcons), "GET /api/admin returns dynamic 30-day missing icons array");
-    assert(adminJson.calendar.missingIcons.length > 0, `GET /api/admin dynamically detected ${adminJson.calendar.missingIcons.length} missing icon groups in next 30 days`);
+    
+    // Check that custody & no school events are strictly NOT in missingIcons
+    const hasCustodyInMissing = adminJson.calendar.missingIcons.some((m: any) =>
+      m.summaryGroup.toLowerCase().includes("kids") ||
+      m.summaryGroup.toLowerCase().includes("liz") ||
+      m.summaryGroup.toLowerCase().includes("callie") ||
+      m.summaryGroup.toLowerCase().includes("swen") ||
+      m.summaryGroup.toLowerCase().includes("no school")
+    );
+    assert(!hasCustodyInMissing, "Admin missingIcons radar strictly excludes custody and no-school annotation events");
+
+    assert(adminJson.calendar.missingIcons.length > 0, `GET /api/admin dynamically detected ${adminJson.calendar.missingIcons.length} unbranded activity groups in next 30 days`);
     assert(!!adminJson.lunch && typeof adminJson.lunch.thirtyDaySchoolDaysTotal === "number", "GET /api/admin returns 30-day school lunch coverage");
 
     const childTasks = adminJson.calendar.dadChecklist.filter((t: any) => t.category === "children");

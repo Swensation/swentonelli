@@ -3,6 +3,7 @@ import { fetchCalendarAgenda } from "@/lib/calendar";
 import { getLunchForDates } from "@/lib/lunch";
 import { DailyLunchMenu } from "@/types/lunch";
 import { discoverIconForEventGroup, DiscoveredIconSuggestion } from "@/lib/iconDiscovery";
+import { isAnnotationEvent } from "@/lib/annotations";
 import { addDays, endOfDay, format, isAfter, isBefore, isWeekend, parseISO, startOfDay } from "date-fns";
 import fs from "fs";
 import path from "path";
@@ -105,9 +106,11 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
     .flatMap(([, events]) => events);
 
   // Dynamic Missing Icons Scanner:
-  // Find every event in the 30-day window that does not have an explicit custom iconUrl
+  // Find every activity event in the 30-day window that does not have an explicit custom iconUrl.
+  // Custody events ("Liz kids", "Callie kids", "Swen kids") and No-School banners are annotations,
+  // handled as column header badges, and are intentionally excluded from missing icon alerts.
   const uncustomizedEvents = upcoming30DayEvents.filter(
-    (e) => !e.enrichment?.iconUrl
+    (e) => !e.enrichment?.iconUrl && !isAnnotationEvent(e)
   );
 
   // Group uncustomized events by standardized normalized title
@@ -156,6 +159,9 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
   // Scan for missing locations on matches, games, or appointments in next 30 days
   const missingDetailsWarnings: MissingDetailWarning[] = [];
   upcoming30DayEvents.forEach((e) => {
+    // Exclude custody/annotation events from location warnings
+    if (isAnnotationEvent(e)) return;
+
     const sLower = (e.summary || "").toLowerCase();
     if (
       !e.location &&

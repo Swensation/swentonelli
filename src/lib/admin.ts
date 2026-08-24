@@ -5,6 +5,7 @@ import { DailyLunchMenu } from "@/types/lunch";
 import { discoverIconForEventGroup, DiscoveredIconSuggestion } from "@/lib/iconDiscovery";
 import { isAnnotationEvent } from "@/lib/annotations";
 import { getChildrenRegistry, ChildProfile } from "@/lib/childrenRegistry";
+import { generateGeminiSanitizationPrompt } from "@/lib/geminiAuditPrompt";
 import { addDays, endOfDay, format, isAfter, isBefore, isWeekend, parseISO, startOfDay } from "date-fns";
 import fs from "fs";
 import path from "path";
@@ -87,6 +88,7 @@ export interface AdminDashboardData {
   calendar: AdminCalendarHousekeeping;
   lunch: AdminLunchHousekeeping;
   childrenRegistry: ChildProfile[];
+  geminiSanitizationPrompt: string;
   lastChecked: string;
 }
 
@@ -114,6 +116,11 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
   // handled as column header badges, and are intentionally excluded from missing icon alerts.
   const uncustomizedEvents = upcoming30DayEvents.filter(
     (e) => !e.enrichment?.iconUrl && !isAnnotationEvent(e)
+  );
+
+  // Uncategorized events: activities not assigned to any specific child
+  const uncategorizedEvents = upcoming30DayEvents.filter(
+    (e) => !e.enrichment?.child && !isAnnotationEvent(e)
   );
 
   // Group uncustomized events by standardized normalized title
@@ -225,7 +232,7 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
     path.join(process.cwd(), "public", "icons", "general", "holliston_pediatrics.png")
   );
 
-  const dadChecklist = [
+  const allDadTasks = [
     // Team & School Crests
     {
       id: "task-osfc",
@@ -257,7 +264,7 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
     },
     {
       id: "task-therapy",
-      title: "Brighton & Aria Therapy Icon",
+      title: "Therapy Clinic Icon",
       description: "Therapy clinic logo configured and active.",
       status: (hasTherapyIcon ? "done" : "pending") as "done" | "pending",
       category: "calendar" as const,
@@ -315,8 +322,18 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
     },
   ];
 
+  // Strictly filter out tasks that are done — only display actionable pending tasks
+  const pendingDadTasks = allDadTasks.filter((task) => task.status === "pending");
+
+  // Generate dynamic Google Gemini Sanitization Prompt
+  const geminiSanitizationPrompt = generateGeminiSanitizationPrompt({
+    uncategorizedEvents,
+    missingIcons,
+    missingDetailsWarnings,
+  });
+
   // School Lunch Housekeeping
-  const lunchHousekeeping: AdminLunchLunchHousekeeping = {
+  const lunchHousekeeping: AdminLunchHousekeeping = {
     activeMonth: lunchData.activeScheduleMonth,
     totalDays: lunchData.allDays.length,
     cleanIntegrityPass: !lunchData.allDays.some((d: DailyLunchMenu) =>
@@ -364,7 +381,7 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
       })),
       missingIcons,
       missingDetailsWarnings: missingDetailsWarnings.slice(0, 10),
-      dadChecklist,
+      dadChecklist: pendingDadTasks,
       evaluationWindow: {
         startDate: windowStart.toISOString(),
         endDate: windowEnd.toISOString(),
@@ -375,8 +392,7 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
     },
     lunch: lunchHousekeeping,
     childrenRegistry,
+    geminiSanitizationPrompt,
     lastChecked: new Date().toISOString(),
   };
 }
-
-type AdminLunchLunchHousekeeping = AdminLunchHousekeeping;

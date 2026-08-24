@@ -8,11 +8,14 @@ import {
   AlertCircle,
   AlertTriangle,
   ArrowLeft,
+  Bot,
   Calendar as CalendarIcon,
   Check,
   CheckCircle2,
+  ChevronDown,
   ChevronRight,
   Clock,
+  Copy,
   ExternalLink,
   FileText,
   Globe,
@@ -49,6 +52,7 @@ export default function AdminPage() {
   const [approvingId, setApprovingId] = useState<string | null>(null);
   const [customUrls, setCustomUrls] = useState<Record<string, string>>({});
   const [showCustomInput, setShowCustomInput] = useState<Record<string, boolean>>({});
+  const [showPromptPreview, setShowPromptPreview] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const { data, error, isLoading, mutate } = useSWR<AdminDashboardData>("/api/admin", fetcher, {
@@ -58,6 +62,12 @@ export default function AdminPage() {
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 4000);
+  };
+
+  const handleCopyGeminiPrompt = () => {
+    if (!data?.geminiSanitizationPrompt) return;
+    navigator.clipboard.writeText(data.geminiSanitizationPrompt);
+    showToast("📋 Copied Google Gemini Sanitization Prompt to clipboard!");
   };
 
   const handleApproveIcon = async (item: MissingIconItem, overrideUrl?: string) => {
@@ -278,7 +288,61 @@ export default function AdminPage() {
               </div>
             </div>
 
-            {/* Dad's Checklist Card */}
+            {/* Google Gemini Calendar Sanitizer Card */}
+            <div className="glass-card p-6 bg-gradient-to-br from-slate-900/90 via-purple-950/20 to-slate-900/90 border border-purple-500/30">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-purple-500/20">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-600 text-white shadow-lg">
+                    <Bot className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h2 className="text-lg font-black text-white">Google Gemini Calendar Sanitizer</h2>
+                      <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                        AI Automation
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-300 mt-1">
+                      Generates explicit classification instructions for Gemini so our family calendar stays 100% human-friendly without manual tags.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2.5 flex-shrink-0">
+                  <button
+                    onClick={handleCopyGeminiPrompt}
+                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-black text-xs md:text-sm transition-all shadow-lg active:scale-95"
+                  >
+                    <Copy className="w-4 h-4" />
+                    <span>Copy Prompt for Google Gemini</span>
+                  </button>
+
+                  <button
+                    onClick={() => setShowPromptPreview((prev) => !prev)}
+                    className="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold border border-slate-700 transition-all"
+                    title="Toggle Preview"
+                  >
+                    <ChevronDown className={`w-4 h-4 transition-transform ${showPromptPreview ? "rotate-180" : ""}`} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Prompt Explanation */}
+              <div className="pt-3 text-xs text-slate-400 space-y-1">
+                <p>
+                  💡 <strong className="text-slate-200">How this works:</strong> Copy this prompt directly into Google Gemini. Gemini reads our child specs (schools, teachers like Katie Pellegri, therapists like Kelley, sports) and upcoming unassigned events (e.g. <em>&quot;Juliana&apos;s bday Level99 in Natick&quot;</em>) to output ready-to-use rule entries and brand domains (<code className="text-purple-300">level99.com</code>).
+                </p>
+              </div>
+
+              {/* Collapsible Prompt Preview Box */}
+              {showPromptPreview && (
+                <div className="mt-4 p-4 rounded-xl bg-slate-950 border border-purple-500/30 text-xs font-mono text-purple-200 whitespace-pre-wrap max-h-72 overflow-y-auto">
+                  {data.geminiSanitizationPrompt}
+                </div>
+              )}
+            </div>
+
+            {/* Dad's Actionable Checklist Card (Only shows pending tasks) */}
             <div className="glass-card p-6">
               <div className="flex items-center justify-between pb-3 border-b border-slate-700/60 mb-4">
                 <div className="flex items-center gap-2.5">
@@ -286,52 +350,50 @@ export default function AdminPage() {
                     <CheckCircle2 className="w-5 h-5" />
                   </div>
                   <div>
-                    <h2 className="text-lg font-black text-white">Dad&apos;s Housekeeping Checklist</h2>
-                    <p className="text-xs text-slate-400">Essential configuration items to keep the dashboard 100% complete</p>
+                    <h2 className="text-lg font-black text-white">Pending Housekeeping Items ({data.calendar.dadChecklist.length})</h2>
+                    <p className="text-xs text-slate-400">Actionable configuration items requiring your input</p>
                   </div>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {data.calendar.dadChecklist.map((task) => (
-                  <div
-                    key={task.id}
-                    className={`p-4 rounded-2xl border transition-all ${
-                      task.status === "done"
-                        ? "bg-slate-900/40 border-slate-800/80 text-slate-400"
-                        : "bg-amber-500/5 border-amber-500/30 text-slate-200"
-                    }`}
-                  >
-                    <div className="flex items-start gap-3">
-                      <div
-                        className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-black flex-shrink-0 mt-0.5 ${
-                          task.status === "done"
-                            ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-                            : "bg-amber-500 text-slate-950 font-black"
-                        }`}
-                      >
-                        {task.status === "done" ? <Check className="w-3.5 h-3.5" /> : "!"}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className={`text-sm font-bold ${task.status === "done" ? "line-through text-slate-500" : "text-white"}`}>
-                            {task.title}
-                          </span>
-                          <span className="text-[10px] font-extrabold uppercase px-1.5 py-0.2 rounded bg-slate-800 text-slate-400">
-                            {task.category}
-                          </span>
+              {data.calendar.dadChecklist.length === 0 ? (
+                <div className="p-8 text-center text-slate-400 bg-slate-900/40 rounded-2xl border border-slate-800/80">
+                  <CheckCircle2 className="w-8 h-8 text-emerald-400 mx-auto mb-2" />
+                  <p className="font-bold text-white">All Housekeeping Tasks Complete! 🎉</p>
+                  <p className="text-xs text-slate-400 mt-1">Every child avatar, team crest, and school rule is active.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {data.calendar.dadChecklist.map((task) => (
+                    <div
+                      key={task.id}
+                      className="p-4 rounded-2xl border transition-all bg-amber-500/5 border-amber-500/30 text-slate-200"
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-black flex-shrink-0 mt-0.5 bg-amber-500 text-slate-950">
+                          !
                         </div>
-                        <p className="text-xs text-slate-400 mt-1">{task.description}</p>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-bold text-white">
+                              {task.title}
+                            </span>
+                            <span className="text-[10px] font-extrabold uppercase px-1.5 py-0.2 rounded bg-slate-800 text-slate-400">
+                              {task.category}
+                            </span>
+                          </div>
+                          <p className="text-xs text-slate-400 mt-1">{task.description}</p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         )}
 
-        {/* Tab 2: Child Profiles & Schedules (NEW!) */}
+        {/* Tab 2: Child Profiles & Schedules */}
         {activeTab === "children" && (
           <div className="space-y-6">
             <div className="glass-card p-6">

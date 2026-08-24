@@ -323,9 +323,15 @@ async function runTests() {
     assert(Array.isArray(adminJson.calendar.missingIcons), `GET /api/admin returns dynamic missingIcons array (${adminJson.calendar.missingIcons.length} items)`);
     assert(!!adminJson.lunch && typeof adminJson.lunch.thirtyDaySchoolDaysTotal === "number", "GET /api/admin returns 30-day school lunch coverage");
 
-    const childTasks = adminJson.calendar.dadChecklist.filter((t: any) => t.category === "children");
-    assert(childTasks.length === 4, "Admin checklist contains 4 child profile icon to-dos (Aria, Brighton, Benjamin, Bennett)");
-    assert(childTasks.every((t: any) => t.status === "done"), "All 4 child profile avatars are marked DONE in Dad's checklist");
+    // Check that completed checklist items are suppressed and only pending tasks remain
+    assert(
+      adminJson.calendar.dadChecklist.every((t: any) => t.status === "pending"),
+      "Admin checklist strictly excludes completed tasks and only returns actionable pending items"
+    );
+    assert(
+      typeof adminJson.geminiSanitizationPrompt === "string" && adminJson.geminiSanitizationPrompt.includes("Swenson-Antonelli"),
+      "GET /api/admin returns comprehensive Google Gemini Sanitization Prompt"
+    );
   } catch (err: any) {
     assert(false, "GET /api/admin", `Server unreachable: ${err.message}`);
   }
@@ -388,6 +394,10 @@ async function runTests() {
     assert(
       adminSource.includes("handleApproveIcon"),
       "Admin page implements 1-click icon approval engine with handleApproveIcon"
+    );
+    assert(
+      adminSource.includes("Copy Prompt for Google Gemini") && adminSource.includes("handleCopyGeminiPrompt"),
+      "Admin page implements 'Copy Prompt for Google Gemini' automation button"
     );
 
     const hasAdminErrorOverlay =

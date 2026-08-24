@@ -18,7 +18,6 @@ export interface ChildProfile {
   pediatrician: string;
   therapist: string;
   primarySport: string;
-  secondaryActivity: string;
   custody: string;
   matchKeywords: string[];
   scheduleLinks: ScheduleLink[];

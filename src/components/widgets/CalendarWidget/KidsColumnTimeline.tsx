@@ -55,7 +55,7 @@ export function KidsColumnTimeline({ events }: KidsColumnTimelineProps) {
     bennett: [],
   };
 
-  const sharedEvents: CalendarEvent[] = [];
+  const unknownEvents: CalendarEvent[] = [];
 
   sortedEvents.forEach((ev) => {
     const childId = ev.enrichment?.child?.id?.toLowerCase();
@@ -71,8 +71,8 @@ export function KidsColumnTimeline({ events }: KidsColumnTimelineProps) {
     } else if (childId === "bennett" || childName.includes("bennett") || summary.includes("bennett")) {
       eventsByKid.bennett.push(ev);
     } else {
-      // General family event or shared
-      sharedEvents.push(ev);
+      // Unassigned / unknown event - needs rule assignment
+      unknownEvents.push(ev);
     }
   });
 
@@ -156,41 +156,59 @@ export function KidsColumnTimeline({ events }: KidsColumnTimelineProps) {
                       ? "All Day"
                       : `${format(parseISO(ev.start), "h:mm a")} - ${format(parseISO(ev.end), "h:mm a")}`;
 
+                    const googleCalUrl =
+                      ev.url ||
+                      `https://calendar.google.com/calendar/u/0/r/search?q=${encodeURIComponent(ev.summary)}`;
+
                     return (
                       <div
                         key={ev.id}
                         style={{ marginTop: extraTopMargin > 0 ? `${extraTopMargin}px` : undefined }}
                         className="p-3 rounded-xl bg-slate-950/80 border border-slate-800 hover:border-slate-700 transition-all flex flex-col gap-2 relative group shadow-sm"
                       >
-                        {/* Top: Icon + Time Badge */}
-                        <div className="flex items-start gap-2.5">
-                          {/* 36px Leading Icon Container */}
-                          <div className="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 p-1 flex-shrink-0 flex items-center justify-center shadow-inner">
-                            {ev.enrichment?.iconUrl ? (
-                              <img
-                                src={ev.enrichment.iconUrl}
-                                alt={ev.enrichment.badgeText || "Icon"}
-                                className="w-full h-full object-contain"
-                              />
-                            ) : (
-                              <CalendarIcon className="w-4 h-4 text-slate-400" />
-                            )}
-                          </div>
-
-                          <div className="flex-1 min-w-0">
-                            {/* Time Pill */}
-                            <div className="flex items-center gap-1 text-[11px] font-bold text-amber-400 font-mono">
-                              <Clock className="w-3 h-3 text-amber-400/70 flex-shrink-0" />
-                              <span className="truncate">{formattedTime}</span>
+                        {/* Top: Icon + Time Badge + Subtle Link Icon */}
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex items-start gap-2.5 min-w-0 flex-1">
+                            {/* 36px Leading Icon Container */}
+                            <div className="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 p-1 flex-shrink-0 flex items-center justify-center shadow-inner">
+                              {ev.enrichment?.iconUrl ? (
+                                <img
+                                  src={ev.enrichment.iconUrl}
+                                  alt={ev.enrichment.badgeText || "Icon"}
+                                  className="w-full h-full object-contain"
+                                />
+                              ) : (
+                                <CalendarIcon className="w-4 h-4 text-slate-400" />
+                              )}
                             </div>
 
-                            {/* Category Badge if present */}
-                            {ev.enrichment?.badgeText && (
-                              <span className="text-[9px] font-extrabold px-1.5 py-0.5 rounded bg-slate-800 text-amber-300 inline-block mt-0.5">
-                                {ev.enrichment.badgeText}
-                              </span>
-                            )}
+                            <div className="flex-1 min-w-0">
+                              {/* Time Pill */}
+                              <div className="flex items-center gap-1 text-[11px] font-bold text-amber-400 font-mono">
+                                <Clock className="w-3 h-3 text-amber-400/70 flex-shrink-0" />
+                                <span className="truncate">{formattedTime}</span>
+                              </div>
+
+                              {/* Category Badge if present */}
+                              {ev.enrichment?.badgeText && (
+                                <span className="text-[9px] font-extrabold px-1.5 py-0.5 rounded bg-slate-800 text-amber-300 inline-block mt-0.5">
+                                  {ev.enrichment.badgeText}
+                                </span>
+                              )}
+                            </div>
                           </div>
+
+                          {/* Subtle Google Calendar Invite Link Icon in top right corner */}
+                          <a
+                            href={googleCalUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-slate-500 hover:text-amber-400 p-1 rounded-lg hover:bg-slate-800 transition-colors opacity-50 hover:opacity-100 flex-shrink-0"
+                            title="Open in Google Calendar"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <ExternalLink className="w-3.5 h-3.5" />
+                          </a>
                         </div>
 
                         {/* Event Title */}
@@ -215,40 +233,74 @@ export function KidsColumnTimeline({ events }: KidsColumnTimelineProps) {
         })}
       </div>
 
-      {/* Shared / Family Events Row if any */}
-      {sharedEvents.length > 0 && (
-        <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800">
-          <div className="flex items-center gap-2 mb-2.5">
-            <Sparkles className="w-4 h-4 text-amber-400" />
-            <h4 className="font-bold text-white text-xs uppercase tracking-wider">
-              Family & Shared Activities ({sharedEvents.length})
+      {/* Unknown / Uncategorized Events Section (Red Border & HelpCircle ? Icon) */}
+      {unknownEvents.length > 0 && (
+        <div className="p-4 rounded-2xl bg-rose-950/20 border border-rose-500/40 shadow-sm">
+          <div className="flex items-center gap-2 mb-3 pb-2 border-b border-rose-500/20">
+            <div className="w-5 h-5 rounded-full bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400">
+              <HelpCircle className="w-3.5 h-3.5" />
+            </div>
+            <h4 className="font-black text-rose-400 text-xs uppercase tracking-wider">
+              Unknown / Uncategorized Events ({unknownEvents.length})
             </h4>
+            <span className="text-[10px] text-rose-400/80 ml-auto font-bold">
+              Needs Rule or Child Assignment
+            </span>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
-            {sharedEvents.map((ev) => (
-              <div
-                key={ev.id}
-                className="p-2.5 rounded-xl bg-slate-950/70 border border-slate-800 flex items-center gap-2.5 text-xs"
-              >
-                <div className="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 p-1 flex-shrink-0 flex items-center justify-center">
-                  {ev.enrichment?.iconUrl ? (
-                    <img
-                      src={ev.enrichment.iconUrl}
-                      alt={ev.enrichment.badgeText || "Icon"}
-                      className="w-full h-full object-contain"
-                    />
-                  ) : (
-                    <CalendarIcon className="w-4 h-4 text-slate-400" />
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="font-bold text-white truncate">{ev.summary}</div>
-                  <div className="text-[11px] text-amber-400 font-mono">
-                    {ev.allDay ? "All Day" : format(parseISO(ev.start), "h:mm a")}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
+            {unknownEvents.map((ev) => {
+              const googleCalUrl =
+                ev.url ||
+                `https://calendar.google.com/calendar/u/0/r/search?q=${encodeURIComponent(ev.summary)}`;
+
+              return (
+                <div
+                  key={ev.id}
+                  className="p-3 rounded-xl bg-slate-950/80 border border-rose-500/20 flex items-center justify-between gap-3 text-xs group"
+                >
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                    <div className="w-8 h-8 rounded-lg bg-rose-500/10 border border-rose-500/30 flex-shrink-0 flex items-center justify-center text-rose-400 shadow-inner font-bold">
+                      {ev.enrichment?.iconUrl ? (
+                        <img
+                          src={ev.enrichment.iconUrl}
+                          alt="Icon"
+                          className="w-full h-full object-contain p-0.5"
+                        />
+                      ) : (
+                        <HelpCircle className="w-4 h-4 text-rose-400" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-bold text-white truncate">{ev.summary}</div>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className="text-[11px] text-amber-400 font-mono">
+                          {ev.allDay ? "All Day" : format(parseISO(ev.start), "h:mm a")}
+                        </span>
+                        {ev.location && (
+                          <span className="text-[10px] text-slate-400 truncate flex items-center gap-0.5">
+                            <MapPin className="w-2.5 h-2.5 flex-shrink-0 text-slate-500" />
+                            <span className="truncate">{ev.location}</span>
+                          </span>
+                        )}
+                      </div>
+                    </div>
                   </div>
+
+                  {/* Subtle Google Calendar Invite Link Icon */}
+                  <a
+                    href={googleCalUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-slate-500 hover:text-amber-400 p-1 rounded-lg hover:bg-slate-800 transition-colors opacity-50 hover:opacity-100 flex-shrink-0"
+                    title="Open in Google Calendar"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}

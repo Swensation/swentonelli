@@ -29,6 +29,7 @@ export interface CalendarEvent {
   sourceId: string;
   sourceName: string;
   color: string;
+  url?: string;
   isHappeningNow?: boolean;
   minutesUntilStart?: number;
   enrichment?: EventEnrichment;

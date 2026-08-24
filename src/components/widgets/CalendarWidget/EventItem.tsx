@@ -7,6 +7,7 @@ import {
   Cake,
   Calendar,
   Clock,
+  ExternalLink,
   GraduationCap,
   HeartPulse,
   MapPin,
@@ -31,6 +32,10 @@ export function EventItem({ event }: EventItemProps) {
     : `${format(startDate, "h:mm a")} - ${format(endDate, "h:mm a")}`;
 
   const enrichment = event.enrichment;
+
+  const googleCalUrl =
+    event.url ||
+    `https://calendar.google.com/calendar/u/0/r/search?q=${encodeURIComponent(event.summary)}`;
 
   // Render vector icon matching the category
   const renderLucideIcon = (name?: string) => {
@@ -132,17 +137,30 @@ export function EventItem({ event }: EventItemProps) {
               </div>
             </div>
 
-            {/* Time Chip */}
-            <div className="text-right flex-shrink-0">
-              <div className="flex items-center gap-1 text-xs md:text-sm font-semibold text-slate-300 font-mono">
-                <Clock className="w-3.5 h-3.5 text-blue-400" />
-                {formattedTime}
+            {/* Time Chip & Subtle Google Calendar Link Icon */}
+            <div className="text-right flex-shrink-0 flex items-center gap-2">
+              <div>
+                <div className="flex items-center gap-1 text-xs md:text-sm font-semibold text-slate-300 font-mono">
+                  <Clock className="w-3.5 h-3.5 text-blue-400" />
+                  {formattedTime}
+                </div>
+                {event.minutesUntilStart && event.minutesUntilStart <= 60 && !event.isHappeningNow && (
+                  <span className="text-[11px] font-bold text-amber-400">
+                    Starts in {event.minutesUntilStart}m
+                  </span>
+                )}
               </div>
-              {event.minutesUntilStart && event.minutesUntilStart <= 60 && !event.isHappeningNow && (
-                <span className="text-[11px] font-bold text-amber-400">
-                  Starts in {event.minutesUntilStart}m
-                </span>
-              )}
+
+              <a
+                href={googleCalUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-slate-500 hover:text-amber-400 p-1.5 rounded-lg hover:bg-slate-700/60 transition-colors opacity-50 hover:opacity-100"
+                title="Open in Google Calendar"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
             </div>
           </div>
 

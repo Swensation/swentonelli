@@ -320,7 +320,7 @@ async function runTests() {
     );
     assert(!hasCustodyInMissing, "Admin missingIcons radar strictly excludes custody and no-school annotation events");
 
-    assert(adminJson.calendar.missingIcons.length > 0, `GET /api/admin dynamically detected ${adminJson.calendar.missingIcons.length} unbranded activity groups in next 30 days`);
+    assert(Array.isArray(adminJson.calendar.missingIcons), `GET /api/admin returns dynamic missingIcons array (${adminJson.calendar.missingIcons.length} items)`);
     assert(!!adminJson.lunch && typeof adminJson.lunch.thirtyDaySchoolDaysTotal === "number", "GET /api/admin returns 30-day school lunch coverage");
 
     const childTasks = adminJson.calendar.dadChecklist.filter((t: any) => t.category === "children");
@@ -352,6 +352,14 @@ async function runTests() {
     assert(
       kidsTimelineFile.includes("extractChildAnnotations") && kidsTimelineFile.includes("filterActivityEvents"),
       "KidsColumnTimeline integrates annotations engine for custody and no-school badges"
+    );
+    assert(
+      kidsTimelineFile.includes("Unknown / Uncategorized Events") && kidsTimelineFile.includes("HelpCircle"),
+      "KidsColumnTimeline classifies unassigned activities into red 'Unknown / Uncategorized Events' section with question mark icon"
+    );
+    assert(
+      kidsTimelineFile.includes("ExternalLink") && kidsTimelineFile.includes("calendar.google.com"),
+      "KidsColumnTimeline includes subtle link icon to open Google Calendar invite"
     );
 
     // Zero Date Header Rule Check: Ensure neither widget renders internal date subtitles

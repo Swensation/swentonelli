@@ -7,6 +7,7 @@ import {
   format,
   isAfter,
   isBefore,
+  parseISO,
   startOfDay,
 } from "date-fns";
 import ical from "node-ical";
@@ -156,6 +157,7 @@ export async function fetchCalendarAgenda(): Promise<CalendarAgenda> {
           const summary = ev.summary || "Untitled Event";
           const description = ev.description ? String(ev.description) : undefined;
           const location = ev.location ? String(ev.location) : undefined;
+          const eventUrl = ev.url ? String(ev.url) : undefined;
           const color = source.color || CALENDAR_COLORS[sourceIdx % CALENDAR_COLORS.length];
 
           // Enrich with business rules (child detection, category, team crest)
@@ -185,6 +187,7 @@ export async function fetchCalendarAgenda(): Promise<CalendarAgenda> {
                 sourceId: source.id,
                 sourceName: source.name,
                 color,
+                url: eventUrl,
                 enrichment,
               });
             }
@@ -211,6 +214,7 @@ export async function fetchCalendarAgenda(): Promise<CalendarAgenda> {
                   sourceId: source.id,
                   sourceName: source.name,
                   color,
+                  url: eventUrl,
                   enrichment,
                 });
               }
@@ -233,51 +237,71 @@ export async function fetchCalendarAgenda(): Promise<CalendarAgenda> {
   const tomorrowStr = format(addDays(now, 1), "yyyy-MM-dd");
 
   const byDate: Record<string, CalendarEvent[]> = {};
-  const todayEvents: CalendarEvent[] = [];
-  const tomorrowEvents: CalendarEvent[] = [];
-  const upcomingMap: Record<string, CalendarEvent[]> = {};
 
-  allEvents.forEach((event) => {
-    const eventDate = new Date(event.start);
-    const dateKey = format(eventDate, "yyyy-MM-dd");
-
-    if (!byDate[dateKey]) {
-      byDate[dateKey] = [];
-    }
-    byDate[dateKey].push(event);
-
-    if (dateKey === todayStr) {
-      todayEvents.push(event);
-    } else if (dateKey === tomorrowStr) {
-      tomorrowEvents.push(event);
-    } else if (isAfter(eventDate, now)) {
-      if (!upcomingMap[dateKey]) {
-        upcomingMap[dateKey] = [];
+  allEvents.forEach((ev) => {
+    try {
+      const dateKey = format(parseISO(ev.start), "yyyy-MM-dd");
+      if (!byDate[dateKey]) {
+        byDate[dateKey] = [];
       }
-      upcomingMap[dateKey].push(event);
+      byDate[dateKey].push(ev);
+    } catch {
+      // ignore parse error
     }
   });
 
-  const upcoming = Object.keys(upcomingMap)
-    .sort()
-    .slice(0, 14)
-    .map((dateKey) => {
-      const parsedDate = new Date(dateKey + "T00:00:00");
-      return {
-        date: dateKey,
-        dateFormatted: format(parsedDate, "EEEE, MMM d"),
-        events: upcomingMap[dateKey],
-      };
-    });
+  // Calculate live countdowns and happening now
+  const enrichedEvents = allEvents.map((ev) => {
+    const start = new Date(ev.start).getTime();
+    const end = new Date(ev.end).getTime();
+    const nowTime = now.getTime();
 
-  const result: CalendarAgenda = {
+    const isHappeningNow = nowTime >= start && nowTime <= end;
+    const minutesUntilStart =
+      start > nowTime ? Math.round((start - nowTime) / (60 * 1000)) : undefined;
+
+    return {
+      ...ev,
+      isHappeningNow,
+      minutesUntilStart,
+    };
+  });
+
+  const todayEvents = byDate[todayStr] || enrichedEvents.filter((e) => {
+    const d = new Date(e.start);
+    return isAfter(d, startOfDay(now)) && isBefore(d, endOfDay(now));
+  });
+
+  const tomorrowEvents = byDate[tomorrowStr] || enrichedEvents.filter((e) => {
+    const d = new Date(e.start);
+    const tomorrow = addDays(now, 1);
+    return isAfter(d, startOfDay(tomorrow)) && isBefore(d, endOfDay(tomorrow));
+  });
+
+  // Group upcoming by next 7 days for quick preview
+  const upcomingGrouped: { date: string; dateFormatted: string; events: CalendarEvent[] }[] = [];
+  for (let i = 2; i <= 7; i++) {
+    const day = addDays(now, i);
+    const dayKey = format(day, "yyyy-MM-dd");
+    const dayFormatted = format(day, "EEEE, MMMM d");
+    const eventsForDay = byDate[dayKey] || [];
+    if (eventsForDay.length > 0) {
+      upcomingGrouped.push({
+        date: dayKey,
+        dateFormatted: dayFormatted,
+        events: eventsForDay,
+      });
+    }
+  }
+
+  const agendaData: CalendarAgenda = {
     today: todayEvents,
     tomorrow: tomorrowEvents,
-    upcoming,
+    upcoming: upcomingGrouped,
     byDate,
-    lastUpdated: new Date().toISOString(),
+    lastUpdated: now.toISOString(),
   };
 
-  cachedAgenda = { data: result, timestamp: Date.now() };
-  return result;
+  cachedAgenda = { data: agendaData, timestamp: Date.now() };
+  return agendaData;
 }

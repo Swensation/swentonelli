@@ -107,11 +107,12 @@ export function KidsColumnTimeline({ events }: KidsColumnTimelineProps) {
 
                 {/* Right: Top-Right Justified Badges (Never wrap to new line) */}
                 <div className="flex items-center gap-1.5 flex-shrink-0 whitespace-nowrap ml-auto">
-                  {/* Custody Badge */}
+                  {/* Custody Badge with Explicit Inline Colors for 100% Reliability */}
                   {annotations.custody && (
                     <span
-                      className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border flex items-center gap-1 shadow-sm ${annotations.custody.badgeClass}`}
-                      title={`Custody: ${annotations.custody.label} (${annotations.custody.parentName})`}
+                      className="text-[10px] font-extrabold px-2 py-0.5 rounded-full border flex items-center gap-1 shadow-sm text-white"
+                      style={annotations.custody.badgeStyle}
+                      title={`Custody: ${annotations.custody.label} (${annotations.custody.parentName} - ${annotations.custody.town})`}
                     >
                       <Home className="w-2.5 h-2.5 flex-shrink-0" />
                       <span className="whitespace-nowrap">{annotations.custody.label}</span>

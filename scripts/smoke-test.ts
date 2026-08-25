@@ -193,8 +193,9 @@ async function runTests() {
     brightonMomAnno.custody?.status === "mom" &&
       brightonMomAnno.custody?.label === "Mom's" &&
       brightonMomAnno.custody?.town === "Holliston" &&
-      brightonMomAnno.custody?.badgeClass.includes("red"),
-    "Brighton with 'Liz kids' resolves to Mom's (Liz in Holliston - Red)"
+      brightonMomAnno.custody?.bgColor === "#dc2626" &&
+      brightonMomAnno.custody?.badgeStyle.backgroundColor === "#dc2626",
+    "Brighton with 'Liz kids' resolves to Mom's (Liz in Holliston - Red #dc2626)"
   );
 
   const bennettDadAnno = extractChildAnnotations([mockSwenEvent, mockSoccerEvent], "bennett");
@@ -202,8 +203,9 @@ async function runTests() {
     bennettDadAnno.custody?.status === "dad" &&
       bennettDadAnno.custody?.label === "Dad's" &&
       bennettDadAnno.custody?.town === "Millis" &&
-      bennettDadAnno.custody?.badgeClass.includes("#800020"),
-    "Bennett with 'Swen kids' resolves to Dad's (Andrew in Millis - Maroon)"
+      bennettDadAnno.custody?.bgColor === "#800020" &&
+      bennettDadAnno.custody?.badgeStyle.backgroundColor === "#800020",
+    "Bennett with 'Swen kids' resolves to Dad's (Andrew in Millis - Maroon #800020)"
   );
 
   // Aria / Benjamin Custody extraction
@@ -212,8 +214,9 @@ async function runTests() {
     ariaMomAnno.custody?.status === "mom" &&
       ariaMomAnno.custody?.label === "Mom's" &&
       ariaMomAnno.custody?.town === "Millis" &&
-      ariaMomAnno.custody?.badgeClass.includes("#800020"),
-    "Aria with 'Callie kids' resolves to Mom's (Callie in Millis - Maroon)"
+      ariaMomAnno.custody?.bgColor === "#800020" &&
+      ariaMomAnno.custody?.badgeStyle.backgroundColor === "#800020",
+    "Aria with 'Callie kids' resolves to Mom's (Callie in Millis - Maroon #800020)"
   );
 
   const benDadAnno = extractChildAnnotations([], "benjamin");
@@ -221,9 +224,23 @@ async function runTests() {
     benDadAnno.custody?.status === "dad" &&
       benDadAnno.custody?.label === "Dad's" &&
       benDadAnno.custody?.town === "Franklin" &&
-      benDadAnno.custody?.badgeClass.includes("blue"),
-    "Benjamin without 'Callie kids' defaults to Dad's (Chris in Franklin - Blue)"
+      benDadAnno.custody?.bgColor === "#2563eb" &&
+      benDadAnno.custody?.badgeStyle.backgroundColor === "#2563eb",
+    "Benjamin without 'Callie kids' defaults to Dad's (Chris in Franklin - Blue #2563eb)"
   );
+
+  // Additional keyword variations & vacation week tests
+  const lizVacationAnno = extractChildAnnotations([{ summary: "Liz kids vacation week" } as CalendarEvent], "brighton");
+  assert(lizVacationAnno.custody?.parentName === "Liz" && lizVacationAnno.custody?.bgColor === "#dc2626", "Custody regex matches 'Liz kids vacation week' -> Liz (Red)");
+
+  const andrewVacationAnno = extractChildAnnotations([{ summary: "Andrew April vacation week" } as CalendarEvent], "bennett");
+  assert(andrewVacationAnno.custody?.parentName === "Andrew" && andrewVacationAnno.custody?.bgColor === "#800020", "Custody regex matches 'Andrew April vacation week' -> Andrew (Maroon)");
+
+  const callieVacationAnno = extractChildAnnotations([{ summary: "Callie kids vacation" } as CalendarEvent], "aria");
+  assert(callieVacationAnno.custody?.parentName === "Callie" && callieVacationAnno.custody?.bgColor === "#800020", "Custody regex matches 'Callie kids vacation' -> Callie (Maroon)");
+
+  const swenWeekendAnno = extractChildAnnotations([{ summary: "Swen kid weekend" } as CalendarEvent], "brighton");
+  assert(swenWeekendAnno.custody?.parentName === "Andrew" && swenWeekendAnno.custody?.bgColor === "#800020", "Custody regex matches 'Swen kid weekend' -> Andrew (Maroon)");
 
   // No-School extraction
   const schoolAnno = extractChildAnnotations([mockNoSchoolEvent], "aria");

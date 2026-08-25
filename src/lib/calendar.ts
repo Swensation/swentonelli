@@ -47,24 +47,9 @@ export function buildGoogleCalendarDirectUrl(ev: {
   end?: Date | string;
   allDay?: boolean;
 }): string {
-  const uid = ev.uid ? String(ev.uid).trim() : "";
   const startDate = typeof ev.start === "string" ? new Date(ev.start) : ev.start;
 
-  // Check if UID is a genuine native Google Calendar ID (ends with @google.com and no UUID dashes)
-  // UUIDs like "B5CE6204-FD8E-47FD-..." are Apple/iCal identifiers that cause Google Calendar eventedit to 500
-  const isNativeGoogleUid = uid.endsWith("@google.com") && !uid.includes("-");
-
-  if (isNativeGoogleUid) {
-    const cleanUid = uid.replace(/@google\.com$/i, "");
-    try {
-      const eid = Buffer.from(cleanUid).toString("base64").replace(/=/g, "");
-      return `https://calendar.google.com/calendar/event?eid=${eid}`;
-    } catch {
-      // fallback to day view
-    }
-  }
-
-  // For non-Google / Apple / iCloud UIDs or external feeds, jump directly to that day in Google Calendar
+  // Jump directly to that specific day in Google Calendar web app (100% immune to 400/500 eid errors)
   const year = startDate.getFullYear();
   const month = startDate.getMonth() + 1;
   const day = startDate.getDate();

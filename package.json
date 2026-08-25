@@ -6,8 +6,12 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
     "test": "tsx scripts/smoke-test.ts",
+    "test:crawler": "tsx scripts/link-crawler-test.ts",
+    "test:e2e": "tsx scripts/e2e-browser-test.ts",
+    "test:e2e:prod": "tsx scripts/e2e-browser-test.ts --prod",
+    "test:all": "tsx scripts/smoke-test.ts && tsx scripts/link-crawler-test.ts && tsx scripts/e2e-browser-test.ts",
+    "test:all:prod": "tsx scripts/smoke-test.ts && tsx scripts/link-crawler-test.ts && tsx scripts/e2e-browser-test.ts --prod",
     "parse:lunch": "tsx scripts/parse-lunch-pdf.ts"
   },
   "dependencies": {
@@ -32,6 +36,7 @@
     "@types/sharp": "^0.31.1",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.49",
+    "puppeteer": "^25.9.0",
     "sharp": "^0.35.3",
     "tailwindcss": "^3.4.17",
     "tsx": "^4.19.2",

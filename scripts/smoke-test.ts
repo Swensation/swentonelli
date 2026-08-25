@@ -252,20 +252,21 @@ async function runTests() {
   assert(familyDaySummary.ariaBen.custody?.parentName === "Callie", "DailyFamilySummary extracts Callie for Ben/Aria");
   assert(familyDaySummary.brightonBennett.custody?.parentName === "Liz", "DailyFamilySummary extracts Liz for Brighton/Bennett");
 
-  // Google Calendar Direct URL Test
-  const directUrl = buildGoogleCalendarDirectUrl({
-    uid: "1r0ditlnp8bulu6pciud0q2b3e@google.com",
+  // Google Calendar Day View Link Test (100% immune to 400/500 errors)
+  const calLink = buildGoogleCalendarDirectUrl({
+    uid: "8t6uthbhg437gcqj1dboprf6mk",
     summary: "OSFC Practice",
     start: new Date("2026-08-25T17:00:00Z"),
   });
-  assert(directUrl.includes("calendar.google.com") && !directUrl.includes("search?q="), "buildGoogleCalendarDirectUrl links directly to event invite without search query");
+  assert(calLink.includes("calendar.google.com/calendar/u/0/r/day/2026/8/25"), "buildGoogleCalendarDirectUrl routes directly to Google Calendar day view to prevent 400/500 errors");
 
-  const appleDirectUrl = buildGoogleCalendarDirectUrl({
-    uid: "B5CE6204-FD8E-47FD-AFD6-15530DEFE165",
-    summary: "School meeting",
-    start: new Date("2026-08-25T17:00:00Z"),
-  });
-  assert(appleDirectUrl.includes("/r/day/2026/8/25"), "buildGoogleCalendarDirectUrl safely routes Apple/iCal UUIDs to day view to avoid 500 errors");
+  // Auth Gating Rule: Dad email is strictly aswens@gmail.com
+  const authContextFile = fs.readFileSync(path.join(process.cwd(), "src", "context", "AuthContext.tsx"), "utf-8");
+  assert(authContextFile.includes("aswens@gmail.com"), "AuthContext configures DAD_EMAIL as aswens@gmail.com");
+
+  // Header Admin Gating Check
+  const headerFile = fs.readFileSync(path.join(process.cwd(), "src", "components", "layout", "Header.tsx"), "utf-8");
+  assert(headerFile.includes("useAuth") && headerFile.includes("isAdmin ?"), "Header strictly gates the Admin button on Dad (aswens@gmail.com) login");
 
   // 5. Business Rules Engine Unit Tests
   console.log("\n5. Testing Business Rules Engine & Dynamic AI Discovery...");

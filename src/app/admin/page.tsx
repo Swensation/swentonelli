@@ -33,12 +33,14 @@ import {
 } from "lucide-react";
 import { AdminDashboardData, MissingIconItem } from "@/lib/admin";
 import { ChildHeader } from "@/components/common/ChildHeader";
+import { useAuth } from "@/context/AuthContext";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 type AdminTab = "general" | "children" | "calendar" | "lunch";
 
 export default function AdminPage() {
+  const { isAdmin, isLoading: isAuthLoading, loginWithGoogle } = useAuth();
   const [activeTab, setActiveTab] = useState<AdminTab>("general");
   const [approvingId, setApprovingId] = useState<string | null>(null);
   const [customUrls, setCustomUrls] = useState<Record<string, string>>({});
@@ -91,12 +93,48 @@ export default function AdminPage() {
     }
   };
 
-  if (isLoading) {
+  if (isLoading || isAuthLoading) {
     return (
       <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center p-6">
         <div className="flex flex-col items-center gap-3">
           <Loader2 className="w-8 h-8 text-amber-400 animate-spin" />
           <p className="text-sm font-bold text-slate-300">Loading Dashboard Diagnostics &amp; Housekeeping...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Auth Guard: Admin access strictly requires Dad (aswens@gmail.com) login
+  if (!isAdmin) {
+    return (
+      <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center p-6 font-sans">
+        <div className="glass-card p-8 max-w-md w-full text-center space-y-5">
+          <div className="h-16 w-16 rounded-3xl overflow-hidden border-2 border-amber-500/50 shadow-lg mx-auto bg-amber-500/20 flex items-center justify-center">
+            <img src="/scout.jpeg" alt="Scout" className="h-full w-full object-cover" />
+          </div>
+          <div>
+            <h2 className="text-xl font-black text-white">Dad Mode Restricted</h2>
+            <p className="text-xs text-slate-400 mt-1.5">
+              Admin &amp; Housekeeping access is restricted to Dad (<span className="text-amber-300 font-mono">aswens@gmail.com</span>).
+            </p>
+          </div>
+
+          <div className="pt-2 space-y-2.5">
+            <button
+              onClick={loginWithGoogle}
+              className="w-full py-3 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-sm shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2"
+            >
+              <span>Sign In as Dad (aswens@gmail.com)</span>
+            </button>
+
+            <Link
+              href="/"
+              className="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 font-bold text-xs transition-all flex items-center justify-center gap-2"
+            >
+              <ArrowLeft className="w-4 h-4 text-amber-400" />
+              <span>Back to Dashboard</span>
+            </Link>
+          </div>
         </div>
       </div>
     );

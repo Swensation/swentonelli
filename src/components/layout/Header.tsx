@@ -8,17 +8,21 @@ import {
   ChevronLeft,
   ChevronRight,
   Dog,
+  LogIn,
+  LogOut,
   QrCode,
   Settings,
 } from "lucide-react";
 import { useDashboard } from "@/context/DashboardContext";
 import { QrCodeModal } from "./QrCodeModal";
+import { useAuth } from "@/context/AuthContext";
 
 export function Header() {
   const [imageError, setImageError] = useState(false);
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
   const dateInputRef = useRef<HTMLInputElement>(null);
   const { selectedDate, goToPrevDay, goToNextDay, setSelectedDate } = useDashboard();
+  const { user, isAdmin, loginWithGoogle, logout } = useAuth();
 
   const formattedSelectedDate = format(selectedDate, "EEEE, MMMM d, yyyy");
   const isoSelectedDate = format(selectedDate, "yyyy-MM-dd");
@@ -104,7 +108,7 @@ export function Header() {
           </div>
         </div>
 
-        {/* Ribbon Right: QR Code + Dad Admin Housekeeping */}
+        {/* Ribbon Right: QR Code + Dad Admin Housekeeping (Gated on aswens@gmail.com) */}
         <div className="flex items-center gap-2.5">
           <button
             onClick={() => setIsQrModalOpen(true)}
@@ -116,15 +120,37 @@ export function Header() {
             <span className="hidden sm:inline">Phone QR</span>
           </button>
 
-          <Link
-            href="/admin"
-            className="p-2.5 md:px-3.5 md:py-2.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-slate-300 hover:text-amber-300 border border-slate-800 hover:border-slate-700 transition-all flex items-center gap-2 group shadow-sm active:scale-95 text-xs font-bold"
-            title="Dad Admin & Housekeeping"
-            aria-label="Dad Admin & Housekeeping"
-          >
-            <Settings className="w-4 h-4 text-amber-400 group-hover:rotate-45 transition-transform" />
-            <span className="hidden sm:inline">Admin</span>
-          </Link>
+          {/* Admin Button ONLY shows when Dad (aswens@gmail.com) is logged in */}
+          {isAdmin ? (
+            <div className="flex items-center gap-1.5">
+              <Link
+                href="/admin"
+                className="p-2.5 md:px-3.5 md:py-2.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 hover:border-amber-400 transition-all flex items-center gap-2 group shadow-sm active:scale-95 text-xs font-black"
+                title="Dad Admin & Housekeeping"
+                aria-label="Dad Admin & Housekeeping"
+              >
+                <Settings className="w-4 h-4 text-amber-400 group-hover:rotate-45 transition-transform" />
+                <span className="hidden sm:inline">Admin</span>
+              </Link>
+
+              <button
+                onClick={logout}
+                className="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-rose-400 border border-slate-800 transition-all text-xs"
+                title="Log Out (Dad)"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={loginWithGoogle}
+              className="p-2.5 md:px-3.5 md:py-2.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-slate-400 hover:text-white border border-slate-800 hover:border-slate-700 transition-all flex items-center gap-1.5 text-xs font-bold"
+              title="Dad Sign In (aswens@gmail.com)"
+            >
+              <LogIn className="w-4 h-4 text-slate-400" />
+              <span className="hidden sm:inline">Dad Login</span>
+            </button>
+          )}
         </div>
       </header>
 

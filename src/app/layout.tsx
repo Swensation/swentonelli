@@ -19,6 +19,8 @@ export const viewport: Viewport = {
   themeColor: "#0f172a",
 };
 
+import { AuthProvider } from "@/context/AuthContext";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -27,7 +29,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className="bg-slate-950 bg-ambient min-h-screen text-slate-100 selection:bg-amber-500 selection:text-slate-950 p-4 md:p-6 lg:p-8 max-w-[1800px] mx-auto">
-        {children}
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );

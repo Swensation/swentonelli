@@ -21,7 +21,8 @@ import { execSync } from "child_process";
 import { CalendarEvent } from "../src/types/calendar";
 import { enrichCalendarEvent } from "../src/lib/eventRules";
 import { discoverIconForEventGroup } from "../src/lib/iconDiscovery";
-import { extractChildAnnotations, isAnnotationEvent, filterActivityEvents } from "../src/lib/annotations";
+import { extractChildAnnotations, isAnnotationEvent, filterActivityEvents, getDailyFamilySummary } from "../src/lib/annotations";
+import { buildGoogleCalendarDirectUrl } from "../src/lib/calendar";
 import { getChildrenRegistry, findChildByEventText } from "../src/lib/childrenRegistry";
 
 async function fetchUrl(url: string, options?: RequestInit): Promise<{ status: number; body: string }> {
@@ -246,6 +247,19 @@ async function runTests() {
   const schoolAnno = extractChildAnnotations([mockNoSchoolEvent], "aria");
   assert(schoolAnno.school?.status === "no_school" && schoolAnno.school?.label === "No School", "Child with no-school event resolves to 'No School' badge");
 
+  // Daily Family Summary Test (Ben/Aria & Brighton/Bennett household state)
+  const familyDaySummary = getDailyFamilySummary([mockLizEvent, mockCallieEvent]);
+  assert(familyDaySummary.ariaBen.custody?.parentName === "Callie", "DailyFamilySummary extracts Callie for Ben/Aria");
+  assert(familyDaySummary.brightonBennett.custody?.parentName === "Liz", "DailyFamilySummary extracts Liz for Brighton/Bennett");
+
+  // Google Calendar Direct URL Test
+  const directUrl = buildGoogleCalendarDirectUrl({
+    uid: "1r0ditlnp8bulu6pciud0q2b3e@google.com",
+    summary: "OSFC Practice",
+    start: new Date("2026-08-25T17:00:00Z"),
+  });
+  assert(directUrl.includes("eventedit") && !directUrl.includes("search?q="), "buildGoogleCalendarDirectUrl links directly to event invite without search query");
+
   // 5. Business Rules Engine Unit Tests
   console.log("\n5. Testing Business Rules Engine & Dynamic AI Discovery...");
   const osfcEnrichment = enrichCalendarEvent({
@@ -413,7 +427,7 @@ async function runTests() {
     assert(pageRes.status === 200, "GET / returns HTTP 200 HTML");
     assert(pageRes.body.includes("Scouty Planner"), "Page contains Scouty Planner title");
     assert(pageRes.body.includes("Kids Columns"), "Page contains 4-Column Kids view switcher");
-    assert(pageRes.body.includes("All Events"), "Page contains Aggregate stream view switcher");
+    assert(pageRes.body.includes("Daily Summary"), "Page contains Daily Summary view switcher");
     
     // Check 4-Column Kids Timeline component file
     const kidsTimelineFile = fs.readFileSync(path.join(process.cwd(), "src", "components", "widgets", "CalendarWidget", "KidsColumnTimeline.tsx"), "utf-8");
@@ -423,6 +437,10 @@ async function runTests() {
       kidsTimelineFile.includes('"Benjamin"') &&
       kidsTimelineFile.includes('"Bennett"'),
       "KidsColumnTimeline configures 4 child columns: Aria, Brighton, Benjamin, Bennett"
+    );
+    assert(
+      kidsTimelineFile.includes("ChildHeader"),
+      "KidsColumnTimeline integrates universal ChildHeader component"
     );
     assert(
       kidsTimelineFile.includes("extractChildAnnotations") && kidsTimelineFile.includes("filterActivityEvents"),
@@ -435,6 +453,17 @@ async function runTests() {
     assert(
       kidsTimelineFile.includes("ExternalLink") && kidsTimelineFile.includes("calendar.google.com"),
       "KidsColumnTimeline includes subtle link icon to open Google Calendar invite"
+    );
+
+    // Universal ChildHeader component verification
+    const childHeaderFile = fs.readFileSync(path.join(process.cwd(), "src", "components", "common", "ChildHeader.tsx"), "utf-8");
+    assert(
+      childHeaderFile.includes("w-14 h-14") && childHeaderFile.includes("border-slate-700/80"),
+      "ChildHeader implements 50% larger avatars with consistent neutral borders"
+    );
+    assert(
+      childHeaderFile.includes("w-[76px]") || childHeaderFile.includes("min-w-[76px]"),
+      "ChildHeader implements fixed-width non-jumping custody badges"
     );
 
     // Zero Date Header Rule Check: Ensure neither widget renders internal date subtitles
@@ -450,7 +479,7 @@ async function runTests() {
       pageRes.body.includes("Failed to compile");
     assert(!hasErrorOverlay, "Page / renders cleanly with NO build/syntax error overlays");
 
-    // 8b. Admin Housekeeping Page (Tabbed UI & 1-Click Approval UI Check)
+    // 8b. Admin Housekeeping Page (Tabbed UI & Left-Row Header Matrix Check)
     const adminPageRes = await fetchUrl(`${BASE_URL}/admin`);
     assert(adminPageRes.status === 200, "GET /admin returns HTTP 200 HTML");
 
@@ -461,12 +490,12 @@ async function runTests() {
     assert(adminSource.includes("Family Calendar"), "Admin page implements 'Family Calendar' tab");
     assert(adminSource.includes("School Lunch"), "Admin page implements 'School Lunch' tab");
     assert(
-      adminSource.includes("handleApproveIcon"),
-      "Admin page implements 1-click icon approval engine with handleApproveIcon"
+      adminSource.includes("Child Profiles Matrix") && adminSource.includes("Attribute"),
+      "Admin page implements Child Profiles Matrix table with row headers on the left"
     );
     assert(
-      adminSource.includes("Copy Prompt for Google Gemini") && adminSource.includes("handleCopyGeminiPrompt"),
-      "Admin page implements 'Copy Prompt for Google Gemini' automation button"
+      adminSource.includes("handleApproveIcon"),
+      "Admin page implements 1-click icon approval engine with handleApproveIcon"
     );
 
     const hasAdminErrorOverlay =

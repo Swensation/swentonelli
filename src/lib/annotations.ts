@@ -100,6 +100,8 @@ export function isAnnotationEvent(event: CalendarEvent): boolean {
 
   // 1. Custody Event Triggers
   if (
+    summary === "kids" ||
+    summary === "kid" ||
     summary.includes("liz kid") ||
     summary.includes("liz kids") ||
     summary.includes("with liz") ||
@@ -244,9 +246,39 @@ export function extractChildAnnotations(
   };
 }
 
+export interface DailyFamilySummary {
+  ariaBen: {
+    custody?: CustodyAnnotation;
+    school?: SchoolAnnotation;
+  };
+  brightonBennett: {
+    custody?: CustodyAnnotation;
+    school?: SchoolAnnotation;
+  };
+}
+
+/**
+ * Returns household summary of the day for Ben/Aria and Brighton/Bennett
+ */
+export function getDailyFamilySummary(dayEvents: CalendarEvent[]): DailyFamilySummary {
+  const ariaAnno = extractChildAnnotations(dayEvents, "aria");
+  const brightonAnno = extractChildAnnotations(dayEvents, "brighton");
+
+  return {
+    ariaBen: {
+      custody: ariaAnno.custody,
+      school: ariaAnno.school,
+    },
+    brightonBennett: {
+      custody: brightonAnno.custody,
+      school: brightonAnno.school,
+    },
+  };
+}
+
 /**
  * Filters out custody and school status annotation events from the list of timeline events.
  */
 export function filterActivityEvents(events: CalendarEvent[]): CalendarEvent[] {
-  return events.filter((ev) => !isAnnotationEvent(ev));
+  return events.filter((e) => !isAnnotationEvent(e));
 }

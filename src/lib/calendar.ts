@@ -40,6 +40,34 @@ function sanitizeIcsUrl(url: string): string {
   return trimmed;
 }
 
+export function buildGoogleCalendarDirectUrl(ev: {
+  uid?: string;
+  summary: string;
+  start: Date | string;
+  end?: Date | string;
+  allDay?: boolean;
+}): string {
+  const uid = ev.uid ? String(ev.uid).trim() : "";
+  const startDate = typeof ev.start === "string" ? new Date(ev.start) : ev.start;
+
+  if (uid) {
+    // If it's a standard Google Calendar UID, encode eid to jump straight to the event invite
+    const cleanUid = uid.replace(/@google\.com$/i, "");
+    try {
+      const eid = Buffer.from(cleanUid).toString("base64").replace(/=/g, "");
+      return `https://calendar.google.com/calendar/u/0/r/eventedit/${eid}`;
+    } catch {
+      // fallback
+    }
+  }
+
+  // Direct date view jump in Google Calendar
+  const year = startDate.getFullYear();
+  const month = startDate.getMonth() + 1;
+  const day = startDate.getDate();
+  return `https://calendar.google.com/calendar/u/0/r/day/${year}/${month}/${day}`;
+}
+
 export { getEasternDateKey, formatEasternTime };
 
 export function parseCalendarSourcesFromEnv(): CalendarSource[] {
@@ -179,6 +207,14 @@ export async function fetchCalendarAgenda(): Promise<CalendarAgenda> {
               !ev.start.toISOString().includes("T") ||
               endDate.getTime() - startDate.getTime() >= 23 * 3600 * 1000;
 
+            const directUrl = buildGoogleCalendarDirectUrl({
+              uid: ev.uid || k,
+              summary,
+              start: startDate,
+              end: endDate,
+              allDay,
+            });
+
             if (isAfter(endDate, rangeStart) && isBefore(startDate, rangeEnd)) {
               allEvents.push({
                 id: `${source.id}-${ev.uid || k}-${startDate.getTime()}`,
@@ -191,7 +227,7 @@ export async function fetchCalendarAgenda(): Promise<CalendarAgenda> {
                 sourceId: source.id,
                 sourceName: source.name,
                 color,
-                url: eventUrl,
+                url: directUrl,
                 enrichment,
               });
             }
@@ -215,6 +251,14 @@ export async function fetchCalendarAgenda(): Promise<CalendarAgenda> {
                 const endDate = new Date(correctedStartMs + duration);
                 const allDay = !startDate.toISOString().includes("T");
 
+                const directUrl = buildGoogleCalendarDirectUrl({
+                  uid: ev.uid || k,
+                  summary,
+                  start: startDate,
+                  end: endDate,
+                  allDay,
+                });
+
                 allEvents.push({
                   id: `${source.id}-${ev.uid || k}-${startDate.getTime()}`,
                   summary,
@@ -226,7 +270,7 @@ export async function fetchCalendarAgenda(): Promise<CalendarAgenda> {
                   sourceId: source.id,
                   sourceName: source.name,
                   color,
-                  url: eventUrl,
+                  url: directUrl,
                   enrichment,
                 });
               }

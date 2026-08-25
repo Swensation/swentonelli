@@ -3,6 +3,7 @@
 import { CalendarEvent } from "@/types/calendar";
 import { extractChildAnnotations, filterActivityEvents } from "@/lib/annotations";
 import { formatEasternTime, getEasternMinutes } from "@/lib/dateUtils";
+import { ChildHeader } from "@/components/common/ChildHeader";
 import { format, parseISO } from "date-fns";
 import {
   Calendar as CalendarIcon,
@@ -88,48 +89,8 @@ export function KidsColumnTimeline({ events }: KidsColumnTimelineProps) {
               className="rounded-2xl p-3.5 bg-slate-900/85 border-2 flex flex-col h-full min-h-[360px] shadow-lg transition-all"
               style={{ borderColor: `${kid.color}99` }}
             >
-              {/* Column Header: Larger Avatar + Child Name on Left, Badges Strictly Top-Right Justified on One Line */}
-              <div className="flex items-center justify-between gap-2 pb-2.5 mb-3 border-b border-slate-800">
-                {/* Left: Avatar + Name */}
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center bg-slate-800 border border-slate-700/80 flex-shrink-0 shadow-md">
-                    <img
-                      src={`/icons/children/${kid.id}.png`}
-                      alt={kid.name}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        (e.target as HTMLElement).style.display = "none";
-                      }}
-                    />
-                  </div>
-                  <h3 className="font-black text-white text-base md:text-lg tracking-tight truncate">{kid.name}</h3>
-                </div>
-
-                {/* Right: Top-Right Justified Badges (Never wrap to new line) */}
-                <div className="flex items-center gap-1.5 flex-shrink-0 whitespace-nowrap ml-auto">
-                  {/* Custody Badge with Explicit Inline Colors for 100% Reliability */}
-                  {annotations.custody && (
-                    <span
-                      className="text-[10px] font-extrabold px-2 py-0.5 rounded-full border flex items-center gap-1 shadow-sm text-white"
-                      style={annotations.custody.badgeStyle}
-                      title={`Custody: ${annotations.custody.label} (${annotations.custody.parentName} - ${annotations.custody.town})`}
-                    >
-                      <Home className="w-2.5 h-2.5 flex-shrink-0" />
-                      <span className="whitespace-nowrap">{annotations.custody.label}</span>
-                    </span>
-                  )}
-
-                  {/* School Status Badge */}
-                  {annotations.school && (
-                    <span
-                      className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded-full border flex items-center gap-1 shadow-sm ${annotations.school.badgeClass}`}
-                    >
-                      <GraduationCap className="w-2.5 h-2.5 flex-shrink-0" />
-                      <span className="whitespace-nowrap">{annotations.school.label}</span>
-                    </span>
-                  )}
-                </div>
-              </div>
+              {/* Universal Child Header Component */}
+              <ChildHeader child={kid} annotations={annotations} />
 
               {/* Chronological Event Cards with Staggered Time Position */}
               {kidEvents.length === 0 ? (

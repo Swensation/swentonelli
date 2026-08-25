@@ -5,7 +5,8 @@ import useSWR from "swr";
 import { CalendarAgenda } from "@/types/calendar";
 import { EventItem } from "./EventItem";
 import { KidsColumnTimeline } from "./KidsColumnTimeline";
-import { Calendar as CalendarIcon, Columns3, LayoutList, Sparkles } from "lucide-react";
+import { getDailyFamilySummary, filterActivityEvents } from "@/lib/annotations";
+import { Calendar as CalendarIcon, Columns3, GraduationCap, Home, LayoutList, Sparkles } from "lucide-react";
 import { useDashboard } from "@/context/DashboardContext";
 import { format } from "date-fns";
 
@@ -26,11 +27,13 @@ export function CalendarWidget() {
 
   // Determine active events matching master selected date (supports past and future)
   const activeEvents = data?.byDate?.[selectedDateStr] || [];
+  const activityEvents = filterActivityEvents(activeEvents);
+  const daySummary = getDailyFamilySummary(activeEvents);
 
   return (
     <div className="glass-card p-6 flex flex-col h-full">
       {/* Pure Icon + Title Header + View Toggle (Zero Date Display) */}
-      <div className="flex items-center justify-between pb-4 border-b border-slate-700/60 mb-4 flex-wrap gap-2">
+      <div className="flex items-center justify-between pb-4 border-b border-slate-700/60 mb-3 flex-wrap gap-2">
         <div className="flex items-center gap-2.5">
           <div className="p-2 rounded-xl bg-blue-500/20 text-blue-400">
             <CalendarIcon className="w-5 h-5" />
@@ -60,11 +63,62 @@ export function CalendarWidget() {
                 ? "bg-blue-600 text-white shadow-sm font-black"
                 : "text-slate-400 hover:text-slate-200"
             }`}
-            title="Aggregate Stream View"
+            title="Daily Summary View"
           >
             <LayoutList className="w-3.5 h-3.5" />
-            <span>All Events</span>
+            <span>Daily Summary</span>
           </button>
+        </div>
+      </div>
+
+      {/* Daily Summary Banner: Ben / Aria & Brighton / Bennett Household & School Status */}
+      <div className="flex items-center justify-between gap-3 px-4 py-2.5 rounded-2xl bg-slate-900/80 border border-slate-800 shadow-sm flex-wrap mb-4">
+        {/* Ben & Aria */}
+        <div className="flex items-center gap-2 text-xs">
+          <span className="font-extrabold text-slate-300">Ben &amp; Aria:</span>
+          {daySummary.ariaBen.custody && (
+            <span
+              className="w-[76px] text-[10px] font-extrabold px-1.5 py-0.5 rounded-full border flex items-center justify-center gap-1 text-white shadow-sm transition-all"
+              style={daySummary.ariaBen.custody.badgeStyle}
+              title={`Custody: ${daySummary.ariaBen.custody.label} (${daySummary.ariaBen.custody.parentName} - ${daySummary.ariaBen.custody.town})`}
+            >
+              <Home className="w-2.5 h-2.5 flex-shrink-0" />
+              <span className="truncate">{daySummary.ariaBen.custody.label}</span>
+            </span>
+          )}
+          {daySummary.ariaBen.school && (
+            <span
+              className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded-full border flex items-center gap-1 shadow-sm ${daySummary.ariaBen.school.badgeClass}`}
+            >
+              <GraduationCap className="w-2.5 h-2.5 flex-shrink-0" />
+              <span>{daySummary.ariaBen.school.label}</span>
+            </span>
+          )}
+        </div>
+
+        <div className="h-4 w-px bg-slate-800 hidden sm:block" />
+
+        {/* Brighton & Bennett */}
+        <div className="flex items-center gap-2 text-xs">
+          <span className="font-extrabold text-slate-300">Brighton &amp; Bennett:</span>
+          {daySummary.brightonBennett.custody && (
+            <span
+              className="w-[76px] text-[10px] font-extrabold px-1.5 py-0.5 rounded-full border flex items-center justify-center gap-1 text-white shadow-sm transition-all"
+              style={daySummary.brightonBennett.custody.badgeStyle}
+              title={`Custody: ${daySummary.brightonBennett.custody.label} (${daySummary.brightonBennett.custody.parentName} - ${daySummary.brightonBennett.custody.town})`}
+            >
+              <Home className="w-2.5 h-2.5 flex-shrink-0" />
+              <span className="truncate">{daySummary.brightonBennett.custody.label}</span>
+            </span>
+          )}
+          {daySummary.brightonBennett.school && (
+            <span
+              className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded-full border flex items-center gap-1 shadow-sm ${daySummary.brightonBennett.school.badgeClass}`}
+            >
+              <GraduationCap className="w-2.5 h-2.5 flex-shrink-0" />
+              <span>{daySummary.brightonBennett.school.label}</span>
+            </span>
+          )}
         </div>
       </div>
 
@@ -86,7 +140,7 @@ export function CalendarWidget() {
 
         {data && (
           <>
-            {activeEvents.length === 0 ? (
+            {activityEvents.length === 0 ? (
               <div className="py-16 flex flex-col items-center justify-center text-center text-slate-400">
                 <Sparkles className="w-10 h-10 text-amber-400 mb-2 opacity-80" />
                 <p className="font-semibold text-slate-300">
@@ -98,7 +152,7 @@ export function CalendarWidget() {
               <KidsColumnTimeline events={activeEvents} />
             ) : (
               <div className="space-y-3">
-                {activeEvents.map((event) => (
+                {activityEvents.map((event) => (
                   <EventItem key={event.id} event={event} />
                 ))}
               </div>

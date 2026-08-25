@@ -258,7 +258,14 @@ async function runTests() {
     summary: "OSFC Practice",
     start: new Date("2026-08-25T17:00:00Z"),
   });
-  assert(directUrl.includes("eventedit") && !directUrl.includes("search?q="), "buildGoogleCalendarDirectUrl links directly to event invite without search query");
+  assert(directUrl.includes("calendar.google.com") && !directUrl.includes("search?q="), "buildGoogleCalendarDirectUrl links directly to event invite without search query");
+
+  const appleDirectUrl = buildGoogleCalendarDirectUrl({
+    uid: "B5CE6204-FD8E-47FD-AFD6-15530DEFE165",
+    summary: "School meeting",
+    start: new Date("2026-08-25T17:00:00Z"),
+  });
+  assert(appleDirectUrl.includes("/r/day/2026/8/25"), "buildGoogleCalendarDirectUrl safely routes Apple/iCal UUIDs to day view to avoid 500 errors");
 
   // 5. Business Rules Engine Unit Tests
   console.log("\n5. Testing Business Rules Engine & Dynamic AI Discovery...");

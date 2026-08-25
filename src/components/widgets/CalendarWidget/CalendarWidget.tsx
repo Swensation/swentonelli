@@ -71,57 +71,6 @@ export function CalendarWidget() {
         </div>
       </div>
 
-      {/* Daily Summary Banner: Ben / Aria & Brighton / Bennett Household & School Status */}
-      <div className="flex items-center justify-between gap-3 px-4 py-2.5 rounded-2xl bg-slate-900/80 border border-slate-800 shadow-sm flex-wrap mb-4">
-        {/* Ben & Aria */}
-        <div className="flex items-center gap-2 text-xs">
-          <span className="font-extrabold text-slate-300">Ben &amp; Aria:</span>
-          {daySummary.ariaBen.custody && (
-            <span
-              className="w-[76px] text-[10px] font-extrabold px-1.5 py-0.5 rounded-full border flex items-center justify-center gap-1 text-white shadow-sm transition-all"
-              style={daySummary.ariaBen.custody.badgeStyle}
-              title={`Custody: ${daySummary.ariaBen.custody.label} (${daySummary.ariaBen.custody.parentName} - ${daySummary.ariaBen.custody.town})`}
-            >
-              <Home className="w-2.5 h-2.5 flex-shrink-0" />
-              <span className="truncate">{daySummary.ariaBen.custody.label}</span>
-            </span>
-          )}
-          {daySummary.ariaBen.school && (
-            <span
-              className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded-full border flex items-center gap-1 shadow-sm ${daySummary.ariaBen.school.badgeClass}`}
-            >
-              <GraduationCap className="w-2.5 h-2.5 flex-shrink-0" />
-              <span>{daySummary.ariaBen.school.label}</span>
-            </span>
-          )}
-        </div>
-
-        <div className="h-4 w-px bg-slate-800 hidden sm:block" />
-
-        {/* Brighton & Bennett */}
-        <div className="flex items-center gap-2 text-xs">
-          <span className="font-extrabold text-slate-300">Brighton &amp; Bennett:</span>
-          {daySummary.brightonBennett.custody && (
-            <span
-              className="w-[76px] text-[10px] font-extrabold px-1.5 py-0.5 rounded-full border flex items-center justify-center gap-1 text-white shadow-sm transition-all"
-              style={daySummary.brightonBennett.custody.badgeStyle}
-              title={`Custody: ${daySummary.brightonBennett.custody.label} (${daySummary.brightonBennett.custody.parentName} - ${daySummary.brightonBennett.custody.town})`}
-            >
-              <Home className="w-2.5 h-2.5 flex-shrink-0" />
-              <span className="truncate">{daySummary.brightonBennett.custody.label}</span>
-            </span>
-          )}
-          {daySummary.brightonBennett.school && (
-            <span
-              className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded-full border flex items-center gap-1 shadow-sm ${daySummary.brightonBennett.school.badgeClass}`}
-            >
-              <GraduationCap className="w-2.5 h-2.5 flex-shrink-0" />
-              <span>{daySummary.brightonBennett.school.label}</span>
-            </span>
-          )}
-        </div>
-      </div>
-
       {/* Content Area */}
       <div className="flex-1 overflow-y-auto pr-1">
         {isLoading && !data && (
@@ -140,18 +89,122 @@ export function CalendarWidget() {
 
         {data && (
           <>
-            {activityEvents.length === 0 ? (
-              <div className="py-16 flex flex-col items-center justify-center text-center text-slate-400">
-                <Sparkles className="w-10 h-10 text-amber-400 mb-2 opacity-80" />
-                <p className="font-semibold text-slate-300">
-                  Nothing scheduled for {isToday ? "today" : isTomorrow ? "tomorrow" : "this day"}!
-                </p>
-                <p className="text-xs text-slate-500 mt-1">Enjoy some free family time 🌟</p>
+            {activityEvents.length === 0 && viewMode === "aggregate" ? (
+              <div>
+                {/* Daily Summary Banner: Ben / Aria & Brighton / Bennett Household & School Status */}
+                <div className="flex items-center justify-between gap-3 px-4 py-2.5 rounded-2xl bg-slate-900/80 border border-slate-800 shadow-sm flex-wrap mb-4">
+                  {/* Ben & Aria */}
+                  <div className="flex items-center gap-2 text-xs">
+                    <span className="font-extrabold text-slate-300">Ben &amp; Aria:</span>
+                    {daySummary.ariaBen.custody && (
+                      <span
+                        className="w-[76px] text-[10px] font-extrabold px-1.5 py-0.5 rounded-full border flex items-center justify-center gap-1 text-white shadow-sm transition-all"
+                        style={daySummary.ariaBen.custody.badgeStyle}
+                        title={`Custody: ${daySummary.ariaBen.custody.label} (${daySummary.ariaBen.custody.parentName} - ${daySummary.ariaBen.custody.town})`}
+                      >
+                        <Home className="w-2.5 h-2.5 flex-shrink-0" />
+                        <span className="truncate">{daySummary.ariaBen.custody.label}</span>
+                      </span>
+                    )}
+                    {daySummary.ariaBen.school && (
+                      <span
+                        className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded-full border flex items-center gap-1 shadow-sm ${daySummary.ariaBen.school.badgeClass}`}
+                      >
+                        <GraduationCap className="w-2.5 h-2.5 flex-shrink-0" />
+                        <span>{daySummary.ariaBen.school.label}</span>
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="h-4 w-px bg-slate-800 hidden sm:block" />
+
+                  {/* Brighton & Bennett */}
+                  <div className="flex items-center gap-2 text-xs">
+                    <span className="font-extrabold text-slate-300">Brighton &amp; Bennett:</span>
+                    {daySummary.brightonBennett.custody && (
+                      <span
+                        className="w-[76px] text-[10px] font-extrabold px-1.5 py-0.5 rounded-full border flex items-center justify-center gap-1 text-white shadow-sm transition-all"
+                        style={daySummary.brightonBennett.custody.badgeStyle}
+                        title={`Custody: ${daySummary.brightonBennett.custody.label} (${daySummary.brightonBennett.custody.parentName} - ${daySummary.brightonBennett.custody.town})`}
+                      >
+                        <Home className="w-2.5 h-2.5 flex-shrink-0" />
+                        <span className="truncate">{daySummary.brightonBennett.custody.label}</span>
+                      </span>
+                    )}
+                    {daySummary.brightonBennett.school && (
+                      <span
+                        className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded-full border flex items-center gap-1 shadow-sm ${daySummary.brightonBennett.school.badgeClass}`}
+                      >
+                        <GraduationCap className="w-2.5 h-2.5 flex-shrink-0" />
+                        <span>{daySummary.brightonBennett.school.label}</span>
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="py-16 flex flex-col items-center justify-center text-center text-slate-400">
+                  <Sparkles className="w-10 h-10 text-amber-400 mb-2 opacity-80" />
+                  <p className="font-semibold text-slate-300">
+                    Nothing scheduled for {isToday ? "today" : isTomorrow ? "tomorrow" : "this day"}!
+                  </p>
+                  <p className="text-xs text-slate-500 mt-1">Enjoy some free family time 🌟</p>
+                </div>
               </div>
             ) : viewMode === "kids" ? (
               <KidsColumnTimeline events={activeEvents} />
             ) : (
               <div className="space-y-3">
+                {/* Daily Summary Banner: Ben / Aria & Brighton / Bennett Household & School Status */}
+                <div className="flex items-center justify-between gap-3 px-4 py-2.5 rounded-2xl bg-slate-900/80 border border-slate-800 shadow-sm flex-wrap mb-4">
+                  {/* Ben & Aria */}
+                  <div className="flex items-center gap-2 text-xs">
+                    <span className="font-extrabold text-slate-300">Ben &amp; Aria:</span>
+                    {daySummary.ariaBen.custody && (
+                      <span
+                        className="w-[76px] text-[10px] font-extrabold px-1.5 py-0.5 rounded-full border flex items-center justify-center gap-1 text-white shadow-sm transition-all"
+                        style={daySummary.ariaBen.custody.badgeStyle}
+                        title={`Custody: ${daySummary.ariaBen.custody.label} (${daySummary.ariaBen.custody.parentName} - ${daySummary.ariaBen.custody.town})`}
+                      >
+                        <Home className="w-2.5 h-2.5 flex-shrink-0" />
+                        <span className="truncate">{daySummary.ariaBen.custody.label}</span>
+                      </span>
+                    )}
+                    {daySummary.ariaBen.school && (
+                      <span
+                        className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded-full border flex items-center gap-1 shadow-sm ${daySummary.ariaBen.school.badgeClass}`}
+                      >
+                        <GraduationCap className="w-2.5 h-2.5 flex-shrink-0" />
+                        <span>{daySummary.ariaBen.school.label}</span>
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="h-4 w-px bg-slate-800 hidden sm:block" />
+
+                  {/* Brighton & Bennett */}
+                  <div className="flex items-center gap-2 text-xs">
+                    <span className="font-extrabold text-slate-300">Brighton &amp; Bennett:</span>
+                    {daySummary.brightonBennett.custody && (
+                      <span
+                        className="w-[76px] text-[10px] font-extrabold px-1.5 py-0.5 rounded-full border flex items-center justify-center gap-1 text-white shadow-sm transition-all"
+                        style={daySummary.brightonBennett.custody.badgeStyle}
+                        title={`Custody: ${daySummary.brightonBennett.custody.label} (${daySummary.brightonBennett.custody.parentName} - ${daySummary.brightonBennett.custody.town})`}
+                      >
+                        <Home className="w-2.5 h-2.5 flex-shrink-0" />
+                        <span className="truncate">{daySummary.brightonBennett.custody.label}</span>
+                      </span>
+                    )}
+                    {daySummary.brightonBennett.school && (
+                      <span
+                        className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded-full border flex items-center gap-1 shadow-sm ${daySummary.brightonBennett.school.badgeClass}`}
+                      >
+                        <GraduationCap className="w-2.5 h-2.5 flex-shrink-0" />
+                        <span>{daySummary.brightonBennett.school.label}</span>
+                      </span>
+                    )}
+                  </div>
+                </div>
+
                 {activityEvents.map((event) => (
                   <EventItem key={event.id} event={event} />
                 ))}

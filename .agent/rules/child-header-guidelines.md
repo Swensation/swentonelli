@@ -23,3 +23,4 @@ When presenting any "Child View" across the application—including the Family C
 - **No Arbitrary Styling**: Do NOT add arbitrary bold, yellow, or colored text to table cells or list items for the sake of styling. Keep all metadata text clean, legible, and uniform.
 - **No Extraneous Subtitles**: Remove and do not generate extraneous explanatory subtitles across headers and widgets unless explicitly prompted.
 - **Equal Heights**: In multi-column child grids, all columns MUST be equal height (`items-stretch` with `h-full flex flex-col`), matching the height of the tallest column.
+

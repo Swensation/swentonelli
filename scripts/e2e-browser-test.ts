@@ -79,7 +79,11 @@ async function runE2ETests() {
     });
 
     page.on("response", (response) => {
-      if (response.status() === 404 && !response.url().includes("favicon")) {
+      if (
+        response.status() === 404 &&
+        !response.url().includes("favicon") &&
+        !failed404Urls.includes(response.url())
+      ) {
         failed404Urls.push(response.url());
       }
     });

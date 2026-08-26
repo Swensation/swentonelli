@@ -229,7 +229,7 @@ async function runLiveAssetTests() {
     await new Promise((r) => setTimeout(r, 600));
     const parentInfoContentFound = await page.evaluate(() => {
       const text = document.body.innerText;
-      return text.includes("2:18 PM") && text.includes("3:03 PM") && text.includes("10:44 AM") && text.includes("10:47 AM");
+      return text.includes("2:18 PM") && text.includes("3:03 PM") && text.includes("11:32 AM") && text.includes("10:47 AM");
     });
     assert(parentInfoContentFound, "Admin Parent Info tab displays verified school dismissal and pickup hours");
     await auditPageImages(page, "Admin Dashboard (Parent Info)", failed404Urls);

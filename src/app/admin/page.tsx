@@ -916,17 +916,17 @@ export default function AdminPage() {
                 <div className="space-y-2 pt-1 text-xs">
                   <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900/80 border border-slate-800">
                     <div>
-                      <span className="font-bold text-white block">Adams Middle School</span>
-                      <span className="text-[11px] text-slate-400">Brighton</span>
+                      <span className="font-bold text-white block">Miller Elementary (Stop 1)</span>
+                      <span className="text-[11px] text-slate-400">Bennett (Grades 3–5)</span>
                     </div>
-                    <span className="font-black text-sm text-amber-300 font-mono">10:44 AM</span>
+                    <span className="font-black text-sm text-amber-300 font-mono">10:47 AM</span>
                   </div>
                   <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900/80 border border-slate-800">
                     <div>
-                      <span className="font-bold text-white block">Miller Elementary</span>
-                      <span className="text-[11px] text-slate-400">Bennett</span>
+                      <span className="font-bold text-white block">Adams Middle School (Stop 2)</span>
+                      <span className="text-[11px] text-slate-400">Brighton (Grades 6–8)</span>
                     </div>
-                    <span className="font-black text-sm text-amber-300 font-mono">10:47 AM</span>
+                    <span className="font-black text-sm text-amber-300 font-mono">11:32 AM</span>
                   </div>
                 </div>
               </div>
@@ -944,10 +944,10 @@ export default function AdminPage() {
                 </div>
                 <div className="p-3 rounded-xl bg-sky-500/10 border border-sky-500/30 text-xs text-sky-100 space-y-2">
                   <div className="flex items-baseline gap-2">
-                    <span className="text-lg font-black text-white font-mono">10:15 AM – 10:25 AM</span>
+                    <span className="text-lg font-black text-white font-mono">10:20 AM – 10:30 AM</span>
                   </div>
                   <p className="text-[11px] text-sky-200/80 leading-relaxed">
-                    Leaves adequate buffer for local traffic, school car lines, and traveling between Adams Middle School and Miller Elementary School.
+                    Leaves time to pick up Bennett at Miller (10:47 AM) and proceed to Adams for Brighton (11:32 AM).
                   </p>
                 </div>
               </div>

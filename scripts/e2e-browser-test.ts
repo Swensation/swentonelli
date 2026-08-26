@@ -314,7 +314,7 @@ async function runE2ETests() {
 
     const parentInfoRendered = await page.evaluate(() => {
       const text = document.body.innerText;
-      return text.includes("Miller Elementary") && text.includes("2:18 PM") && text.includes("10:44 AM") && text.includes("10:15 AM");
+      return text.includes("Miller Elementary") && text.includes("2:18 PM") && text.includes("11:32 AM") && text.includes("10:20 AM");
     });
     assert(parentInfoRendered, "Parent Info handbook rendered in Admin dashboard with school dismissal and departure recommendations");
 

@@ -68,14 +68,14 @@ export function loadParentInfoDocuments(): ParentInfoData {
     });
   }
 
-  // Default quick reference data extracted from verified district specs
+  // Default quick reference data extracted exclusively from official HPS School Calendar (26-27)
   const quickReference: ParentInfoQuickReference = {
     schoolHours: {
       millerRegular: "2:18 PM",
       adamsRegular: "3:03 PM",
-      adamsEarly: "10:44 AM",
       millerEarly: "10:47 AM",
-      departureRecommendation: "Plan to leave your house between 10:15 AM and 10:25 AM.",
+      adamsEarly: "11:32 AM",
+      departureRecommendation: "Plan to leave your house between 10:20 AM and 10:30 AM (Miller pickup at 10:47 AM, followed by Adams pickup at 11:32 AM).",
     },
   };
 

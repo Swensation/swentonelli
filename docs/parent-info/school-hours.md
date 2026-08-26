@@ -1,36 +1,45 @@
-# School Hours & Dismissal Schedule
+# Holliston Public Schools — Hours & Dismissal Schedule
 
-This reference document outlines the standard daily schedule, early dismissal hours, pickup times, and recommended departure windows for the Holliston Public Schools attended by Brighton and Bennett.
-
----
-
-## 1. Standard Full-Day Dismissal Times
-Regular school hours and standard daily dismissal times:
-
-* **Miller Elementary School (Bennett)**: `2:18 PM`
-* **Adams Middle School (Brighton)**: `3:03 PM`
+*Source: [Official HPS 2026–2027 School Calendar (Google Drive Document)](https://drive.google.com/file/d/1w-ZzoLXQvizH0fc31e27GCjHIlLCvUr9/view)*
 
 ---
 
-## 2. Early Release & Pickup Times
-On scheduled early release days (half days, district professional development, or day-before-holiday schedules):
+## 1. Standard Daily School Hours (Full Days)
 
-* **Adams Middle School (Brighton)**: `10:44 AM`
-  * Early release dismissal time according to the [Holliston District Calendar](https://www.holliston.k12.ma.us/about/district-calendar).
-* **Miller Elementary School (Bennett)**: `10:47 AM`
-  * Early release dismissal time per [Miller Elementary School](https://miller.holliston.k12.ma.us/about-us/principals-message-clone-clone).
-
----
-
-## 3. Departure Recommendation
-> 🚗 **Plan to leave your house between 10:15 AM and 10:25 AM.**
-> 
-> *Leaving during this window allows adequate buffer for local traffic, school car line queueing, and smooth transition between Adams Middle School and Miller Elementary School.*
+| School | Student / Grade | Start Time | Regular Dismissal |
+| :--- | :--- | :--- | :--- |
+| **Miller Elementary School** | **Bennett** (Grades 3–5) | **7:40 AM** | **2:18 PM** |
+| **Adams Middle School** | **Brighton** (Grades 6–8) | **8:25 AM** | **3:03 PM** |
+| *Placentino Elementary* | Grades K–2 | 7:40 AM | 2:15 PM |
+| *Holliston High School* | Grades 9–12 | 8:15 AM | 3:03 PM |
+| *Preschool (Session 1)* | Pre-K | 7:50 AM | 10:20 AM |
+| *Preschool (Session 2)* | Pre-K | 11:20 AM | 1:50 PM |
+| *Preschool (Full Day)* | Pre-K | 7:50 AM | 1:50 PM |
 
 ---
 
-## 4. Helpful School Links & Resources
-* [Holliston District Calendar](https://www.holliston.k12.ma.us/about/district-calendar)
-* [Miller Elementary School Official Website](https://miller.holliston.k12.ma.us/about-us/principals-message-clone-clone)
-* [Adams Middle School Official Website](https://adams.holliston.k12.ma.us/)
+## 2. Emergency & Early Release Dismissal Times
 
+On scheduled early release days, half days, and emergency early dismissals:
+
+* **Miller Elementary School (Bennett)**: **`10:47 AM`**
+* **Adams Middle School (Brighton)**: **`11:32 AM`**
+* *Placentino Elementary*: `10:44 AM`
+* *Holliston High School*: `11:32 AM`
+
+---
+
+## 3. Early Release Staggered Pickup & Departure Plan
+
+Because Miller dismisses at **10:47 AM** and Adams dismisses **45 minutes later at 11:32 AM**, follow this staggered pickup routine:
+
+1. **Leave House**: **`10:20 AM – 10:30 AM`**
+2. **Stop 1 (Bennett / Miller Elementary)**: Arrive for **`10:47 AM`** dismissal.
+3. **Stop 2 (Brighton / Adams Middle School)**: Arrive for **`11:32 AM`** dismissal.
+
+> 🚗 **Departure Recommendation:** Leave the house between **10:20 AM and 10:30 AM** to comfortably queue in the Miller Elementary car line, pick up Bennett, and proceed directly to Adams Middle School for Brighton's 11:32 AM bell.
+
+---
+
+## 4. Official District Source
+* [HPS School Calendar 26-27 (Official Document)](https://drive.google.com/file/d/1w-ZzoLXQvizH0fc31e27GCjHIlLCvUr9/view)

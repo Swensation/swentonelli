@@ -431,14 +431,14 @@ async function runTests() {
     assert(
       schoolHoursDoc.content.includes("2:18 PM") &&
       schoolHoursDoc.content.includes("3:03 PM") &&
-      schoolHoursDoc.content.includes("10:44 AM") &&
+      schoolHoursDoc.content.includes("11:32 AM") &&
       schoolHoursDoc.content.includes("10:47 AM"),
       "school-hours.md contains accurate Miller/Adams regular and early dismissal times"
     );
     assert(
       adminJson.parentInfo.quickReference.schoolHours.millerRegular === "2:18 PM" &&
       adminJson.parentInfo.quickReference.schoolHours.adamsRegular === "3:03 PM" &&
-      adminJson.parentInfo.quickReference.schoolHours.adamsEarly === "10:44 AM" &&
+      adminJson.parentInfo.quickReference.schoolHours.adamsEarly === "11:32 AM" &&
       adminJson.parentInfo.quickReference.schoolHours.millerEarly === "10:47 AM",
       "Parent Info quickReference contains verified school dismissal hours"
     );

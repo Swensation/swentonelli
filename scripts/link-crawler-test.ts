@@ -105,8 +105,8 @@ async function runLinkAndAssetCrawler() {
 
   // 4. Mascot Image Integrity
   console.log("\n4. Verifying Dashboard Mascot & General UI Icons...");
-  const scoutPngPath = path.join(publicDir, "icons", "general", "scout.png");
-  assert(fs.existsSync(scoutPngPath), "Scout mascot image exists at /icons/general/scout.png");
+  const scoutPngPath = path.join(publicDir, "scout.png");
+  assert(fs.existsSync(scoutPngPath), "Scout mascot image exists at /scout.png");
 
   console.log("\n==========================================");
   console.log(`Crawler Results: ${totalPassed} passed, ${totalFailed} failed`);

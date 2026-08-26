@@ -177,7 +177,7 @@ export default function AdminPage() {
             <div className="h-12 w-12 rounded-2xl overflow-hidden border-2 border-amber-500/50 shadow-md flex-shrink-0 bg-amber-500/20 flex items-center justify-center">
               {!mascotError ? (
                 <img
-                  src="/icons/general/scout.png"
+                  src="/scout.png"
                   alt="Scout the Beagle"
                   className="h-full w-full object-cover"
                   onError={() => setMascotError(true)}

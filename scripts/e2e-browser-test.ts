@@ -22,7 +22,6 @@ const PROD_URL = "https://swentonelli--scouty-planner.us-east4.hosted.app";
 const LOCAL_URL = "http://localhost:3000";
 
 const isProd = process.argv.includes("--prod");
-const baseUrl = isProd ? PROD_URL : (process.env.TARGET_URL || LOCAL_URL);
 
 let totalPassed = 0;
 let totalFailed = 0;
@@ -49,7 +48,25 @@ function assert(condition: boolean, title: string, details?: string) {
   }
 }
 
+async function findActivePort(): Promise<number> {
+  const ports = [3000, 3001, 3002];
+  for (const port of ports) {
+    try {
+      const res = await fetch(`http://localhost:${port}/api/lunch`, { signal: AbortSignal.timeout(1500) });
+      if (res.status === 200) {
+        return port;
+      }
+    } catch {
+      // probe next port
+    }
+  }
+  return 3000;
+}
+
 async function runE2ETests() {
+  const port = isProd ? 0 : await findActivePort();
+  const baseUrl = isProd ? PROD_URL : (process.env.TARGET_URL || `http://localhost:${port}`);
+
   console.log("==========================================");
   console.log(`🌐 Running Headless Browser E2E Suite (Puppeteer)`);
   console.log(`🎯 Target URL: ${baseUrl}`);

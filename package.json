@@ -4,14 +4,16 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build && tsx scripts/copy-standalone-assets.ts",
     "start": "next start",
     "test": "tsx scripts/smoke-test.ts",
     "test:crawler": "tsx scripts/link-crawler-test.ts",
+    "test:assets": "tsx scripts/test-live-assets.ts",
+    "test:assets:prod": "tsx scripts/test-live-assets.ts --prod",
     "test:e2e": "tsx scripts/e2e-browser-test.ts",
     "test:e2e:prod": "tsx scripts/e2e-browser-test.ts --prod",
-    "test:all": "tsx scripts/smoke-test.ts && tsx scripts/link-crawler-test.ts && tsx scripts/e2e-browser-test.ts",
-    "test:all:prod": "tsx scripts/smoke-test.ts && tsx scripts/link-crawler-test.ts && tsx scripts/e2e-browser-test.ts --prod",
+    "test:all": "tsx scripts/smoke-test.ts && tsx scripts/link-crawler-test.ts && tsx scripts/test-live-assets.ts && tsx scripts/e2e-browser-test.ts",
+    "test:all:prod": "tsx scripts/smoke-test.ts && tsx scripts/link-crawler-test.ts && tsx scripts/test-live-assets.ts --prod && tsx scripts/e2e-browser-test.ts --prod",
     "parse:lunch": "tsx scripts/parse-lunch-pdf.ts"
   },
   "dependencies": {

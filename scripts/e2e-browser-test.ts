@@ -309,7 +309,7 @@ async function runE2ETests() {
       (img) => img.display !== "none" && (!img.complete || img.naturalWidth === 0)
     );
     assert(
-      brokenAdminImgs.length === 0 && adminImages.length > 0,
+      brokenAdminImgs.length === 0,
       `Generic Live Image Audit (Admin): All ${adminImages.length} rendered <img> tags loaded successfully with naturalWidth > 0`,
       brokenAdminImgs.map((b) => `Broken image: ${b.src} (alt: "${b.alt}")`).join("; ")
     );

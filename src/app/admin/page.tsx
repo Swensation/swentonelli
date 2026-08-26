@@ -110,7 +110,7 @@ export default function AdminPage() {
       <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center p-6 font-sans">
         <div className="glass-card p-8 max-w-md w-full text-center space-y-5">
           <div className="h-16 w-16 rounded-3xl overflow-hidden border-2 border-amber-500/50 shadow-lg mx-auto bg-amber-500/20 flex items-center justify-center">
-            <img src="/scout.jpeg" alt="Scout" className="h-full w-full object-cover" />
+            <img src="/scout.png" alt="Scout" className="h-full w-full object-cover" />
           </div>
           <div>
             <h2 className="text-xl font-black text-white">Dad Mode Restricted</h2>

@@ -99,11 +99,36 @@ async function runE2ETests() {
     const pageTitle = await page.title();
     assert(pageTitle.includes("Scouty Planner"), `Page title is '${pageTitle}'`);
 
-    const scoutMascotLoaded = await page.evaluate(() => {
-      const img = document.querySelector('header img[src*="scout"]') as HTMLImageElement;
-      return img && img.naturalWidth > 0;
+    // Generic Live-Asset E2E Image Audit (Homepage)
+    const homepageImages = await page.evaluate(async () => {
+      const allImgs = Array.from(document.querySelectorAll("img")) as HTMLImageElement[];
+      await Promise.all(
+        allImgs.map((img) => {
+          if (img.complete) return;
+          return new Promise((resolve) => {
+            img.addEventListener("load", resolve);
+            img.addEventListener("error", resolve);
+          });
+        })
+      );
+      return allImgs.map((img) => ({
+        src: img.src,
+        alt: img.alt,
+        complete: img.complete,
+        naturalWidth: img.naturalWidth,
+        naturalHeight: img.naturalHeight,
+        display: window.getComputedStyle(img).display,
+      }));
     });
-    assert(scoutMascotLoaded, "Scout mascot image loaded successfully in header (naturalWidth > 0)");
+
+    const brokenHomepageImgs = homepageImages.filter(
+      (img) => img.display !== "none" && (!img.complete || img.naturalWidth === 0)
+    );
+    assert(
+      brokenHomepageImgs.length === 0 && homepageImages.length > 0,
+      `Generic Live Image Audit (Homepage): All ${homepageImages.length} rendered <img> tags loaded successfully with naturalWidth > 0`,
+      brokenHomepageImgs.map((b) => `Broken image: ${b.src} (alt: "${b.alt}")`).join("; ")
+    );
 
     // ----------------------------------------------------
     // TEST 2: Universal ChildHeader & 4-Column Layout
@@ -257,6 +282,37 @@ async function runE2ETests() {
       return text.includes("General Overview") && text.includes("Child Profiles & Schedules");
     });
     assert(isAdminDashboardUnlocked, "Admin Dashboard unlocks with full tabs when Dad (aswens@gmail.com) is authenticated");
+
+    // Generic Live-Asset E2E Image Audit (Admin Dashboard)
+    const adminImages = await page.evaluate(async () => {
+      const allImgs = Array.from(document.querySelectorAll("img")) as HTMLImageElement[];
+      await Promise.all(
+        allImgs.map((img) => {
+          if (img.complete) return;
+          return new Promise((resolve) => {
+            img.addEventListener("load", resolve);
+            img.addEventListener("error", resolve);
+          });
+        })
+      );
+      return allImgs.map((img) => ({
+        src: img.src,
+        alt: img.alt,
+        complete: img.complete,
+        naturalWidth: img.naturalWidth,
+        naturalHeight: img.naturalHeight,
+        display: window.getComputedStyle(img).display,
+      }));
+    });
+
+    const brokenAdminImgs = adminImages.filter(
+      (img) => img.display !== "none" && (!img.complete || img.naturalWidth === 0)
+    );
+    assert(
+      brokenAdminImgs.length === 0 && adminImages.length > 0,
+      `Generic Live Image Audit (Admin): All ${adminImages.length} rendered <img> tags loaded successfully with naturalWidth > 0`,
+      brokenAdminImgs.map((b) => `Broken image: ${b.src} (alt: "${b.alt}")`).join("; ")
+    );
 
     // ----------------------------------------------------
     // TEST 6: Network & Image 404 Scan

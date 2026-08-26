@@ -423,6 +423,25 @@ async function runTests() {
       typeof adminJson.geminiSanitizationPrompt === "string" && adminJson.geminiSanitizationPrompt.includes("Swenson-Antonelli"),
       "GET /api/admin returns comprehensive Google Gemini Sanitization Prompt"
     );
+
+    // Parent Information Handbook verification
+    assert(!!adminJson.parentInfo && Array.isArray(adminJson.parentInfo.documents), "GET /api/admin returns parentInfo with documents array");
+    const schoolHoursDoc = adminJson.parentInfo.documents.find((d: any) => d.id === "school-hours");
+    assert(!!schoolHoursDoc, "Parent Info documents includes school-hours.md");
+    assert(
+      schoolHoursDoc.content.includes("2:18 PM") &&
+      schoolHoursDoc.content.includes("3:03 PM") &&
+      schoolHoursDoc.content.includes("10:44 AM") &&
+      schoolHoursDoc.content.includes("10:47 AM"),
+      "school-hours.md contains accurate Miller/Adams regular and early dismissal times"
+    );
+    assert(
+      adminJson.parentInfo.quickReference.schoolHours.millerRegular === "2:18 PM" &&
+      adminJson.parentInfo.quickReference.schoolHours.adamsRegular === "3:03 PM" &&
+      adminJson.parentInfo.quickReference.schoolHours.adamsEarly === "10:44 AM" &&
+      adminJson.parentInfo.quickReference.schoolHours.millerEarly === "10:47 AM",
+      "Parent Info quickReference contains verified school dismissal hours"
+    );
   } catch (err: any) {
     assert(false, "GET /api/admin", `Server unreachable: ${err.message}`);
   }

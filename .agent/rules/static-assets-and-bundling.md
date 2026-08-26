@@ -49,3 +49,4 @@
    - Never consider a production issue resolved until all new assets and code changes are committed and pushed to `main` (`git push origin main`).
 2. **Live Verification Required**:
    - After pushing changes, run `npm run test:all:prod` or `npm run test:assets:prod` against the live production endpoint to verify that the deployed CDN / Cloud Run instance serves all assets with HTTP 200 and zero broken images.
+

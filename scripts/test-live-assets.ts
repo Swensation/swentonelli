@@ -219,6 +219,21 @@ async function runLiveAssetTests() {
     await new Promise((r) => setTimeout(r, 600));
     await auditPageImages(page, "Admin Dashboard (Rules & Badges)", failed404Urls);
 
+    // View G: Admin Parent Info Tab
+    console.log(`\n   Opening Admin Parent Info Tab...`);
+    await page.evaluate(() => {
+      const tabs = Array.from(document.querySelectorAll("button"));
+      const parentTab = tabs.find((b) => b.textContent?.includes("Parent Info"));
+      parentTab?.click();
+    });
+    await new Promise((r) => setTimeout(r, 600));
+    const parentInfoContentFound = await page.evaluate(() => {
+      const text = document.body.innerText;
+      return text.includes("2:18 PM") && text.includes("3:03 PM") && text.includes("10:44 AM") && text.includes("10:47 AM");
+    });
+    assert(parentInfoContentFound, "Admin Parent Info tab displays verified school dismissal and pickup hours");
+    await auditPageImages(page, "Admin Dashboard (Parent Info)", failed404Urls);
+
     // Assert zero 404 network responses detected across all visited views
     console.log("\n3. Verifying Zero 404 HTTP Responses across entire session...");
     assert(failed404Urls.length === 0, "Zero 404 network responses detected across all pages", failed404Urls.join(", "));

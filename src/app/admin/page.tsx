@@ -8,13 +8,16 @@ import {
   AlertCircle,
   AlertTriangle,
   ArrowLeft,
+  BookOpen,
   Calendar as CalendarIcon,
+  Car,
   Check,
   CheckCircle2,
   ChevronRight,
   Clock,
   Dog,
   ExternalLink,
+  FileText,
   GraduationCap,
   HeartPulse,
   Home,
@@ -24,6 +27,7 @@ import {
   Loader2,
   MapPin,
   RefreshCw,
+  School,
   Sparkles,
   Trophy,
   Upload,
@@ -33,11 +37,12 @@ import {
 } from "lucide-react";
 import { AdminDashboardData, MissingIconItem } from "@/lib/admin";
 import { ChildHeader } from "@/components/common/ChildHeader";
+import { MarkdownViewer } from "@/components/common/MarkdownViewer";
 import { useAuth } from "@/context/AuthContext";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-type AdminTab = "general" | "children" | "calendar" | "lunch";
+type AdminTab = "general" | "children" | "calendar" | "lunch" | "parent_info";
 
 export default function AdminPage() {
   const { isAdmin, isLoading: isAuthLoading, loginWithGoogle } = useAuth();
@@ -45,6 +50,7 @@ export default function AdminPage() {
   const [approvingId, setApprovingId] = useState<string | null>(null);
   const [customUrls, setCustomUrls] = useState<Record<string, string>>({});
   const [showCustomInput, setShowCustomInput] = useState<Record<string, boolean>>({});
+  const [selectedParentDocId, setSelectedParentDocId] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [mascotError, setMascotError] = useState(false);
 
@@ -269,6 +275,18 @@ export default function AdminPage() {
           >
             <Utensils className="w-4 h-4" />
             <span>School Lunch</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab("parent_info")}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-xs md:text-sm transition-all flex-shrink-0 ${
+              activeTab === "parent_info"
+                ? "bg-rose-600 text-white shadow-md font-black"
+                : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
+            }`}
+          >
+            <BookOpen className="w-4 h-4" />
+            <span>Parent Info</span>
           </button>
         </div>
 
@@ -845,6 +863,158 @@ export default function AdminPage() {
                     Tell Antigravity: <span className="text-white italic">&quot;Parse september_2026.pdf for school lunch&quot;</span>. Antigravity will extract the grid, clean vegetarian tags, update <span className="font-mono text-amber-400">data/lunch_schedule.json</span>, and run the automated test suite!
                   </p>
                 </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Tab 5: Parent Information Handbook (Markdown-driven) */}
+        {activeTab === "parent_info" && (
+          <div className="space-y-6">
+            {/* Quick Reference Summary Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Card 1: Standard Dismissal */}
+              <div className="glass-card p-5 border-l-4 border-emerald-500 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-extrabold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <Clock className="w-4 h-4" />
+                    <span>Regular Dismissal</span>
+                  </span>
+                  <span className="px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 text-[10px] font-black border border-emerald-500/30">
+                    Full Days
+                  </span>
+                </div>
+                <div className="space-y-2 pt-1 text-xs">
+                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900/80 border border-slate-800">
+                    <div>
+                      <span className="font-bold text-white block">Miller Elementary</span>
+                      <span className="text-[11px] text-slate-400">Bennett</span>
+                    </div>
+                    <span className="font-black text-sm text-emerald-300 font-mono">2:18 PM</span>
+                  </div>
+                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900/80 border border-slate-800">
+                    <div>
+                      <span className="font-bold text-white block">Adams Middle School</span>
+                      <span className="text-[11px] text-slate-400">Brighton</span>
+                    </div>
+                    <span className="font-black text-sm text-emerald-300 font-mono">3:03 PM</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 2: Early Release Pickup */}
+              <div className="glass-card p-5 border-l-4 border-amber-500 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-extrabold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <AlertTriangle className="w-4 h-4" />
+                    <span>Early Release Pickup</span>
+                  </span>
+                  <span className="px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 text-[10px] font-black border border-amber-500/30">
+                    Half Days
+                  </span>
+                </div>
+                <div className="space-y-2 pt-1 text-xs">
+                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900/80 border border-slate-800">
+                    <div>
+                      <span className="font-bold text-white block">Adams Middle School</span>
+                      <span className="text-[11px] text-slate-400">Brighton</span>
+                    </div>
+                    <span className="font-black text-sm text-amber-300 font-mono">10:44 AM</span>
+                  </div>
+                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900/80 border border-slate-800">
+                    <div>
+                      <span className="font-bold text-white block">Miller Elementary</span>
+                      <span className="text-[11px] text-slate-400">Bennett</span>
+                    </div>
+                    <span className="font-black text-sm text-amber-300 font-mono">10:47 AM</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 3: Departure Recommendation */}
+              <div className="glass-card p-5 border-l-4 border-sky-500 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-extrabold text-sky-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <Car className="w-4 h-4" />
+                    <span>Recommended Departure</span>
+                  </span>
+                  <span className="px-2 py-0.5 rounded-md bg-sky-500/20 text-sky-300 text-[10px] font-black border border-sky-500/30">
+                    Leave House
+                  </span>
+                </div>
+                <div className="p-3 rounded-xl bg-sky-500/10 border border-sky-500/30 text-xs text-sky-100 space-y-2">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-lg font-black text-white font-mono">10:15 AM – 10:25 AM</span>
+                  </div>
+                  <p className="text-[11px] text-sky-200/80 leading-relaxed">
+                    Leaves adequate buffer for local traffic, school car lines, and traveling between Adams Middle School and Miller Elementary School.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Document Selector (if multiple docs exist) */}
+            {data.parentInfo && data.parentInfo.documents.length > 1 && (
+              <div className="flex items-center gap-2 p-1.5 rounded-xl bg-slate-900/80 border border-slate-800 overflow-x-auto">
+                <span className="text-xs font-bold text-slate-400 px-3">Documents:</span>
+                {data.parentInfo.documents.map((doc) => {
+                  const currentId = selectedParentDocId || data.parentInfo.documents[0]?.id;
+                  const isSelected = currentId === doc.id;
+                  return (
+                    <button
+                      key={doc.id}
+                      onClick={() => setSelectedParentDocId(doc.id)}
+                      className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex-shrink-0 ${
+                        isSelected
+                          ? "bg-rose-600 text-white shadow-md"
+                          : "text-slate-400 hover:text-white hover:bg-slate-800/60"
+                      }`}
+                    >
+                      <FileText className="w-3.5 h-3.5" />
+                      <span>{doc.title}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Render Selected Markdown Document */}
+            {(() => {
+              const docs = data.parentInfo?.documents || [];
+              const activeDoc = docs.find((d) => d.id === selectedParentDocId) || docs[0];
+
+              if (!activeDoc) {
+                return (
+                  <div className="glass-card p-8 text-center text-slate-400">
+                    <BookOpen className="w-8 h-8 text-rose-400 mx-auto mb-2" />
+                    <p className="font-bold text-white">No Parent Information Documents Found</p>
+                    <p className="text-xs text-slate-400 mt-1">
+                      Add <span className="font-mono text-amber-400">docs/parent-info/school-hours.md</span> to display markdown here.
+                    </p>
+                  </div>
+                );
+              }
+
+              return (
+                <MarkdownViewer
+                  content={activeDoc.content}
+                  title={activeDoc.title}
+                  filename={activeDoc.filename}
+                  lastModified={activeDoc.lastModified}
+                />
+              );
+            })()}
+
+            {/* Extensibility Info Box */}
+            <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800/80 flex items-start gap-3 text-xs text-slate-400">
+              <div className="p-2 rounded-xl bg-slate-800 text-amber-400 flex-shrink-0 mt-0.5">
+                <BookOpen className="w-4 h-4" />
+              </div>
+              <div className="space-y-1">
+                <span className="font-bold text-slate-200">Repository Markdown Sync</span>
+                <p>
+                  All markdown documents placed in <span className="font-mono text-amber-400">docs/parent-info/*.md</span> in this repository are automatically discovered, parsed, and rendered here for quick reference.
+                </p>
               </div>
             </div>
           </div>

@@ -6,6 +6,7 @@ import { discoverIconForEventGroup, DiscoveredIconSuggestion } from "@/lib/iconD
 import { isAnnotationEvent } from "@/lib/annotations";
 import { getChildrenRegistry, ChildProfile } from "@/lib/childrenRegistry";
 import { generateGeminiSanitizationPrompt } from "@/lib/geminiAuditPrompt";
+import { loadParentInfoDocuments, ParentInfoData } from "@/lib/parentInfo";
 import { addDays, endOfDay, format, isAfter, isBefore, isWeekend, parseISO, startOfDay } from "date-fns";
 import fs from "fs";
 import path from "path";
@@ -88,6 +89,7 @@ export interface AdminDashboardData {
   calendar: AdminCalendarHousekeeping;
   lunch: AdminLunchHousekeeping;
   childrenRegistry: ChildProfile[];
+  parentInfo: ParentInfoData;
   geminiSanitizationPrompt: string;
   lastChecked: string;
 }
@@ -392,6 +394,7 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
     },
     lunch: lunchHousekeeping,
     childrenRegistry,
+    parentInfo: loadParentInfoDocuments(),
     geminiSanitizationPrompt,
     lastChecked: new Date().toISOString(),
   };

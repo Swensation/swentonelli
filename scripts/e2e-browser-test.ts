@@ -300,9 +300,23 @@ async function runE2ETests() {
 
     const isAdminDashboardUnlocked = await page.evaluate(() => {
       const text = document.body.innerText;
-      return text.includes("General Overview") && text.includes("Child Profiles & Schedules");
+      return text.includes("General Overview") && text.includes("Child Profiles & Schedules") && text.includes("Parent Info");
     });
-    assert(isAdminDashboardUnlocked, "Admin Dashboard unlocks with full tabs when Dad (aswens@gmail.com) is authenticated");
+    assert(isAdminDashboardUnlocked, "Admin Dashboard unlocks with full tabs (including Parent Info) when Dad (aswens@gmail.com) is authenticated");
+
+    // Click Parent Info tab and verify school dismissal times
+    await page.evaluate(() => {
+      const buttons = Array.from(document.querySelectorAll("button"));
+      const parentTab = buttons.find((b) => b.textContent?.includes("Parent Info"));
+      parentTab?.click();
+    });
+    await new Promise((r) => setTimeout(r, 600));
+
+    const parentInfoRendered = await page.evaluate(() => {
+      const text = document.body.innerText;
+      return text.includes("Miller Elementary") && text.includes("2:18 PM") && text.includes("10:44 AM") && text.includes("10:15 AM");
+    });
+    assert(parentInfoRendered, "Parent Info handbook rendered in Admin dashboard with school dismissal and departure recommendations");
 
     // Generic Live-Asset E2E Image Audit (Admin Dashboard)
     const adminImages = await page.evaluate(async () => {

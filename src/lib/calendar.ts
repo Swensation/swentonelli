@@ -26,11 +26,28 @@ const CALENDAR_COLORS = [
   "#14b8a6", // teal
 ];
 
+// Ensure server environment runs in pure UTC so rrule expansion and dates are identical across dev and prod
+process.env.TZ = "UTC";
+
 // In-memory cache for live polling
 let cachedAgenda: { data: CalendarAgenda; timestamp: number } | null = null;
 const CACHE_TTL_MS = 20 * 1000; // 20 seconds cache
 
 import { getEasternDateKey, formatEasternTime } from "@/lib/dateUtils";
+
+export function isDateExcluded(date: Date, exdate?: Record<string, any>): boolean {
+  if (!exdate) return false;
+  const dIso = date.toISOString().slice(0, 10);
+  for (const k in exdate) {
+    if (k.startsWith(dIso)) return true;
+    const ex = exdate[k];
+    if (ex instanceof Date) {
+      if (ex.toISOString().slice(0, 10) === dIso) return true;
+      if (Math.abs(ex.getTime() - date.getTime()) < 60 * 1000) return true;
+    }
+  }
+  return false;
+}
 
 function sanitizeIcsUrl(url: string): string {
   const trimmed = url.trim();
@@ -192,7 +209,8 @@ export async function fetchCalendarAgenda(): Promise<CalendarAgenda> {
             const startDate = new Date(ev.start);
             const endDate = ev.end ? new Date(ev.end) : startDate;
             const allDay =
-              !ev.start.toISOString().includes("T") ||
+              Boolean((ev.start as any)?.dateOnly) ||
+              (ev as any).datetype === "date" ||
               endDate.getTime() - startDate.getTime() >= 23 * 3600 * 1000;
 
             const directUrl = buildGoogleCalendarDirectUrl({
@@ -226,18 +244,62 @@ export async function fetchCalendarAgenda(): Promise<CalendarAgenda> {
               const duration =
                 ev.end && ev.start ? ev.end.getTime() - ev.start.getTime() : 3600 * 1000;
 
-              // Correct node-ical / rrule UTC-stripping by computing timezone offset between master ev.start and dtstart
-              const rruleDtstart = ev.rrule.options?.dtstart;
-              const offsetCorrection =
-                ev.start && rruleDtstart
-                  ? ev.start.getTime() - new Date(rruleDtstart).getTime()
-                  : 0;
-
               for (const d of dates) {
-                const correctedStartMs = d.getTime() + offsetCorrection;
-                const startDate = new Date(correctedStartMs);
-                const endDate = new Date(correctedStartMs + duration);
-                const allDay = !startDate.toISOString().includes("T");
+                const startDate = d;
+                const endDate = new Date(d.getTime() + duration);
+                const allDay =
+                  Boolean((ev.start as any)?.dateOnly) ||
+                  (ev as any).datetype === "date";
+
+                // 1. Skip occurrences deleted in Google Calendar (EXDATE)
+                if (isDateExcluded(startDate, ev.exdate)) {
+                  continue;
+                }
+
+                // 2. Check for recurrence overrides (modified single instances)
+                const dKey = getEasternDateKey(startDate);
+                const override =
+                  ev.recurrences?.[dKey] ||
+                  ev.recurrences?.[startDate.toISOString().slice(0, 10)];
+
+                if (override) {
+                  if (override.status === "CANCELLED") {
+                    continue;
+                  }
+                  const overrideStart = override.start ? new Date(override.start) : startDate;
+                  const overrideEnd = override.end ? new Date(override.end) : endDate;
+                  const overrideSummary = override.summary || summary;
+                  const overrideDescription = override.description ? String(override.description) : description;
+                  const overrideLocation = override.location ? String(override.location) : location;
+
+                  const directUrl = buildGoogleCalendarDirectUrl({
+                    uid: override.uid || ev.uid || k,
+                    summary: overrideSummary,
+                    start: overrideStart,
+                    end: overrideEnd,
+                    allDay,
+                  });
+
+                  allEvents.push({
+                    id: `${source.id}-${ev.uid || k}-${overrideStart.getTime()}`,
+                    summary: overrideSummary,
+                    description: overrideDescription,
+                    location: overrideLocation,
+                    start: overrideStart.toISOString(),
+                    end: overrideEnd.toISOString(),
+                    allDay,
+                    sourceId: source.id,
+                    sourceName: source.name,
+                    color,
+                    url: directUrl,
+                    enrichment: enrichCalendarEvent({
+                      summary: overrideSummary,
+                      description: overrideDescription,
+                      sourceName: source.name,
+                    }),
+                  });
+                  continue;
+                }
 
                 const directUrl = buildGoogleCalendarDirectUrl({
                   uid: ev.uid || k,
@@ -276,36 +338,6 @@ export async function fetchCalendarAgenda(): Promise<CalendarAgenda> {
   // Chronologically sort all aggregated events
   allEvents.sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
 
-  // Index events into byDate map in America/New_York Eastern Time
-  const byDate: Record<string, CalendarEvent[]> = {};
-
-  allEvents.forEach((ev) => {
-    try {
-      const startDate = new Date(ev.start);
-      const endDate = new Date(ev.end);
-      const startKey = getEasternDateKey(startDate);
-      const endKey = getEasternDateKey(endDate);
-
-      // Multi-day all-day events (e.g. custody blocks or vacation weeks) are indexed on each day
-      if (ev.allDay && startKey !== endKey) {
-        let curr = new Date(startDate);
-        while (isBefore(curr, endDate)) {
-          const key = getEasternDateKey(curr);
-          if (!byDate[key]) byDate[key] = [];
-          byDate[key].push(ev);
-          curr = addDays(curr, 1);
-        }
-      } else {
-        if (!byDate[startKey]) {
-          byDate[startKey] = [];
-        }
-        byDate[startKey].push(ev);
-      }
-    } catch {
-      // ignore parse error
-    }
-  });
-
   // Calculate live countdowns and happening now
   const enrichedEvents = allEvents.map((ev) => {
     const start = new Date(ev.start).getTime();
@@ -323,19 +355,41 @@ export async function fetchCalendarAgenda(): Promise<CalendarAgenda> {
     };
   });
 
+  // Index events into byDate map in America/New_York Eastern Time
+  const byDate: Record<string, CalendarEvent[]> = {};
+
+  enrichedEvents.forEach((ev) => {
+    try {
+      const startDate = new Date(ev.start);
+      const endDate = new Date(ev.end);
+      const startKey = ev.allDay ? ev.start.slice(0, 10) : getEasternDateKey(startDate);
+      const endKey = ev.allDay ? ev.end.slice(0, 10) : getEasternDateKey(endDate);
+
+      // Multi-day all-day events (e.g. custody blocks or vacation weeks) are indexed on each day
+      if (ev.allDay && startKey !== endKey) {
+        let curr = new Date(startDate);
+        while (isBefore(curr, endDate)) {
+          const key = curr.toISOString().slice(0, 10);
+          if (!byDate[key]) byDate[key] = [];
+          byDate[key].push(ev);
+          curr = addDays(curr, 1);
+        }
+      } else {
+        if (!byDate[startKey]) {
+          byDate[startKey] = [];
+        }
+        byDate[startKey].push(ev);
+      }
+    } catch {
+      // ignore parse error
+    }
+  });
+
   const todayStr = getEasternDateKey(now);
   const tomorrowStr = getEasternDateKey(addDays(now, 1));
 
-  const todayEvents = byDate[todayStr] || enrichedEvents.filter((e) => {
-    const d = new Date(e.start);
-    return isAfter(d, startOfDay(now)) && isBefore(d, endOfDay(now));
-  });
-
-  const tomorrowEvents = byDate[tomorrowStr] || enrichedEvents.filter((e) => {
-    const d = new Date(e.start);
-    const tomorrow = addDays(now, 1);
-    return isAfter(d, startOfDay(tomorrow)) && isBefore(d, endOfDay(tomorrow));
-  });
+  const todayEvents = byDate[todayStr] || [];
+  const tomorrowEvents = byDate[tomorrowStr] || [];
 
   // Group upcoming by next 7 days for quick preview
   const upcomingGrouped: { date: string; dateFormatted: string; events: CalendarEvent[] }[] = [];

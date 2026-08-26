@@ -50,18 +50,3 @@
 2. **Live Verification Required**:
    - After pushing changes, run `npm run test:all:prod` or `npm run test:assets:prod` against the live production endpoint to verify that the deployed CDN / Cloud Run instance serves all assets with HTTP 200 and zero broken images.
 
----
-
-## 4. Image Processing & EXIF Orientation Safety
-1. **Always Auto-Orient Photographic Assets**:
-   - Photos captured on mobile devices (e.g. iPhone portraits) embed EXIF orientation tags (e.g., orientation 6 = rotate 90° clockwise).
-   - When converting, resizing, or creating PNG/WebP thumbnails with `sharp`, ALWAYS call `.rotate()` before `.resize()`:
-     ```typescript
-     await sharp(inputPath)
-       .rotate() // Automatically applies EXIF orientation before stripping metadata
-       .resize(400, 400, { fit: 'cover', position: 'center' })
-       .png()
-       .toFile(outputPath);
-     ```
-   - Failing to call `.rotate()` causes converted PNG images to appear sideways (90° counter-clockwise) in browsers because PNG formats do not support EXIF orientation tags.
-

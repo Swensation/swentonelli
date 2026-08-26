@@ -1,5 +1,7 @@
 import type { NextConfig } from "next";
 
+process.env.TZ = "UTC";
+
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   output: "standalone",

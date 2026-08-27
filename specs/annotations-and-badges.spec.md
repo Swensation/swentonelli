@@ -22,25 +22,31 @@ To prevent visual clutter, **Annotations & Badges** are extracted from the raw c
 - **Household Context**: Brighton and Bennett spend half their time with their mother Liz (Holliston) and half with their father Andrew (Millis).
 - **Rules**:
   - **Mom's (Liz - Holliston, Red)**:
-    - **Trigger**: Event title contains `"Liz kids"`.
-    - **Badge Display**: `[ 🏡 Mom's ]` with **Red** styling (`bg-red-600/25 text-red-300 border-red-500/50`).
+    - **Trigger**: Event title is exactly `"Liz kids"` (case-insensitive).
+    - **Badge Display**: `[ 🏡 Mom's ]` with **Red** styling (`bg-red-600 text-white border-red-400`).
   - **Dad's (Andrew - Millis, Maroon)**:
-    - **Trigger**: Event title contains `"Andrew kids"` or `"Swen kids"`.
-    - **Badge Display**: `[ 🏠 Dad's ]` with **Maroon** styling (`bg-[#800020]/30 text-rose-300 border-[#9f1239]/60`).
+    - **Trigger**: Otherwise (default/normal state, or `"Andrew kids"` / `"Swen kids"`).
+    - **Badge Display**: `[ 🏠 Dad's ]` with **Maroon** styling (`bg-[#800020] text-white border-[#9f1239]`).
+  - **Error Fallback**:
+    - **Trigger**: Conflicting events on the same date (e.g. both `"Liz kids"` and `"Andrew kids"`) or unexpected data.
+    - **Badge Display**: `[ ⚠️ ! ]` with **Amber** styling (`bg-amber-600 text-white border-amber-400 font-black`).
 
 #### 2. Benjamin & Aria
 - **Household Context**: Benjamin and Aria spend half their time with their mother Callie (Millis) and half with their father Chris (Franklin).
 - **Rules**:
   - **Mom's (Callie - Millis, Maroon)**:
-    - **Trigger**: If the day has a `"Callie kids"` event.
-    - **Badge Display**: `[ 🏡 Mom's ]` with **Maroon** styling (`bg-[#800020]/30 text-rose-300 border-[#9f1239]/60`).
+    - **Trigger**: Event title is exactly `"Callie kids"` (case-insensitive).
+    - **Badge Display**: `[ 🏡 Mom's ]` with **Maroon** styling (`bg-[#800020] text-white border-[#9f1239]`).
   - **Dad's (Chris - Franklin, Blue)**:
-    - **Trigger**: Default state when there is no `"Callie kids"` event.
-    - **Badge Display**: `[ 🏠 Dad's ]` with **Blue** styling (`bg-blue-600/25 text-blue-300 border-blue-500/50`).
+    - **Trigger**: Otherwise (default/normal state, or `"Chris kids"`).
+    - **Badge Display**: `[ 🏠 Dad's ]` with **Blue** styling (`bg-blue-600 text-white border-blue-400`).
+  - **Error Fallback**:
+    - **Trigger**: Conflicting events on the same date (e.g. both `"Callie kids"` and `"Chris kids"`) or unexpected data.
+    - **Badge Display**: `[ ⚠️ ! ]` with **Amber** styling (`bg-amber-600 text-white border-amber-400 font-black`).
 
 ### C. UI Presentation Rules
 - **No Timeline Clutter**: Custody events (e.g. all-day `"Liz kids"` or `"Callie kids"`) MUST NOT render as standard activity cards in the timeline.
-- **Top-Right Justified Header Badge**: Placed in the top-right corner of each child's column header, strictly on one line (never wrapping).
+- **Top-Right Justified Header Badge**: Placed in the top-right corner of each child's column header, strictly on one line with fixed width (`w-[76px]`).
 - **Pronounced Box Border**: Each child column's outer container features a prominent `border-2` styled with that child's signature color so the column pops, while child avatars retain clean neutral circular borders.
 
 ---

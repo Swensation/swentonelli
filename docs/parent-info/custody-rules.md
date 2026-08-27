@@ -38,24 +38,27 @@ The dashboard uses signature background colors to eliminate confusion over physi
 
 The system parses Google Calendar feeds in real time via src/lib/annotations.ts:
 
-### A. Brighton & Bennett (Feed: Brighton and Bennett)
+### A. Brighton & Bennett (Feed: `Brighton and Bennett`)
 - **Mom's (Liz in Holliston - Red)**:
-  - Trigger Keywords: "Liz kids", "Liz Kids", "with Liz", "Liz has kids", "Liz ... vacation".
-  - Action: Sets badge to **Mom's** with **Red** styling (#dc2626).
+  - Trigger: Event title is exactly `"Liz kids"` (case-insensitive).
+  - Action: Sets badge to **Mom's** with **Red** styling (`#dc2626`).
 - **Dad's (Andrew in Millis - Maroon)**:
-  - Trigger Keywords: "Andrew kids", "Andrew Kids", "Swen kids", "with Andrew", "with Swen", "Andrew has kids", "Swen has kids", "Andrew/Swen ... vacation".
-  - Action: Sets badge to **Dad's** with **Maroon** styling (#800020).
-- **Missing Event Fallback**:
-  - If neither keyword is present on a day, **no custody badge is rendered** (undefined).
+  - Trigger: Otherwise (default/normal state, or `"Andrew kids"` / `"Swen kids"`).
+  - Action: Sets badge to **Dad's** with **Maroon** styling (`#800020`).
+- **Error Fallback (`!` Badge)**:
+  - If conflicting events appear on the same date (e.g. both `"Liz kids"` and `"Andrew kids"`) or unexpected data occurs, displays `[ ⚠️ ! ]`.
 
 ---
 
-### B. Aria & Benjamin (Feed: Aria and Ben)
+### B. Aria & Benjamin (Feed: `Aria and Ben`)
 - **Mom's (Callie in Millis - Maroon)**:
-  - Trigger Keywords: "Callie kids", "Callie Kids", "with Callie", "Callie ... vacation".
-  - Action: Sets badge to **Mom's** with **Maroon** styling (#800020).
+  - Trigger: Event title is exactly `"Callie kids"` (case-insensitive).
+  - Action: Sets badge to **Mom's** with **Maroon** styling (`#800020`).
 - **Dad's (Chris in Franklin - Blue)**:
-  - Trigger: **Fallback default**. If the day does *not* have an explicit "Callie kids" event, the code automatically defaults to **Dad's (Chris in Franklin)** with **Blue** styling (#2563eb).
+  - Trigger: Otherwise (default/normal state, or `"Chris kids"`).
+  - Action: Sets badge to **Dad's** with **Blue** styling (`#2563eb`).
+- **Error Fallback (`!` Badge)**:
+  - If conflicting events appear on the same date (e.g. both `"Callie kids"` and `"Chris kids"`) or unexpected data occurs, displays `[ ⚠️ ! ]`.
 
 ---
 

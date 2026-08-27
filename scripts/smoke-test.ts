@@ -230,18 +230,30 @@ async function runTests() {
     "Benjamin without 'Callie kids' defaults to Dad's (Chris in Franklin - Blue #2563eb)"
   );
 
-  // Additional keyword variations & vacation week tests
-  const lizVacationAnno = extractChildAnnotations([{ summary: "Liz kids vacation week" } as CalendarEvent], "brighton");
-  assert(lizVacationAnno.custody?.parentName === "Liz" && lizVacationAnno.custody?.bgColor === "#dc2626", "Custody regex matches 'Liz kids vacation week' -> Liz (Red)");
+  // Exact matching and Fallback '!' Conflict tests
+  const conflictLizAndrewAnno = extractChildAnnotations(
+    [{ summary: "Liz kids" } as CalendarEvent, { summary: "Andrew kids" } as CalendarEvent],
+    "brighton"
+  );
+  assert(
+    conflictLizAndrewAnno.custody?.status === "error" && conflictLizAndrewAnno.custody?.label === "!",
+    "Conflicting 'Liz kids' + 'Andrew kids' on same day falls back to error badge [ ! ]"
+  );
 
-  const andrewVacationAnno = extractChildAnnotations([{ summary: "Andrew April vacation week" } as CalendarEvent], "bennett");
-  assert(andrewVacationAnno.custody?.parentName === "Andrew" && andrewVacationAnno.custody?.bgColor === "#800020", "Custody regex matches 'Andrew April vacation week' -> Andrew (Maroon)");
+  const conflictCallieChrisAnno = extractChildAnnotations(
+    [{ summary: "Callie kids" } as CalendarEvent, { summary: "Chris kids" } as CalendarEvent],
+    "aria"
+  );
+  assert(
+    conflictCallieChrisAnno.custody?.status === "error" && conflictCallieChrisAnno.custody?.label === "!",
+    "Conflicting 'Callie kids' + 'Chris kids' on same day falls back to error badge [ ! ]"
+  );
 
-  const callieVacationAnno = extractChildAnnotations([{ summary: "Callie kids vacation" } as CalendarEvent], "aria");
-  assert(callieVacationAnno.custody?.parentName === "Callie" && callieVacationAnno.custody?.bgColor === "#800020", "Custody regex matches 'Callie kids vacation' -> Callie (Maroon)");
-
-  const swenWeekendAnno = extractChildAnnotations([{ summary: "Swen kid weekend" } as CalendarEvent], "brighton");
-  assert(swenWeekendAnno.custody?.parentName === "Andrew" && swenWeekendAnno.custody?.bgColor === "#800020", "Custody regex matches 'Swen kid weekend' -> Andrew (Maroon)");
+  const defaultAndrewAnno = extractChildAnnotations([{ summary: "Doctor Appointment" } as CalendarEvent], "bennett");
+  assert(
+    defaultAndrewAnno.custody?.parentName === "Andrew" && defaultAndrewAnno.custody?.label === "Dad's",
+    "Bennett on non-'Liz kids' day defaults to Andrew (Dad's - Maroon)"
+  );
 
   // No-School extraction
   const schoolAnno = extractChildAnnotations([mockNoSchoolEvent], "aria");

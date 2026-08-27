@@ -2,7 +2,7 @@
 
 import { ChildDayAnnotations } from "@/lib/annotations";
 import { DailyLunchMenu } from "@/types/lunch";
-import { GraduationCap, Home, Utensils } from "lucide-react";
+import { AlertCircle, GraduationCap, Home, Utensils } from "lucide-react";
 
 export interface ChildHeaderProps {
   child: {
@@ -83,9 +83,17 @@ export function ChildHeader({
               <span
                 className="w-[76px] text-[10px] font-extrabold px-1.5 py-1 rounded-full border flex items-center justify-center gap-1 shadow-sm text-white transition-all flex-shrink-0"
                 style={annotations.custody.badgeStyle}
-                title={`Custody: ${annotations.custody.label} (${annotations.custody.parentName} - ${annotations.custody.town})`}
+                title={
+                  annotations.custody.status === "error"
+                    ? `Custody Conflict: ${annotations.custody.parentName} (${annotations.custody.town})`
+                    : `Custody: ${annotations.custody.label} (${annotations.custody.parentName} - ${annotations.custody.town})`
+                }
               >
-                <Home className="w-2.5 h-2.5 flex-shrink-0" />
+                {annotations.custody.status === "error" ? (
+                  <AlertCircle className="w-2.5 h-2.5 flex-shrink-0 text-amber-200" />
+                ) : (
+                  <Home className="w-2.5 h-2.5 flex-shrink-0" />
+                )}
                 <span className="truncate">{annotations.custody.label}</span>
               </span>
             )}

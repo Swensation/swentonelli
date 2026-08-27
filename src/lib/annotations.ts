@@ -1,10 +1,10 @@
 import { CalendarEvent } from "@/types/calendar";
 
 export interface CustodyAnnotation {
-  status: "dad" | "mom";
+  status: "dad" | "mom" | "error";
   parentName: string;
   town: string;
-  label: "Dad's" | "Mom's";
+  label: "Dad's" | "Mom's" | "!";
   bgColor: string;
   borderColor: string;
   badgeStyle: {
@@ -31,6 +31,7 @@ export interface ChildDayAnnotations {
  * - Chris (Franklin): Blue (#2563eb)
  * - Liz (Holliston): Red (#dc2626)
  * - Andrew & Callie (Millis): Maroon (#800020)
+ * - Error / Unexpected: Amber/Gold (#d97706) with "!"
  */
 export const CUSTODY_PROFILES = {
   chris: {
@@ -89,6 +90,20 @@ export const CUSTODY_PROFILES = {
     },
     badgeClass: "bg-[#800020] text-white border-[#9f1239] shadow-sm",
   },
+  error: {
+    status: "error" as const,
+    parentName: "Conflicted Schedule",
+    town: "Check Calendar",
+    label: "!" as const,
+    bgColor: "#d97706",
+    borderColor: "#f59e0b",
+    badgeStyle: {
+      backgroundColor: "#b45309",
+      borderColor: "#f59e0b",
+      color: "#ffffff",
+    },
+    badgeClass: "bg-amber-600 text-white border-amber-400 shadow-sm font-black text-xs",
+  },
 };
 
 /**
@@ -98,31 +113,16 @@ export const CUSTODY_PROFILES = {
 export function isAnnotationEvent(event: CalendarEvent): boolean {
   const summary = (event.summary || "").toLowerCase().trim();
 
-  // 1. Custody Event Triggers
+  // 1. Custody Event Triggers (Clean exact titles, avoiding fuzzy substrings)
   if (
+    summary === "liz kids" ||
+    summary === "andrew kids" ||
+    summary === "swen kids" ||
+    summary === "callie kids" ||
+    summary === "chris kids" ||
     summary === "kids" ||
     summary === "kid" ||
-    summary.includes("liz kid") ||
-    summary.includes("liz kids") ||
-    summary.includes("with liz") ||
-    summary.includes("liz has kids") ||
-    (summary.includes("liz") && summary.includes("vacation")) ||
-    summary.includes("callie kid") ||
-    summary.includes("callie kids") ||
-    summary.includes("with callie") ||
-    (summary.includes("callie") && summary.includes("vacation")) ||
-    summary.includes("andrew kid") ||
-    summary.includes("andrew kids") ||
-    summary.includes("with andrew") ||
-    summary.includes("andrew has kids") ||
-    summary.includes("swen kid") ||
-    summary.includes("swen kids") ||
-    summary.includes("with swen") ||
-    summary.includes("swen has kids") ||
-    ((summary.includes("andrew") || summary.includes("swen")) && summary.includes("vacation")) ||
-    summary.includes("chris kid") ||
-    summary.includes("chris kids") ||
-    summary.includes("custody")
+    summary === "custody"
   ) {
     return true;
   }
@@ -147,14 +147,15 @@ export function isAnnotationEvent(event: CalendarEvent): boolean {
 /**
  * Extracts custody and school status annotations for a specific child on a given day.
  *
- * Location & Color Matrix:
- * - Chris (Dad for Aria/Ben - Franklin): Blue (#2563eb)
- * - Liz (Mom for Brighton/Bennett - Holliston): Red (#dc2626)
- * - Andrew & Callie (Millis): Maroon (#800020)
- *
- * Custody Rules:
- * - Brighton / Bennett: "Liz kids" -> Mom's (Liz - Red). "Andrew kids" / "Swen kids" -> Dad's (Andrew - Maroon).
- * - Benjamin / Aria: "Callie kids" -> Mom's (Callie - Maroon). Otherwise -> Dad's (Chris - Blue).
+ * Direct User Rules:
+ * - Brighton / Bennett:
+ *   - Exactly "Liz kids" -> Mom's (Liz in Holliston - Red)
+ *   - Otherwise -> Dad's (Andrew in Millis - Maroon)
+ *   - Fallback on conflict/error -> show "!" error badge
+ * - Aria / Benjamin:
+ *   - Exactly "Callie kids" -> Mom's (Callie in Millis - Maroon)
+ *   - Otherwise -> Dad's (Chris in Franklin - Blue)
+ *   - Fallback on conflict/error -> show "!" error badge
  */
 export function extractChildAnnotations(
   dayEvents: CalendarEvent[],
@@ -164,50 +165,63 @@ export function extractChildAnnotations(
   let custody: CustodyAnnotation | undefined;
   let school: SchoolAnnotation | undefined;
 
-  for (const ev of dayEvents) {
-    const summary = (ev.summary || "").toLowerCase().trim();
-
+  try {
     // Check Brighton & Bennett Custody
     if (cId === "brighton" || cId === "bennett") {
-      const isLiz =
-        summary.includes("liz kid") ||
-        summary.includes("liz kids") ||
-        summary.includes("with liz") ||
-        summary.includes("liz has kids") ||
-        (summary.includes("liz") && summary.includes("vacation"));
+      let hasLiz = false;
+      let hasAndrew = false;
 
-      const isAndrew =
-        summary.includes("andrew kid") ||
-        summary.includes("andrew kids") ||
-        summary.includes("swen kid") ||
-        summary.includes("swen kids") ||
-        summary.includes("with andrew") ||
-        summary.includes("with swen") ||
-        summary.includes("andrew has kids") ||
-        summary.includes("swen has kids") ||
-        ((summary.includes("andrew") || summary.includes("swen")) && summary.includes("vacation"));
+      for (const ev of dayEvents) {
+        const summary = (ev.summary || "").trim().toLowerCase();
+        if (summary === "liz kids") {
+          hasLiz = true;
+        } else if (summary === "andrew kids" || summary === "swen kids") {
+          hasAndrew = true;
+        }
+      }
 
-      if (isLiz) {
+      if (hasLiz && hasAndrew) {
+        // Conflicting custody indicators on the same day -> Fallback error badge
+        custody = { ...CUSTODY_PROFILES.error };
+      } else if (hasLiz) {
         custody = { ...CUSTODY_PROFILES.liz };
-      } else if (isAndrew) {
+      } else {
+        // Otherwise, Andrew
         custody = { ...CUSTODY_PROFILES.andrew };
       }
     }
 
-    // Check Benjamin & Aria Custody: If the day has "Callie kids" event -> Callie (Mom's in Millis, Maroon)
+    // Check Benjamin & Aria Custody
     if (cId === "aria" || cId === "benjamin") {
-      const isCallie =
-        summary.includes("callie kid") ||
-        summary.includes("callie kids") ||
-        summary.includes("with callie") ||
-        (summary.includes("callie") && summary.includes("vacation"));
+      let hasCallie = false;
+      let hasChris = false;
 
-      if (isCallie) {
+      for (const ev of dayEvents) {
+        const summary = (ev.summary || "").trim().toLowerCase();
+        if (summary === "callie kids") {
+          hasCallie = true;
+        } else if (summary === "chris kids") {
+          hasChris = true;
+        }
+      }
+
+      if (hasCallie && hasChris) {
+        // Conflicting custody indicators on the same day -> Fallback error badge
+        custody = { ...CUSTODY_PROFILES.error };
+      } else if (hasCallie) {
         custody = { ...CUSTODY_PROFILES.callie };
+      } else {
+        // Otherwise, Chris
+        custody = { ...CUSTODY_PROFILES.chris };
       }
     }
+  } catch {
+    custody = { ...CUSTODY_PROFILES.error };
+  }
 
-    // Check School Status
+  // Check School Status
+  for (const ev of dayEvents) {
+    const summary = (ev.summary || "").toLowerCase().trim();
     if (
       summary.includes("no school") ||
       summary.includes("school closed") ||
@@ -232,12 +246,6 @@ export function extractChildAnnotations(
         };
       }
     }
-  }
-
-  // Aria / Benjamin rule of thumb:
-  // "if the day has Callie kids event, then that means with Callie (Mom's). otherwise, Dad's (Chris in Franklin)"
-  if ((cId === "aria" || cId === "benjamin") && !custody) {
-    custody = { ...CUSTODY_PROFILES.chris };
   }
 
   return {

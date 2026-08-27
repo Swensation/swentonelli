@@ -8,7 +8,7 @@ import { EventItem } from "./EventItem";
 import { KidsColumnTimeline } from "./KidsColumnTimeline";
 import { ChildLunchModal } from "@/components/widgets/LunchWidget/ChildLunchModal";
 import { getDailyFamilySummary, filterActivityEvents } from "@/lib/annotations";
-import { Calendar as CalendarIcon, Columns3, GraduationCap, Home, LayoutList, Sparkles, Utensils } from "lucide-react";
+import { AlertCircle, Calendar as CalendarIcon, Columns3, GraduationCap, Home, LayoutList, Sparkles, Utensils } from "lucide-react";
 import { useDashboard } from "@/context/DashboardContext";
 import { format } from "date-fns";
 
@@ -223,9 +223,17 @@ export function CalendarWidget() {
                       <span
                         className="w-[76px] text-[10px] font-extrabold px-1.5 py-0.5 rounded-full border flex items-center justify-center gap-1 text-white shadow-sm transition-all"
                         style={daySummary.ariaBen.custody.badgeStyle}
-                        title={`Custody: ${daySummary.ariaBen.custody.label} (${daySummary.ariaBen.custody.parentName} - ${daySummary.ariaBen.custody.town})`}
+                        title={
+                          daySummary.ariaBen.custody.status === "error"
+                            ? `Custody Conflict: ${daySummary.ariaBen.custody.parentName} (${daySummary.ariaBen.custody.town})`
+                            : `Custody: ${daySummary.ariaBen.custody.label} (${daySummary.ariaBen.custody.parentName} - ${daySummary.ariaBen.custody.town})`
+                        }
                       >
-                        <Home className="w-2.5 h-2.5 flex-shrink-0" />
+                        {daySummary.ariaBen.custody.status === "error" ? (
+                          <AlertCircle className="w-2.5 h-2.5 flex-shrink-0 text-amber-200" />
+                        ) : (
+                          <Home className="w-2.5 h-2.5 flex-shrink-0" />
+                        )}
                         <span className="truncate">{daySummary.ariaBen.custody.label}</span>
                       </span>
                     )}
@@ -248,9 +256,17 @@ export function CalendarWidget() {
                       <span
                         className="w-[76px] text-[10px] font-extrabold px-1.5 py-0.5 rounded-full border flex items-center justify-center gap-1 text-white shadow-sm transition-all"
                         style={daySummary.brightonBennett.custody.badgeStyle}
-                        title={`Custody: ${daySummary.brightonBennett.custody.label} (${daySummary.brightonBennett.custody.parentName} - ${daySummary.brightonBennett.custody.town})`}
+                        title={
+                          daySummary.brightonBennett.custody.status === "error"
+                            ? `Custody Conflict: ${daySummary.brightonBennett.custody.parentName} (${daySummary.brightonBennett.custody.town})`
+                            : `Custody: ${daySummary.brightonBennett.custody.label} (${daySummary.brightonBennett.custody.parentName} - ${daySummary.brightonBennett.custody.town})`
+                        }
                       >
-                        <Home className="w-2.5 h-2.5 flex-shrink-0" />
+                        {daySummary.brightonBennett.custody.status === "error" ? (
+                          <AlertCircle className="w-2.5 h-2.5 flex-shrink-0 text-amber-200" />
+                        ) : (
+                          <Home className="w-2.5 h-2.5 flex-shrink-0" />
+                        )}
                         <span className="truncate">{daySummary.brightonBennett.custody.label}</span>
                       </span>
                     )}

@@ -33,7 +33,7 @@ export function loadParentInfoDocuments(): ParentInfoData {
     for (const entry of entries) {
       if (entry.isFile() && entry.name.endsWith(".md") && entry.name !== "README.md") {
         const fullPath = path.join(docsDir, entry.name);
-        const raw = fs.readFileSync(fullPath, "utf-8");
+        const raw = fs.readFileSync(fullPath, "utf-8").replace(/^\uFEFF/, "");
         const stat = fs.statSync(fullPath);
 
         // Extract title from the first # line if present

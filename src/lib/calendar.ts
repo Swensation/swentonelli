@@ -362,16 +362,37 @@ export async function fetchCalendarAgenda(): Promise<CalendarAgenda> {
     try {
       const startDate = new Date(ev.start);
       const endDate = new Date(ev.end);
-      const startKey = ev.allDay ? ev.start.slice(0, 10) : getEasternDateKey(startDate);
-      const endKey = ev.allDay ? ev.end.slice(0, 10) : getEasternDateKey(endDate);
+      const startKey = getEasternDateKey(startDate);
+      const endKey = getEasternDateKey(endDate);
 
-      // Multi-day all-day events (e.g. custody blocks or vacation weeks) are indexed on each day
-      if (ev.allDay && startKey !== endKey) {
+      // Multi-day events (e.g. custody blocks, weekend spans, or vacation weeks)
+      // must have presence on every date they touch!
+      if (startKey !== endKey) {
         let curr = new Date(startDate);
-        while (isBefore(curr, endDate)) {
-          const key = curr.toISOString().slice(0, 10);
+        while (true) {
+          const key = getEasternDateKey(curr);
+          if (key > endKey) break;
+
+          // For all-day events ending at 00:00:00 of the end date, Google Calendar's end date is exclusive
+          if (ev.allDay && key === endKey) {
+            break;
+          }
+
+          // For timed events ending exactly at midnight (00:00:00) in Eastern Time,
+          // the event concludes as the day begins and has no active presence on the new day
+          if (
+            !ev.allDay &&
+            key === endKey &&
+            formatEasternTime(endDate) === "12:00 AM" &&
+            endDate.getSeconds() === 0
+          ) {
+            break;
+          }
+
           if (!byDate[key]) byDate[key] = [];
           byDate[key].push(ev);
+
+          if (key === endKey) break;
           curr = addDays(curr, 1);
         }
       } else {

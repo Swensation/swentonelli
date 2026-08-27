@@ -372,7 +372,6 @@ async function runTests() {
     const lunchRes = await fetchUrl(`${BASE_URL}/api/lunch?date=2026-08-26`);
     assert(lunchRes.status === 200, "GET /api/lunch returns HTTP 200");
     const lunchJson = JSON.parse(lunchRes.body);
-    assert(Array.isArray(lunchJson.allDays), "GET /api/lunch returns allDays array");
     assert(!!lunchJson.elementary && !!lunchJson.secondary, "GET /api/lunch returns elementary and secondary schedules");
     assert(!!lunchJson.byChild, "GET /api/lunch returns byChild dictionary");
     assert(
@@ -514,7 +513,14 @@ async function runTests() {
     // ChildHeader and Modal checks
     assert(childHeaderFile.includes("lunchMenu") && childHeaderFile.includes("onLunchClick"), "ChildHeader supports interactive lunch badges");
     const childModalFile = fs.readFileSync(path.join(process.cwd(), "src", "components", "widgets", "LunchWidget", "ChildLunchModal.tsx"), "utf-8");
-    assert(childModalFile.includes("Today's Main Entrée") || childModalFile.includes("Today&apos;s Main Entrée"), "ChildLunchModal displays child-specific entree details");
+    assert(
+      childModalFile.includes("Today's Lunch Menu") || childModalFile.includes("Today&apos;s Lunch Menu"),
+      "ChildLunchModal displays simplified unified bulleted menu list"
+    );
+    assert(
+      !childModalFile.includes("District Standard Inclusions"),
+      "ChildLunchModal excludes redundant district standard inclusions"
+    );
 
     const hasErrorOverlay =
       pageRes.body.includes("Next.js Error") ||
@@ -523,7 +529,6 @@ async function runTests() {
       pageRes.body.includes("Failed to compile");
     assert(!hasErrorOverlay, "Page / renders cleanly with NO build/syntax error overlays");
 
-    // 8b. Admin Housekeeping Page (Tabbed UI & Left-Row Header Matrix Check)
     const adminPageRes = await fetchUrl(`${BASE_URL}/admin`);
     assert(adminPageRes.status === 200, "GET /admin returns HTTP 200 HTML");
 

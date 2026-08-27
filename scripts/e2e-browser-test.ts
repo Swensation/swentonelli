@@ -198,8 +198,12 @@ async function runE2ETests() {
       };
     });
     assert(
-      !!modalContent && modalContent.body.includes("School Lunch"),
-      "Clicking Child Lunch badge opens ChildLunchModal with school lunch details"
+      !!modalContent && modalContent.body.includes("School Lunch") && modalContent.body.includes("•"),
+      "Clicking Child Lunch badge opens ChildLunchModal with unified bulleted list"
+    );
+    assert(
+      !!modalContent && !modalContent.body.includes("District Standard Inclusions"),
+      "ChildLunchModal does not include redundant district standard inclusions"
     );
 
     // Close modal via Escape key

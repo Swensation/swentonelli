@@ -1,199 +1,840 @@
 {
-  "title": "June 2026 Elementary Schools Lunch Menu",
-  "month": "June",
-  "year": 2026,
-  "schoolType": "Elementary Schools",
+  "title": "Holliston Public Schools Lunch Menus (August - September 2026)",
+  "source": "https://www.holliston.k12.ma.us/students-families/foodservices",
+  "elementary": {
+    "schoolType": "Elementary Schools",
+    "schools": [
+      "Miller Elementary School",
+      "Sam Placentino Elementary School"
+    ],
+    "grades": "PK-5",
+    "days": {
+      "2026-08-26": {
+        "date": "2026-08-26",
+        "dayOfWeek": "Wednesday",
+        "items": [
+          "Sunbutter and Jelly Sandwich",
+          "Lays Chips",
+          "Carrots"
+        ],
+        "isNoSchool": false,
+        "isEarlyRelease": true,
+        "specialNote": "Welcome Back! Early Release Day",
+        "isVegetarian": true
+      },
+      "2026-08-27": {
+        "date": "2026-08-27",
+        "dayOfWeek": "Thursday",
+        "items": [
+          "French Toast",
+          "Chicken Sausage",
+          "Hashbrown",
+          "Corn"
+        ],
+        "isNoSchool": false,
+        "isVegetarian": true
+      },
+      "2026-08-28": {
+        "date": "2026-08-28",
+        "dayOfWeek": "Friday",
+        "items": [
+          "Pizza",
+          "Green Peppers",
+          "Celery Sticks"
+        ],
+        "isNoSchool": false,
+        "isVegetarian": true
+      },
+      "2026-08-31": {
+        "date": "2026-08-31",
+        "dayOfWeek": "Monday",
+        "items": [
+          "Chicken Nuggets",
+          "Mashed Potatoes",
+          "Cheesy Peas"
+        ],
+        "isNoSchool": false
+      },
+      "2026-09-01": {
+        "date": "2026-09-01",
+        "dayOfWeek": "Tuesday",
+        "items": [
+          "Tater Tot Nachos",
+          "Broccoli"
+        ],
+        "isNoSchool": false
+      },
+      "2026-09-02": {
+        "date": "2026-09-02",
+        "dayOfWeek": "Wednesday",
+        "items": [
+          "Hamburger or Cheeseburger",
+          "Lays Chips",
+          "Pickles",
+          "Salad"
+        ],
+        "isNoSchool": false
+      },
+      "2026-09-03": {
+        "date": "2026-09-03",
+        "dayOfWeek": "Thursday",
+        "items": [
+          "Pancakes",
+          "Chicken Sausage",
+          "Sweet Potato Tots",
+          "Red Peppers and Carrots"
+        ],
+        "isNoSchool": false,
+        "isVegetarian": true
+      },
+      "2026-09-04": {
+        "date": "2026-09-04",
+        "dayOfWeek": "Friday",
+        "items": [
+          "Pizza",
+          "Mexican Bean Salad"
+        ],
+        "isNoSchool": false,
+        "isVegetarian": true
+      },
+      "2026-09-07": {
+        "date": "2026-09-07",
+        "dayOfWeek": "Monday",
+        "items": [],
+        "isNoSchool": true,
+        "specialNote": "No School - Labor Day"
+      },
+      "2026-09-08": {
+        "date": "2026-09-08",
+        "dayOfWeek": "Tuesday",
+        "items": [
+          "Hot Dog",
+          "Vegetarian Baked Beans",
+          "Lays Chips"
+        ],
+        "isNoSchool": false
+      },
+      "2026-09-09": {
+        "date": "2026-09-09",
+        "dayOfWeek": "Wednesday",
+        "items": [
+          "Chicken Patty Sandwich",
+          "Cucumber Salad"
+        ],
+        "isNoSchool": false
+      },
+      "2026-09-10": {
+        "date": "2026-09-10",
+        "dayOfWeek": "Thursday",
+        "items": [
+          "Waffles",
+          "Chicken Sausage",
+          "Hash Brown",
+          "Corn"
+        ],
+        "isNoSchool": false,
+        "isVegetarian": true
+      },
+      "2026-09-11": {
+        "date": "2026-09-11",
+        "dayOfWeek": "Friday",
+        "items": [
+          "Pizza",
+          "Spinach"
+        ],
+        "isNoSchool": false,
+        "isVegetarian": true
+      },
+      "2026-09-14": {
+        "date": "2026-09-14",
+        "dayOfWeek": "Monday",
+        "items": [
+          "Chicken Tenders",
+          "Mashed Potatoes",
+          "Broccoli"
+        ],
+        "isNoSchool": false
+      },
+      "2026-09-15": {
+        "date": "2026-09-15",
+        "dayOfWeek": "Tuesday",
+        "items": [
+          "Grilled Cheese",
+          "Pretzels",
+          "Cherry Tomato Cups"
+        ],
+        "isNoSchool": false,
+        "isVegetarian": true
+      },
+      "2026-09-16": {
+        "date": "2026-09-16",
+        "dayOfWeek": "Wednesday",
+        "items": [
+          "Meatball Grinder",
+          "Salad"
+        ],
+        "isNoSchool": false
+      },
+      "2026-09-17": {
+        "date": "2026-09-17",
+        "dayOfWeek": "Thursday",
+        "items": [
+          "Egg & Cheese Croissant",
+          "Chicken Sausage",
+          "Hash Brown",
+          "Corn"
+        ],
+        "isNoSchool": false,
+        "isVegetarian": true
+      },
+      "2026-09-18": {
+        "date": "2026-09-18",
+        "dayOfWeek": "Friday",
+        "items": [
+          "Pizza",
+          "Roasted Chickpeas"
+        ],
+        "isNoSchool": false,
+        "isVegetarian": true
+      },
+      "2026-09-21": {
+        "date": "2026-09-21",
+        "dayOfWeek": "Monday",
+        "items": [],
+        "isNoSchool": true,
+        "specialNote": "No School - Yom Kippur"
+      },
+      "2026-09-22": {
+        "date": "2026-09-22",
+        "dayOfWeek": "Tuesday",
+        "items": [
+          "Chicken Parmesan with Pasta",
+          "Dinner Roll",
+          "Green Beans"
+        ],
+        "isNoSchool": false
+      },
+      "2026-09-23": {
+        "date": "2026-09-23",
+        "dayOfWeek": "Wednesday",
+        "items": [
+          "Meatloaf",
+          "Mashed Potatoes",
+          "Corn"
+        ],
+        "isNoSchool": false
+      },
+      "2026-09-24": {
+        "date": "2026-09-24",
+        "dayOfWeek": "Thursday",
+        "items": [
+          "French Toast",
+          "Chicken Sausage",
+          "Hash Brown",
+          "Carrots"
+        ],
+        "isNoSchool": false,
+        "isVegetarian": true
+      },
+      "2026-09-25": {
+        "date": "2026-09-25",
+        "dayOfWeek": "Friday",
+        "items": [
+          "Pizza",
+          "Broccoli"
+        ],
+        "isNoSchool": false,
+        "isVegetarian": true
+      },
+      "2026-09-28": {
+        "date": "2026-09-28",
+        "dayOfWeek": "Monday",
+        "items": [
+          "Mozzarella Sticks",
+          "Baked Fries",
+          "Marinara Sauce",
+          "Cheesy Peas"
+        ],
+        "isNoSchool": false,
+        "isVegetarian": true
+      },
+      "2026-09-29": {
+        "date": "2026-09-29",
+        "dayOfWeek": "Tuesday",
+        "items": [
+          "Toasted Ravioli",
+          "Sweet Potato Fries",
+          "Carrots"
+        ],
+        "isNoSchool": false,
+        "isVegetarian": true
+      },
+      "2026-09-30": {
+        "date": "2026-09-30",
+        "dayOfWeek": "Wednesday",
+        "items": [
+          "Meatballs with Pasta",
+          "Dinner Roll",
+          "Spinach Salad"
+        ],
+        "isNoSchool": false
+      }
+    }
+  },
+  "secondary": {
+    "schoolType": "Secondary Schools",
+    "schools": [
+      "Robert Adams Middle School (RAMS)",
+      "Holliston High School"
+    ],
+    "grades": "6-12",
+    "days": {
+      "2026-08-26": {
+        "date": "2026-08-26",
+        "dayOfWeek": "Wednesday",
+        "items": [
+          "Sunbutter and Jelly Sandwich",
+          "Lays Chips",
+          "Carrots"
+        ],
+        "isNoSchool": false,
+        "isEarlyRelease": true,
+        "specialNote": "Welcome Back! Early Release Day",
+        "isVegetarian": true
+      },
+      "2026-08-27": {
+        "date": "2026-08-27",
+        "dayOfWeek": "Thursday",
+        "items": [
+          "Chicken Patty Sandwich",
+          "Three Bean Salad"
+        ],
+        "isNoSchool": false
+      },
+      "2026-08-28": {
+        "date": "2026-08-28",
+        "dayOfWeek": "Friday",
+        "items": [
+          "Pizza",
+          "Green Peppers",
+          "Celery Sticks"
+        ],
+        "isNoSchool": false,
+        "isVegetarian": true
+      },
+      "2026-08-31": {
+        "date": "2026-08-31",
+        "dayOfWeek": "Monday",
+        "items": [
+          "French Toast",
+          "Chicken Sausage",
+          "Hash Brown",
+          "Corn"
+        ],
+        "isNoSchool": false,
+        "isVegetarian": true
+      },
+      "2026-09-01": {
+        "date": "2026-09-01",
+        "dayOfWeek": "Tuesday",
+        "items": [
+          "Chicken Tenders",
+          "Mashed Potatoes",
+          "Broccoli"
+        ],
+        "isNoSchool": false
+      },
+      "2026-09-02": {
+        "date": "2026-09-02",
+        "dayOfWeek": "Wednesday",
+        "items": [
+          "Hamburger or Cheeseburger",
+          "Onion Rings",
+          "Pickles",
+          "Green Beans"
+        ],
+        "isNoSchool": false
+      },
+      "2026-09-03": {
+        "date": "2026-09-03",
+        "dayOfWeek": "Thursday",
+        "items": [
+          "Toasted Ravioli",
+          "Marinara Sauce",
+          "Seasoned Fries",
+          "Cherry Tomatoes"
+        ],
+        "isNoSchool": false,
+        "isVegetarian": true
+      },
+      "2026-09-04": {
+        "date": "2026-09-04",
+        "dayOfWeek": "Friday",
+        "items": [
+          "Pizza",
+          "Mexican Bean Salad"
+        ],
+        "isNoSchool": false,
+        "isVegetarian": true
+      },
+      "2026-09-07": {
+        "date": "2026-09-07",
+        "dayOfWeek": "Monday",
+        "items": [],
+        "isNoSchool": true,
+        "specialNote": "No School - Labor Day"
+      },
+      "2026-09-08": {
+        "date": "2026-09-08",
+        "dayOfWeek": "Tuesday",
+        "items": [
+          "Beef Nachos",
+          "Tostitos",
+          "Salsa, Shredded Lettuce",
+          "Salad"
+        ],
+        "isNoSchool": false
+      },
+      "2026-09-09": {
+        "date": "2026-09-09",
+        "dayOfWeek": "Wednesday",
+        "items": [
+          "Double Dogs",
+          "Vegetarian Baked Beans",
+          "Lays Chips"
+        ],
+        "isNoSchool": false
+      },
+      "2026-09-10": {
+        "date": "2026-09-10",
+        "dayOfWeek": "Thursday",
+        "items": [
+          "Meatball Grinder",
+          "Broccoli"
+        ],
+        "isNoSchool": false
+      },
+      "2026-09-11": {
+        "date": "2026-09-11",
+        "dayOfWeek": "Friday",
+        "items": [
+          "Pizza",
+          "Caesar Salad"
+        ],
+        "isNoSchool": false,
+        "isVegetarian": true
+      },
+      "2026-09-14": {
+        "date": "2026-09-14",
+        "dayOfWeek": "Monday",
+        "items": [
+          "Cheese Ravioli",
+          "Marinara Sauce",
+          "Dinner Roll",
+          "Cheesy Peas"
+        ],
+        "isNoSchool": false,
+        "isVegetarian": true
+      },
+      "2026-09-15": {
+        "date": "2026-09-15",
+        "dayOfWeek": "Tuesday",
+        "items": [
+          "Spicy Chicken Tenders",
+          "Mashed Potatoes",
+          "Green Beans"
+        ],
+        "isNoSchool": false
+      },
+      "2026-09-16": {
+        "date": "2026-09-16",
+        "dayOfWeek": "Wednesday",
+        "items": [
+          "Texas Toast Grilled Cheese",
+          "Tomato Soup",
+          "Cherry Tomatoes"
+        ],
+        "isNoSchool": false,
+        "isVegetarian": true
+      },
+      "2026-09-17": {
+        "date": "2026-09-17",
+        "dayOfWeek": "Thursday",
+        "items": [
+          "Egg & Cheese Croissant",
+          "Chicken Sausage",
+          "Hash Brown",
+          "Roasted Chickpeas"
+        ],
+        "isNoSchool": false,
+        "isVegetarian": true
+      },
+      "2026-09-18": {
+        "date": "2026-09-18",
+        "dayOfWeek": "Friday",
+        "items": [
+          "Pizza",
+          "Salad"
+        ],
+        "isNoSchool": false,
+        "isVegetarian": true
+      },
+      "2026-09-21": {
+        "date": "2026-09-21",
+        "dayOfWeek": "Monday",
+        "items": [],
+        "isNoSchool": true,
+        "specialNote": "No School - Yom Kippur"
+      },
+      "2026-09-22": {
+        "date": "2026-09-22",
+        "dayOfWeek": "Tuesday",
+        "items": [
+          "Mozzarella Sticks",
+          "Seasoned Fries",
+          "Marinara Sauce",
+          "Carrots"
+        ],
+        "isNoSchool": false,
+        "isVegetarian": true
+      },
+      "2026-09-23": {
+        "date": "2026-09-23",
+        "dayOfWeek": "Wednesday",
+        "items": [
+          "American Chop Suey",
+          "Garlic Bread",
+          "Green Beans"
+        ],
+        "isNoSchool": false
+      },
+      "2026-09-24": {
+        "date": "2026-09-24",
+        "dayOfWeek": "Thursday",
+        "items": [
+          "Mac & Cheese",
+          "Red Peppers & Carrots",
+          "Dinner Roll"
+        ],
+        "isNoSchool": false,
+        "isVegetarian": true
+      },
+      "2026-09-25": {
+        "date": "2026-09-25",
+        "dayOfWeek": "Friday",
+        "items": [
+          "Pizza",
+          "Three Bean Salad"
+        ],
+        "isNoSchool": false,
+        "isVegetarian": true
+      },
+      "2026-09-28": {
+        "date": "2026-09-28",
+        "dayOfWeek": "Monday",
+        "items": [
+          "Turkey Medallions",
+          "Mashed Potatoes",
+          "Corn"
+        ],
+        "isNoSchool": false
+      },
+      "2026-09-29": {
+        "date": "2026-09-29",
+        "dayOfWeek": "Tuesday",
+        "items": [
+          "French Toast",
+          "Chicken Sausage",
+          "Hash Brown",
+          "Green Beans"
+        ],
+        "isNoSchool": false,
+        "isVegetarian": true
+      },
+      "2026-09-30": {
+        "date": "2026-09-30",
+        "dayOfWeek": "Wednesday",
+        "items": [
+          "Chicken Parmesan Sandwich",
+          "Caesar Salad"
+        ],
+        "isNoSchool": false
+      }
+    }
+  },
   "days": {
-    "2026-06-01": {
-      "date": "2026-06-01",
-      "dayOfWeek": "Monday",
-      "items": [
-        "BBQ Chicken Nuggets",
-        "Mashed Potatoes",
-        "Corn"
-      ],
-      "isNoSchool": false
-    },
-    "2026-06-02": {
-      "date": "2026-06-02",
-      "dayOfWeek": "Tuesday",
-      "items": [
-        "Toasted Ravioli with Marinara Sauce",
-        "Green Beans"
-      ],
-      "isNoSchool": false
-    },
-    "2026-06-03": {
-      "date": "2026-06-03",
+    "2026-08-26": {
+      "date": "2026-08-26",
       "dayOfWeek": "Wednesday",
       "items": [
-        "Mac & Cheese",
-        "Dinner Rolls",
-        "Salad"
+        "Sunbutter and Jelly Sandwich",
+        "Lays Chips",
+        "Carrots"
       ],
-      "isNoSchool": false
+      "isNoSchool": false,
+      "isEarlyRelease": true,
+      "specialNote": "Welcome Back! Early Release Day",
+      "isVegetarian": true
     },
-    "2026-06-04": {
-      "date": "2026-06-04",
+    "2026-08-27": {
+      "date": "2026-08-27",
       "dayOfWeek": "Thursday",
       "items": [
-        "Waffles with Chicken Sausage Patty",
-        "Dragon Juice",
-        "Red Peppers"
+        "French Toast",
+        "Chicken Sausage",
+        "Hashbrown",
+        "Corn"
       ],
-      "isNoSchool": false
+      "isNoSchool": false,
+      "isVegetarian": true
     },
-    "2026-06-05": {
-      "date": "2026-06-05",
+    "2026-08-28": {
+      "date": "2026-08-28",
       "dayOfWeek": "Friday",
       "items": [
         "Pizza",
-        "Finley Salad"
+        "Green Peppers",
+        "Celery Sticks"
       ],
-      "isNoSchool": false
+      "isNoSchool": false,
+      "isVegetarian": true
     },
-    "2026-06-08": {
-      "date": "2026-06-08",
+    "2026-08-31": {
+      "date": "2026-08-31",
       "dayOfWeek": "Monday",
       "items": [
-        "Mozzarella Sticks",
-        "Seasoned Fries",
-        "Mixed Vegetables"
+        "Chicken Nuggets",
+        "Mashed Potatoes",
+        "Cheesy Peas"
       ],
       "isNoSchool": false
     },
-    "2026-06-09": {
-      "date": "2026-06-09",
+    "2026-09-01": {
+      "date": "2026-09-01",
       "dayOfWeek": "Tuesday",
       "items": [
-        "Meatball Sub",
-        "Carrots"
-      ],
-      "isNoSchool": false
-    },
-    "2026-06-10": {
-      "date": "2026-06-10",
-      "dayOfWeek": "Wednesday",
-      "items": [
-        "Teriyaki Chicken with Rice",
+        "Tater Tot Nachos",
         "Broccoli"
       ],
       "isNoSchool": false
     },
-    "2026-06-11": {
-      "date": "2026-06-11",
-      "dayOfWeek": "Thursday",
+    "2026-09-02": {
+      "date": "2026-09-02",
+      "dayOfWeek": "Wednesday",
       "items": [
-        "Egg & Cheese Croissants",
-        "Hash Brown",
-        "Corn"
+        "Hamburger or Cheeseburger",
+        "Lays Chips",
+        "Pickles",
+        "Salad"
       ],
       "isNoSchool": false
     },
-    "2026-06-12": {
-      "date": "2026-06-12",
+    "2026-09-03": {
+      "date": "2026-09-03",
+      "dayOfWeek": "Thursday",
+      "items": [
+        "Pancakes",
+        "Chicken Sausage",
+        "Sweet Potato Tots",
+        "Red Peppers and Carrots"
+      ],
+      "isNoSchool": false,
+      "isVegetarian": true
+    },
+    "2026-09-04": {
+      "date": "2026-09-04",
+      "dayOfWeek": "Friday",
+      "items": [
+        "Pizza",
+        "Mexican Bean Salad"
+      ],
+      "isNoSchool": false,
+      "isVegetarian": true
+    },
+    "2026-09-07": {
+      "date": "2026-09-07",
+      "dayOfWeek": "Monday",
+      "items": [],
+      "isNoSchool": true,
+      "specialNote": "No School - Labor Day"
+    },
+    "2026-09-08": {
+      "date": "2026-09-08",
+      "dayOfWeek": "Tuesday",
+      "items": [
+        "Hot Dog",
+        "Vegetarian Baked Beans",
+        "Lays Chips"
+      ],
+      "isNoSchool": false
+    },
+    "2026-09-09": {
+      "date": "2026-09-09",
+      "dayOfWeek": "Wednesday",
+      "items": [
+        "Chicken Patty Sandwich",
+        "Cucumber Salad"
+      ],
+      "isNoSchool": false
+    },
+    "2026-09-10": {
+      "date": "2026-09-10",
+      "dayOfWeek": "Thursday",
+      "items": [
+        "Waffles",
+        "Chicken Sausage",
+        "Hash Brown",
+        "Corn"
+      ],
+      "isNoSchool": false,
+      "isVegetarian": true
+    },
+    "2026-09-11": {
+      "date": "2026-09-11",
+      "dayOfWeek": "Friday",
+      "items": [
+        "Pizza",
+        "Spinach"
+      ],
+      "isNoSchool": false,
+      "isVegetarian": true
+    },
+    "2026-09-14": {
+      "date": "2026-09-14",
+      "dayOfWeek": "Monday",
+      "items": [
+        "Chicken Tenders",
+        "Mashed Potatoes",
+        "Broccoli"
+      ],
+      "isNoSchool": false
+    },
+    "2026-09-15": {
+      "date": "2026-09-15",
+      "dayOfWeek": "Tuesday",
+      "items": [
+        "Grilled Cheese",
+        "Pretzels",
+        "Cherry Tomato Cups"
+      ],
+      "isNoSchool": false,
+      "isVegetarian": true
+    },
+    "2026-09-16": {
+      "date": "2026-09-16",
+      "dayOfWeek": "Wednesday",
+      "items": [
+        "Meatball Grinder",
+        "Salad"
+      ],
+      "isNoSchool": false
+    },
+    "2026-09-17": {
+      "date": "2026-09-17",
+      "dayOfWeek": "Thursday",
+      "items": [
+        "Egg & Cheese Croissant",
+        "Chicken Sausage",
+        "Hash Brown",
+        "Corn"
+      ],
+      "isNoSchool": false,
+      "isVegetarian": true
+    },
+    "2026-09-18": {
+      "date": "2026-09-18",
       "dayOfWeek": "Friday",
       "items": [
         "Pizza",
         "Roasted Chickpeas"
       ],
-      "isNoSchool": false
+      "isNoSchool": false,
+      "isVegetarian": true
     },
-    "2026-06-15": {
-      "date": "2026-06-15",
+    "2026-09-21": {
+      "date": "2026-09-21",
       "dayOfWeek": "Monday",
-      "items": [
-        "Chicken Nuggets",
-        "Mashed Potatoes",
-        "Peas"
-      ],
-      "isNoSchool": false
-    },
-    "2026-06-16": {
-      "date": "2026-06-16",
-      "dayOfWeek": "Tuesday",
-      "items": [
-        "Hamburger or Cheeseburger",
-        "Cucumber Salad",
-        "Pickles"
-      ],
-      "isNoSchool": false
-    },
-    "2026-06-17": {
-      "date": "2026-06-17",
-      "dayOfWeek": "Wednesday",
-      "items": [
-        "Pancakes with Chicken Sausage Patty",
-        "Red Peppers"
-      ],
-      "isNoSchool": false
-    },
-    "2026-06-18": {
-      "date": "2026-06-18",
-      "dayOfWeek": "Thursday",
-      "items": [
-        "Pizza",
-        "Broccoli"
-      ],
-      "isNoSchool": false
-    },
-    "2026-06-19": {
-      "date": "2026-06-19",
-      "dayOfWeek": "Friday",
-      "items": [
-        "No School"
-      ],
+      "items": [],
       "isNoSchool": true,
-      "specialNote": "No School"
+      "specialNote": "No School - Yom Kippur"
     },
-    "2026-06-22": {
-      "date": "2026-06-22",
-      "dayOfWeek": "Monday",
-      "items": [
-        "Orange Chicken with Rice",
-        "Corn"
-      ],
-      "isNoSchool": false
-    },
-    "2026-06-23": {
-      "date": "2026-06-23",
+    "2026-09-22": {
+      "date": "2026-09-22",
       "dayOfWeek": "Tuesday",
       "items": [
-        "Pasta & Meatballs",
+        "Chicken Parmesan with Pasta",
         "Dinner Roll",
-        "Carrots"
-      ],
-      "isNoSchool": false
-    },
-    "2026-06-24": {
-      "date": "2026-06-24",
-      "dayOfWeek": "Wednesday",
-      "items": [
-        "Pizza",
         "Green Beans"
       ],
       "isNoSchool": false
     },
-    "2026-06-25": {
-      "date": "2026-06-25",
+    "2026-09-23": {
+      "date": "2026-09-23",
+      "dayOfWeek": "Wednesday",
+      "items": [
+        "Meatloaf",
+        "Mashed Potatoes",
+        "Corn"
+      ],
+      "isNoSchool": false
+    },
+    "2026-09-24": {
+      "date": "2026-09-24",
       "dayOfWeek": "Thursday",
       "items": [
-        "Sunbutter & Jelly Sandwich",
-        "Fruit"
+        "French Toast",
+        "Chicken Sausage",
+        "Hash Brown",
+        "Carrots"
       ],
       "isNoSchool": false,
-      "isEarlyRelease": true,
-      "isLastDay": true,
-      "specialNote": "Last Day! Early Release"
+      "isVegetarian": true
     },
-    "2026-06-26": {
-      "date": "2026-06-26",
+    "2026-09-25": {
+      "date": "2026-09-25",
       "dayOfWeek": "Friday",
       "items": [
-        "Summer Break!"
+        "Pizza",
+        "Broccoli"
       ],
-      "isNoSchool": true,
-      "specialNote": "Have a great summer! See you soon"
+      "isNoSchool": false,
+      "isVegetarian": true
+    },
+    "2026-09-28": {
+      "date": "2026-09-28",
+      "dayOfWeek": "Monday",
+      "items": [
+        "Mozzarella Sticks",
+        "Baked Fries",
+        "Marinara Sauce",
+        "Cheesy Peas"
+      ],
+      "isNoSchool": false,
+      "isVegetarian": true
+    },
+    "2026-09-29": {
+      "date": "2026-09-29",
+      "dayOfWeek": "Tuesday",
+      "items": [
+        "Toasted Ravioli",
+        "Sweet Potato Fries",
+        "Carrots"
+      ],
+      "isNoSchool": false,
+      "isVegetarian": true
+    },
+    "2026-09-30": {
+      "date": "2026-09-30",
+      "dayOfWeek": "Wednesday",
+      "items": [
+        "Meatballs with Pasta",
+        "Dinner Roll",
+        "Spinach Salad"
+      ],
+      "isNoSchool": false
     }
-  }
+  },
+  "month": "September",
+  "year": 2026,
+  "schoolType": "Elementary Schools"
 }

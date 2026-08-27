@@ -1,9 +1,14 @@
 "use client";
 
+import { useState } from "react";
+import useSWR from "swr";
 import { CalendarEvent } from "@/types/calendar";
+import { DailyLunchMenu, LunchDayResponse } from "@/types/lunch";
 import { extractChildAnnotations, filterActivityEvents } from "@/lib/annotations";
 import { formatEasternTime, getEasternMinutes } from "@/lib/dateUtils";
 import { ChildHeader } from "@/components/common/ChildHeader";
+import { ChildLunchModal } from "@/components/widgets/LunchWidget/ChildLunchModal";
+import { useDashboard } from "@/context/DashboardContext";
 import { format, parseISO } from "date-fns";
 import {
   Calendar as CalendarIcon,
@@ -23,14 +28,34 @@ interface KidsColumnTimelineProps {
   events: CalendarEvent[];
 }
 
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
 const KIDS = [
-  { id: "aria", name: "Aria", color: "#3b82f6", bgLight: "bg-blue-500/10", border: "border-blue-500/30", text: "text-blue-400" },
-  { id: "brighton", name: "Brighton", color: "#f472b6", bgLight: "bg-pink-500/10", border: "border-pink-500/30", text: "text-pink-400" },
-  { id: "benjamin", name: "Benjamin", color: "#ef4444", bgLight: "bg-red-500/10", border: "border-red-500/30", text: "text-red-400" },
-  { id: "bennett", name: "Bennett", color: "#22c55e", bgLight: "bg-emerald-500/10", border: "border-emerald-500/30", text: "text-emerald-400" },
+  { id: "aria", name: "Aria", avatarIcon: "/icons/children/aria.png", color: "#3b82f6", bgLight: "bg-blue-500/10", border: "border-blue-500/30", text: "text-blue-400" },
+  { id: "brighton", name: "Brighton", avatarIcon: "/icons/children/brighton.png", color: "#f472b6", bgLight: "bg-pink-500/10", border: "border-pink-500/30", text: "text-pink-400" },
+  { id: "benjamin", name: "Benjamin", avatarIcon: "/icons/children/benjamin.png", color: "#ef4444", bgLight: "bg-red-500/10", border: "border-red-500/30", text: "text-red-400" },
+  { id: "bennett", name: "Bennett", avatarIcon: "/icons/children/bennett.png", color: "#22c55e", bgLight: "bg-emerald-500/10", border: "border-emerald-500/30", text: "text-emerald-400" },
 ];
 
 export function KidsColumnTimeline({ events }: KidsColumnTimelineProps) {
+  const { selectedDate } = useDashboard();
+  const dateStr = format(selectedDate, "yyyy-MM-dd");
+
+  // Fetch lunch schedule synchronized with master selected date
+  const { data: lunchData } = useSWR<LunchDayResponse>(
+    `/api/lunch?date=${dateStr}`,
+    fetcher,
+    { refreshInterval: 60000, revalidateOnFocus: true }
+  );
+
+  // Active popup modal state for lunch
+  const [activeLunchModal, setActiveLunchModal] = useState<{
+    childName: string;
+    childColor: string;
+    avatarIcon?: string;
+    menu: DailyLunchMenu;
+  } | null>(null);
+
   // Filter out custody and no-school banner events so they don't clutter the activity stream
   const activityEvents = filterActivityEvents(events);
 
@@ -83,14 +108,64 @@ export function KidsColumnTimeline({ events }: KidsColumnTimelineProps) {
           const kidEvents = eventsByKid[kid.id];
           const annotations = extractChildAnnotations(events, kid.id);
 
+          // Resolve lunch menu for this specific child on the selected date
+          let childLunchMenu: DailyLunchMenu | null = null;
+          if (lunchData) {
+            if (kid.id === "bennett") {
+              childLunchMenu =
+                lunchData.elementary?.[dateStr] ||
+                lunchData.byChild?.bennett ||
+                null;
+              if (childLunchMenu) {
+                childLunchMenu = {
+                  ...childLunchMenu,
+                  schoolName: "Miller Elementary School",
+                };
+              }
+            } else if (kid.id === "brighton") {
+              childLunchMenu =
+                lunchData.secondary?.[dateStr] ||
+                lunchData.byChild?.brighton ||
+                null;
+              if (childLunchMenu) {
+                childLunchMenu = {
+                  ...childLunchMenu,
+                  schoolName: "Robert Adams Middle School (RAMS)",
+                };
+              }
+            }
+          }
+
+          if (
+            childLunchMenu?.isNoSchool ||
+            !childLunchMenu?.items ||
+            childLunchMenu.items.length === 0
+          ) {
+            childLunchMenu = null;
+          }
+
           return (
             <div
               key={kid.id}
               className="rounded-2xl p-3.5 bg-slate-900/85 border-2 flex flex-col h-full min-h-[360px] shadow-lg transition-all"
               style={{ borderColor: `${kid.color}99` }}
             >
-              {/* Universal Child Header Component */}
-              <ChildHeader child={kid} annotations={annotations} />
+              {/* Universal Child Header Component with Lunch Badge */}
+              <ChildHeader
+                child={kid}
+                annotations={annotations}
+                lunchMenu={childLunchMenu}
+                onLunchClick={() => {
+                  if (childLunchMenu) {
+                    setActiveLunchModal({
+                      childName: kid.name,
+                      childColor: kid.color,
+                      avatarIcon: kid.avatarIcon,
+                      menu: childLunchMenu,
+                    });
+                  }
+                }}
+              />
 
               {/* Chronological Event Cards with Staggered Time Position */}
               {kidEvents.length === 0 ? (
@@ -257,6 +332,19 @@ export function KidsColumnTimeline({ events }: KidsColumnTimelineProps) {
             })}
           </div>
         </div>
+      )}
+
+      {/* Interactive Child Lunch Popup Modal */}
+      {activeLunchModal && (
+        <ChildLunchModal
+          isOpen={true}
+          onClose={() => setActiveLunchModal(null)}
+          childName={activeLunchModal.childName}
+          childColor={activeLunchModal.childColor}
+          avatarIcon={activeLunchModal.avatarIcon}
+          menu={activeLunchModal.menu}
+          selectedDate={selectedDate}
+        />
       )}
     </div>
   );

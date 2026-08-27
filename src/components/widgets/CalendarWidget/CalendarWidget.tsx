@@ -3,10 +3,12 @@
 import { useState } from "react";
 import useSWR from "swr";
 import { CalendarAgenda } from "@/types/calendar";
+import { DailyLunchMenu, LunchDayResponse } from "@/types/lunch";
 import { EventItem } from "./EventItem";
 import { KidsColumnTimeline } from "./KidsColumnTimeline";
+import { ChildLunchModal } from "@/components/widgets/LunchWidget/ChildLunchModal";
 import { getDailyFamilySummary, filterActivityEvents } from "@/lib/annotations";
-import { Calendar as CalendarIcon, Columns3, GraduationCap, Home, LayoutList, Sparkles } from "lucide-react";
+import { Calendar as CalendarIcon, Columns3, GraduationCap, Home, LayoutList, Sparkles, Utensils } from "lucide-react";
 import { useDashboard } from "@/context/DashboardContext";
 import { format } from "date-fns";
 
@@ -24,6 +26,20 @@ export function CalendarWidget() {
   });
 
   const selectedDateStr = format(selectedDate, "yyyy-MM-dd");
+
+  // Fetch school lunch menus synchronized with master selected date
+  const { data: lunchData } = useSWR<LunchDayResponse>(
+    `/api/lunch?date=${selectedDateStr}`,
+    fetcher,
+    { refreshInterval: 60000, revalidateOnFocus: true }
+  );
+
+  const [activeLunchModal, setActiveLunchModal] = useState<{
+    childName: string;
+    childColor: string;
+    avatarIcon?: string;
+    menu: DailyLunchMenu;
+  } | null>(null);
 
   // Determine active events matching master selected date (supports past and future)
   const activeEvents = data?.byDate?.[selectedDateStr] || [];
@@ -139,6 +155,50 @@ export function CalendarWidget() {
                         <span>{daySummary.brightonBennett.school.label}</span>
                       </span>
                     )}
+
+                    {/* Bennett & Brighton Lunch Badges in Daily Summary */}
+                    {lunchData?.elementary?.[selectedDateStr] && !lunchData.elementary[selectedDateStr].isNoSchool && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setActiveLunchModal({
+                            childName: "Bennett",
+                            childColor: "#22c55e",
+                            avatarIcon: "/icons/children/bennett.png",
+                            menu: {
+                              ...lunchData.elementary![selectedDateStr],
+                              schoolName: "Miller Elementary School",
+                            },
+                          })
+                        }
+                        className="text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-amber-500/40 bg-amber-500/15 text-amber-300 hover:bg-amber-500/25 flex items-center gap-1 shadow-sm transition-all cursor-pointer"
+                        title="Bennett's Miller Elementary Lunch - Click to view"
+                      >
+                        <Utensils className="w-2.5 h-2.5 flex-shrink-0 text-amber-400" />
+                        <span>Bennett Lunch</span>
+                      </button>
+                    )}
+                    {lunchData?.secondary?.[selectedDateStr] && !lunchData.secondary[selectedDateStr].isNoSchool && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setActiveLunchModal({
+                            childName: "Brighton",
+                            childColor: "#f472b6",
+                            avatarIcon: "/icons/children/brighton.png",
+                            menu: {
+                              ...lunchData.secondary![selectedDateStr],
+                              schoolName: "Robert Adams Middle School (RAMS)",
+                            },
+                          })
+                        }
+                        className="text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-amber-500/40 bg-amber-500/15 text-amber-300 hover:bg-amber-500/25 flex items-center gap-1 shadow-sm transition-all cursor-pointer"
+                        title="Brighton's Adams Middle School Lunch - Click to view"
+                      >
+                        <Utensils className="w-2.5 h-2.5 flex-shrink-0 text-amber-400" />
+                        <span>Brighton Lunch</span>
+                      </button>
+                    )}
                   </div>
                 </div>
 
@@ -202,6 +262,50 @@ export function CalendarWidget() {
                         <span>{daySummary.brightonBennett.school.label}</span>
                       </span>
                     )}
+
+                    {/* Bennett & Brighton Lunch Badges in Daily Summary */}
+                    {lunchData?.elementary?.[selectedDateStr] && !lunchData.elementary[selectedDateStr].isNoSchool && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setActiveLunchModal({
+                            childName: "Bennett",
+                            childColor: "#22c55e",
+                            avatarIcon: "/icons/children/bennett.png",
+                            menu: {
+                              ...lunchData.elementary![selectedDateStr],
+                              schoolName: "Miller Elementary School",
+                            },
+                          })
+                        }
+                        className="text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-amber-500/40 bg-amber-500/15 text-amber-300 hover:bg-amber-500/25 flex items-center gap-1 shadow-sm transition-all cursor-pointer"
+                        title="Bennett's Miller Elementary Lunch - Click to view"
+                      >
+                        <Utensils className="w-2.5 h-2.5 flex-shrink-0 text-amber-400" />
+                        <span>Bennett Lunch</span>
+                      </button>
+                    )}
+                    {lunchData?.secondary?.[selectedDateStr] && !lunchData.secondary[selectedDateStr].isNoSchool && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setActiveLunchModal({
+                            childName: "Brighton",
+                            childColor: "#f472b6",
+                            avatarIcon: "/icons/children/brighton.png",
+                            menu: {
+                              ...lunchData.secondary![selectedDateStr],
+                              schoolName: "Robert Adams Middle School (RAMS)",
+                            },
+                          })
+                        }
+                        className="text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-amber-500/40 bg-amber-500/15 text-amber-300 hover:bg-amber-500/25 flex items-center gap-1 shadow-sm transition-all cursor-pointer"
+                        title="Brighton's Adams Middle School Lunch - Click to view"
+                      >
+                        <Utensils className="w-2.5 h-2.5 flex-shrink-0 text-amber-400" />
+                        <span>Brighton Lunch</span>
+                      </button>
+                    )}
                   </div>
                 </div>
 
@@ -213,6 +317,19 @@ export function CalendarWidget() {
           </>
         )}
       </div>
+
+      {/* Interactive Child Lunch Popup Modal */}
+      {activeLunchModal && (
+        <ChildLunchModal
+          isOpen={true}
+          onClose={() => setActiveLunchModal(null)}
+          childName={activeLunchModal.childName}
+          childColor={activeLunchModal.childColor}
+          avatarIcon={activeLunchModal.avatarIcon}
+          menu={activeLunchModal.menu}
+          selectedDate={selectedDate}
+        />
+      )}
     </div>
   );
 }

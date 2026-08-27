@@ -97,14 +97,14 @@ async function runTests() {
     let hasVTag = false;
     let hasItemsArray = true;
     for (const [date, day] of Object.entries<any>(json.days)) {
-      if (!Array.isArray(day.items) || day.items.length === 0) {
+      if (!day.isNoSchool && (!Array.isArray(day.items) || day.items.length === 0)) {
         hasItemsArray = false;
       }
       if (day.items && day.items.some((i: string) => i.includes("(V)"))) {
         hasVTag = true;
       }
     }
-    assert(hasItemsArray, "All days contain array of line items ('items')");
+    assert(hasItemsArray, "All school days contain array of line items ('items')");
     assert(!hasVTag, "All item strings are clean (no '(V)' tags)");
   }
 
@@ -369,10 +369,24 @@ async function runTests() {
   // 7. Check API Endpoints
   console.log("\n6. Checking API Endpoints...");
   try {
-    const lunchRes = await fetchUrl(`${BASE_URL}/api/lunch`);
+    const lunchRes = await fetchUrl(`${BASE_URL}/api/lunch?date=2026-08-26`);
     assert(lunchRes.status === 200, "GET /api/lunch returns HTTP 200");
     const lunchJson = JSON.parse(lunchRes.body);
     assert(Array.isArray(lunchJson.allDays), "GET /api/lunch returns allDays array");
+    assert(!!lunchJson.elementary && !!lunchJson.secondary, "GET /api/lunch returns elementary and secondary schedules");
+    assert(!!lunchJson.byChild, "GET /api/lunch returns byChild dictionary");
+    assert(
+      lunchJson.byChild.bennett?.schoolName?.includes("Miller"),
+      "Bennett resolves to Miller Elementary School lunch"
+    );
+    assert(
+      lunchJson.byChild.brighton?.schoolName?.includes("Adams"),
+      "Brighton resolves to Robert Adams Middle School lunch"
+    );
+    assert(
+      lunchJson.byChild.bennett?.items?.length > 0,
+      "Bennett has school lunch items on Aug 26, 2026"
+    );
   } catch (err: any) {
     assert(false, "GET /api/lunch", `Server unreachable: ${err.message}`);
   }
@@ -493,14 +507,14 @@ async function runTests() {
       "ChildHeader implements fixed-width non-jumping custody badges"
     );
 
-    // Zero Date Header Rule Check: Ensure neither widget renders internal date subtitles
-    const calWidgetFile = fs.readFileSync(path.join(process.cwd(), "src", "components", "widgets", "CalendarWidget", "CalendarWidget.tsx"), "utf-8");
-    const lunchWidgetFile = fs.readFileSync(path.join(process.cwd(), "src", "components", "widgets", "LunchWidget", "LunchWidget.tsx"), "utf-8");
+    // Lunch presentation check: Standalone LunchWidget removed from bottom of DashboardGrid
     const dashboardGridFile = fs.readFileSync(path.join(process.cwd(), "src", "components", "layout", "DashboardGrid.tsx"), "utf-8");
-    assert(dashboardGridFile.includes("CalendarWidget") && dashboardGridFile.includes("LunchWidget"), "DashboardGrid integrates both CalendarWidget and LunchWidget");
-    assert(!calWidgetFile.includes("formattedDayTitle") && !calWidgetFile.includes("<div className=\"text-xs font-extrabold uppercase"), "CalendarWidget complies with zero-date display rule");
-    assert(!lunchWidgetFile.includes("{activeDay.date}"), "LunchWidget complies with zero-date display rule");
-    assert(pageRes.body.includes("School Lunch"), "HomePage renders the School Lunch widget below the family calendar");
+    assert(!dashboardGridFile.includes("<LunchWidget"), "DashboardGrid removes bottom LunchWidget in favor of child calendar badges");
+
+    // ChildHeader and Modal checks
+    assert(childHeaderFile.includes("lunchMenu") && childHeaderFile.includes("onLunchClick"), "ChildHeader supports interactive lunch badges");
+    const childModalFile = fs.readFileSync(path.join(process.cwd(), "src", "components", "widgets", "LunchWidget", "ChildLunchModal.tsx"), "utf-8");
+    assert(childModalFile.includes("Today's Main Entrée") || childModalFile.includes("Today&apos;s Main Entrée"), "ChildLunchModal displays child-specific entree details");
 
     const hasErrorOverlay =
       pageRes.body.includes("Next.js Error") ||

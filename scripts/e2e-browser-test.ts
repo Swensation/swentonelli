@@ -151,12 +151,65 @@ async function runE2ETests() {
       brokenHomepageImgs.map((b) => `Broken image: ${b.src} (alt: "${b.alt}")`).join("; ")
     );
 
-    // Lunch Menu Widget Verification
-    const isLunchWidgetRendered = await page.evaluate(() => {
+    // Lunch Presentation Rule: Standalone bottom widget removed, replaced with child calendar badges
+    const isStandaloneBottomWidgetPresent = await page.evaluate(() => {
       const text = document.body.innerText;
-      return text.includes("School Lunch") && text.includes("Elementary Schools Menu");
+      return text.includes("Elementary Schools Menu") && text.includes("Holliston Public Schools Lunch Menus");
     });
-    assert(isLunchWidgetRendered, "School Lunch widget is rendered on the home screen below the family calendar");
+    assert(!isStandaloneBottomWidgetPresent, "Bottom standalone LunchWidget removed from home screen");
+
+    // Test Child Lunch Badge & Popup Modal on Family Calendar
+    // Navigate to August 26, 2026 (first school day with lunch)
+    await page.evaluate(() => {
+      const dateInput = document.querySelector('input[type="date"]') as HTMLInputElement;
+      if (dateInput) {
+        dateInput.value = "2026-08-26";
+        dateInput.dispatchEvent(new Event("change", { bubbles: true }));
+      }
+    });
+    await new Promise((r) => setTimeout(r, 800));
+
+    const lunchBadgePresent = await page.evaluate(() => {
+      const lunchButtons = Array.from(document.querySelectorAll("button")).filter(
+        (b) => b.textContent?.trim() === "Lunch" || b.title?.includes("School Lunch")
+      );
+      return lunchButtons.length > 0;
+    });
+    assert(lunchBadgePresent, "School Lunch badge appears on child column header for school days");
+
+    // Click child's lunch badge to open modal
+    await page.evaluate(() => {
+      const lunchButtons = Array.from(document.querySelectorAll("button")).filter(
+        (b) => b.textContent?.trim() === "Lunch" || b.title?.includes("School Lunch")
+      );
+      if (lunchButtons.length > 0) {
+        lunchButtons[lunchButtons.length - 1].click(); // Bennett is last child column
+      }
+    });
+    await new Promise((r) => setTimeout(r, 600));
+
+    // Verify modal is open
+    const modalContent = await page.evaluate(() => {
+      const modal = document.querySelector('div[role="dialog"]');
+      if (!modal) return null;
+      return {
+        title: modal.querySelector("h3")?.textContent || "",
+        body: modal.textContent || "",
+      };
+    });
+    assert(
+      !!modalContent && modalContent.body.includes("School Lunch"),
+      "Clicking Child Lunch badge opens ChildLunchModal with school lunch details"
+    );
+
+    // Close modal via Escape key
+    await page.keyboard.press("Escape");
+    await new Promise((r) => setTimeout(r, 400));
+
+    const isModalClosed = await page.evaluate(() => {
+      return document.querySelector('div[role="dialog"]') === null;
+    });
+    assert(isModalClosed, "ChildLunchModal closes cleanly on Escape key press");
 
     // ----------------------------------------------------
     // TEST 2: Universal ChildHeader & 4-Column Layout

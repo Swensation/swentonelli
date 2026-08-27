@@ -1,7 +1,7 @@
 "use client";
 
 import { DailyLunchMenu } from "@/types/lunch";
-import { AlertCircle, Award, Bus, Clock, Sun } from "lucide-react";
+import { AlertCircle, Award, Bus, Clock, Leaf, Sun } from "lucide-react";
 
 interface SchoolStatusBadgeProps {
   menu: DailyLunchMenu;
@@ -13,6 +13,12 @@ export function SchoolStatusBadge({ menu }: SchoolStatusBadgeProps) {
       {menu.isNoSchool && (
         <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30">
           <AlertCircle className="w-3 h-3" /> No School
+        </span>
+      )}
+
+      {menu.isVegetarian && (
+        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+          <Leaf className="w-3 h-3 text-emerald-400" /> Vegetarian Option
         </span>
       )}
 

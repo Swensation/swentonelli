@@ -496,8 +496,11 @@ async function runTests() {
     // Zero Date Header Rule Check: Ensure neither widget renders internal date subtitles
     const calWidgetFile = fs.readFileSync(path.join(process.cwd(), "src", "components", "widgets", "CalendarWidget", "CalendarWidget.tsx"), "utf-8");
     const lunchWidgetFile = fs.readFileSync(path.join(process.cwd(), "src", "components", "widgets", "LunchWidget", "LunchWidget.tsx"), "utf-8");
+    const dashboardGridFile = fs.readFileSync(path.join(process.cwd(), "src", "components", "layout", "DashboardGrid.tsx"), "utf-8");
+    assert(dashboardGridFile.includes("CalendarWidget") && dashboardGridFile.includes("LunchWidget"), "DashboardGrid integrates both CalendarWidget and LunchWidget");
     assert(!calWidgetFile.includes("formattedDayTitle") && !calWidgetFile.includes("<div className=\"text-xs font-extrabold uppercase"), "CalendarWidget complies with zero-date display rule");
     assert(!lunchWidgetFile.includes("{activeDay.date}"), "LunchWidget complies with zero-date display rule");
+    assert(pageRes.body.includes("School Lunch"), "HomePage renders the School Lunch widget below the family calendar");
 
     const hasErrorOverlay =
       pageRes.body.includes("Next.js Error") ||

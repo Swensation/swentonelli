@@ -151,6 +151,13 @@ async function runE2ETests() {
       brokenHomepageImgs.map((b) => `Broken image: ${b.src} (alt: "${b.alt}")`).join("; ")
     );
 
+    // Lunch Menu Widget Verification
+    const isLunchWidgetRendered = await page.evaluate(() => {
+      const text = document.body.innerText;
+      return text.includes("School Lunch") && text.includes("Elementary Schools Menu");
+    });
+    assert(isLunchWidgetRendered, "School Lunch widget is rendered on the home screen below the family calendar");
+
     // ----------------------------------------------------
     // TEST 2: Universal ChildHeader & 4-Column Layout
     // ----------------------------------------------------

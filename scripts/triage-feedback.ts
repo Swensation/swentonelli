@@ -225,9 +225,17 @@ Instructions:
 
   console.log("\n==================================================================");
   console.log("📋 PROPOSED IMPLEMENTATION PLAN & SYNTHESIS");
-  console.log("==================================================================\n");
   console.log(proposalMarkdown);
   console.log("\n==================================================================");
+
+  // Write to GitHub Step Summary if running in GitHub Actions
+  if (process.env.GITHUB_STEP_SUMMARY) {
+    try {
+      fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `\n# 🐕 Beagle Batch Triage Report\n\n${proposalMarkdown}\n`);
+    } catch {
+      // ignore
+    }
+  }
 
   // If in PR mode, create branch, write proposal, open PR
   if (CREATE_PR) {

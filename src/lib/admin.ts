@@ -69,6 +69,13 @@ export interface AdminLunchHousekeeping {
   alerts: string[];
 }
 
+export interface BuildMeta {
+  timestamp: string;
+  commitSha?: string;
+  issueNumber?: number | null;
+  summary?: string;
+}
+
 export interface AdminGeneralOverview {
   systemStatus: "healthy" | "warning";
   serverTime: string;
@@ -77,6 +84,7 @@ export interface AdminGeneralOverview {
   totalActiveFeeds: number;
   calendarAlertsCount: number;
   lunchAlertsCount: number;
+  lastSystemUpdate: BuildMeta;
   quickStats: {
     activeEventRulesCount: number;
     eventsInNext30Days: number;
@@ -354,6 +362,27 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
   const calendarAlertsCount = missingIcons.length + missingDetailsWarnings.length;
   const lunchAlertsCount = lunchHousekeeping.alerts.length;
 
+  let lastSystemUpdate: BuildMeta = {
+    timestamp: new Date().toISOString(),
+    commitSha: "manual-init",
+    summary: "Active local development server",
+  };
+  try {
+    const candidatePaths = [
+      path.join(process.cwd(), "public", "build-meta.json"),
+      path.join(process.cwd(), ".next", "standalone", "public", "build-meta.json"),
+    ];
+    for (const p of candidatePaths) {
+      if (fs.existsSync(p)) {
+        const rawMeta = fs.readFileSync(p, "utf-8");
+        lastSystemUpdate = JSON.parse(rawMeta);
+        break;
+      }
+    }
+  } catch {
+    // Ignore JSON read errors
+  }
+
   const general: AdminGeneralOverview = {
     systemStatus: calendarAlertsCount + lunchAlertsCount > 0 ? "warning" : "healthy",
     serverTime: new Date().toISOString(),
@@ -362,6 +391,7 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
     totalActiveFeeds: 3,
     calendarAlertsCount,
     lunchAlertsCount,
+    lastSystemUpdate,
     quickStats: {
       activeEventRulesCount: activeRules.length,
       eventsInNext30Days: upcoming30DayEvents.length,

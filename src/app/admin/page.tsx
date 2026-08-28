@@ -9,6 +9,7 @@ import {
   AlertTriangle,
   ArrowLeft,
   BookOpen,
+  Bot,
   Calendar as CalendarIcon,
   Car,
   Check,
@@ -18,6 +19,7 @@ import {
   Dog,
   ExternalLink,
   FileText,
+  GitBranch,
   GraduationCap,
   HeartPulse,
   Home,
@@ -35,6 +37,7 @@ import {
   Users,
   Utensils,
 } from "lucide-react";
+import { format } from "date-fns";
 import { AdminDashboardData, MissingIconItem } from "@/lib/admin";
 import { ChildHeader } from "@/components/common/ChildHeader";
 import { MarkdownViewer } from "@/components/common/MarkdownViewer";
@@ -293,6 +296,73 @@ export default function AdminPage() {
         {/* Tab 1: General Overview (Housekeeping Items FIRST, No noisy feed metrics, No Gemini sanitizer) */}
         {activeTab === "general" && (
           <div className="space-y-6">
+            {/* Last System Update & Deployment Telemetry */}
+            <div className="glass-card p-6 border-l-4 border-amber-400">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-700/60 mb-4">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-2 rounded-xl bg-amber-500/20 text-amber-400">
+                    <Bot className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-black text-white">Last System Update</h2>
+                    <p className="text-xs text-slate-400">Autonomous Feedback-to-Deploy Pipeline status</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="flex h-2.5 w-2.5 relative">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                  </span>
+                  <span className="text-xs font-bold text-emerald-400 font-mono">Live CI/CD Active</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                <div className="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800">
+                  <span className="text-slate-400 block mb-1 font-medium">Timestamp</span>
+                  <span className="font-bold text-white font-mono text-sm">
+                    {data.general.lastSystemUpdate?.timestamp
+                      ? (() => {
+                          try {
+                            return format(new Date(data.general.lastSystemUpdate.timestamp), "MMM d, yyyy • h:mm a");
+                          } catch {
+                            return data.general.lastSystemUpdate.timestamp;
+                          }
+                        })()
+                      : "Unknown"}
+                  </span>
+                </div>
+
+                <div className="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800">
+                  <span className="text-slate-400 block mb-1 font-medium">Trigger &amp; Commit</span>
+                  <div className="flex items-center gap-2">
+                    <GitBranch className="w-3.5 h-3.5 text-amber-400" />
+                    <span className="font-mono text-amber-300 font-bold">
+                      {data.general.lastSystemUpdate?.commitSha || "main"}
+                    </span>
+                    {data.general.lastSystemUpdate?.issueNumber && (
+                      <a
+                        href={`https://github.com/Swensation/swentonelli/issues/${data.general.lastSystemUpdate.issueNumber}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[11px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 hover:underline inline-flex items-center gap-1 font-bold"
+                      >
+                        Issue #{data.general.lastSystemUpdate.issueNumber}
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                    )}
+                  </div>
+                </div>
+
+                <div className="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800">
+                  <span className="text-slate-400 block mb-1 font-medium">Summary</span>
+                  <span className="text-slate-200 truncate block font-medium">
+                    {data.general.lastSystemUpdate?.summary || "Autonomous pipeline synchronized"}
+                  </span>
+                </div>
+              </div>
+            </div>
+
             {/* 1. Pending Housekeeping Checklist */}
             <div className="glass-card p-6">
               <div className="flex items-center justify-between pb-3 border-b border-slate-700/60 mb-4">

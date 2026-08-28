@@ -13,4 +13,13 @@ env:
     availability:
       - BUILD
       - RUNTIME
-
+  - variable: GITHUB_REPO_OWNER
+    value: "Swensation"
+    availability:
+      - RUNTIME
+  - variable: GITHUB_REPO_NAME
+    value: "swentonelli"
+    availability:
+      - RUNTIME
+  - variable: GITHUB_TOKEN
+    secret: GITHUB_TOKEN

@@ -1,0 +1,294 @@
+/**
+ * Autonomous Gemini Agent Runner for Issue-to-Deploy CI/CD Pipeline
+ *
+ * Connects directly to Google Gemini API (gemini-3.7-flash with fallback to gemini-2.5-flash)
+ * with autonomous tool execution:
+ * - view_file
+ * - write_file
+ * - list_dir
+ * - run_command
+ *
+ * Updates public/build-meta.json upon completion.
+ *
+ * Usage:
+ *   npx tsx scripts/run-autonomous-agent.ts
+ */
+
+import fs from "fs";
+import path from "path";
+import { execSync } from "child_process";
+
+// 1. Load .env.local if present
+function loadEnvLocal() {
+  const envPath = path.join(process.cwd(), ".env.local");
+  if (!fs.existsSync(envPath)) return;
+  const content = fs.readFileSync(envPath, "utf-8");
+  for (const line of content.split("\n")) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) continue;
+    const eqIdx = trimmed.indexOf("=");
+    if (eqIdx !== -1) {
+      const key = trimmed.slice(0, eqIdx).trim();
+      let val = trimmed.slice(eqIdx + 1).trim();
+      if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
+        val = val.slice(1, -1);
+      }
+      if (!process.env[key]) process.env[key] = val;
+    }
+  }
+}
+
+loadEnvLocal();
+
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const ISSUE_NUMBER = process.env.ISSUE_NUMBER || "0";
+const ISSUE_TITLE = process.env.ISSUE_TITLE || "Test Feedback Request";
+const ISSUE_BODY = process.env.ISSUE_BODY || "Please verify that the pipeline agent can inspect and build the project.";
+
+if (!GEMINI_API_KEY) {
+  console.error("❌ Error: GEMINI_API_KEY is not set.");
+  process.exit(1);
+}
+
+// Model preference: Gemini 3.5 Flash (Primary) with fallback cascade
+const MODEL_NAME = "gemini-3.5-flash";
+
+// Tool Declarations for Gemini Function Calling
+const TOOL_DECLARATIONS = [
+  {
+    name: "view_file",
+    description: "Read the content of a file in the workspace",
+    parameters: {
+      type: "OBJECT",
+      properties: {
+        file_path: { type: "STRING", description: "Relative path to file from workspace root" },
+      },
+      required: ["file_path"],
+    },
+  },
+  {
+    name: "write_file",
+    description: "Create or overwrite a file in the workspace with new content",
+    parameters: {
+      type: "OBJECT",
+      properties: {
+        file_path: { type: "STRING", description: "Relative path to file from workspace root" },
+        content: { type: "STRING", description: "Complete file contents to write" },
+      },
+      required: ["file_path", "content"],
+    },
+  },
+  {
+    name: "list_dir",
+    description: "List files and subdirectories in a directory",
+    parameters: {
+      type: "OBJECT",
+      properties: {
+        dir_path: { type: "STRING", description: "Relative directory path (e.g. 'src' or '.')" },
+      },
+      required: ["dir_path"],
+    },
+  },
+  {
+    name: "run_command",
+    description: "Execute a safe shell command in the project directory (e.g. npx tsc --noEmit)",
+    parameters: {
+      type: "OBJECT",
+      properties: {
+        command: { type: "STRING", description: "Shell command to run" },
+      },
+      required: ["command"],
+    },
+  },
+];
+
+// Tool Executors
+function executeTool(name: string, args: any): string {
+  try {
+    if (name === "view_file") {
+      const fullPath = path.resolve(process.cwd(), args.file_path);
+      if (!fs.existsSync(fullPath)) return `Error: File '${args.file_path}' does not exist.`;
+      return fs.readFileSync(fullPath, "utf-8");
+    }
+
+    if (name === "write_file") {
+      const fullPath = path.resolve(process.cwd(), args.file_path);
+      const parentDir = path.dirname(fullPath);
+      if (!fs.existsSync(parentDir)) fs.mkdirSync(parentDir, { recursive: true });
+      fs.writeFileSync(fullPath, args.content, "utf-8");
+      return `Successfully wrote ${args.content.length} characters to '${args.file_path}'.`;
+    }
+
+    if (name === "list_dir") {
+      const fullPath = path.resolve(process.cwd(), args.dir_path || ".");
+      if (!fs.existsSync(fullPath)) return `Error: Directory '${args.dir_path}' does not exist.`;
+      const entries = fs.readdirSync(fullPath, { withFileTypes: true });
+      return JSON.stringify(
+        entries.map((e) => ({
+          name: e.name,
+          type: e.isDirectory() ? "directory" : "file",
+        }))
+      );
+    }
+
+    if (name === "run_command") {
+      const cmd = args.command;
+      if (cmd.includes("rm -rf /") || cmd.includes("format ")) {
+        return "Error: Command rejected by safety policy.";
+      }
+      const output = execSync(cmd, { stdio: "pipe", timeout: 60000 }).toString();
+      return output || "(Command succeeded with empty output)";
+    }
+
+    return `Error: Unknown tool '${name}'`;
+  } catch (err: any) {
+    const out = err.stdout?.toString() || err.stderr?.toString() || err.message;
+    return `Execution Error: ${out}`;
+  }
+}
+
+async function callGemini(contents: any[]) {
+  const modelsToTry = [MODEL_NAME, "gemini-3.1-flash-lite-preview", "gemini-3.7-flash"];
+
+  for (const model of modelsToTry) {
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`;
+
+      const requestBody = {
+        contents,
+        tools: [{ functionDeclarations: TOOL_DECLARATIONS }],
+        systemInstruction: {
+          parts: [
+            {
+              text: `You are Google Antigravity, an autonomous AI software engineering agent.
+Your objective is to resolve user requests and bug reports on this Next.js TypeScript project.
+You have tools to read files (view_file), write files (write_file), inspect directories (list_dir), and run commands (run_command).
+Rules:
+1. Examine code first before making edits.
+2. Implement surgical, high-quality code changes.
+3. Verify your changes pass TypeScript checks (run_command 'npx tsc --noEmit').
+4. Always update public/build-meta.json before concluding.
+5. When finished, provide a concise summary of what was changed.`,
+            },
+          ],
+        },
+      };
+
+      try {
+        const res = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(requestBody),
+        });
+
+        if (res.ok) {
+          return await res.json();
+        }
+
+        const errText = await res.text();
+        console.warn(`⚠️ Model ${model} returned HTTP ${res.status} (attempt ${attempt}/3): ${errText.slice(0, 120)}...`);
+
+        if (res.status === 503 || res.status === 429) {
+          await new Promise((r) => setTimeout(r, 1500 * attempt));
+          continue;
+        }
+
+        break;
+      } catch (err: any) {
+        console.warn(`Network error calling ${model} (attempt ${attempt}/3):`, err.message);
+        await new Promise((r) => setTimeout(r, 1500 * attempt));
+      }
+    }
+  }
+
+  throw new Error("All Gemini models and retry attempts exhausted.");
+}
+
+async function runAutonomousLoop() {
+  console.log("==================================================================");
+  console.log(`🤖 Autonomous Antigravity Agent Activated for Issue #${ISSUE_NUMBER}`);
+  console.log(`   Title: ${ISSUE_TITLE}`);
+  console.log("==================================================================");
+
+  const initialPrompt = `A user submitted the following feedback / task request:
+
+Issue #${ISSUE_NUMBER}: ${ISSUE_TITLE}
+
+${ISSUE_BODY}
+
+Please inspect the relevant project files, implement any required changes, run 'npx tsc --noEmit' to verify, and update public/build-meta.json.`;
+
+  const contents: any[] = [{ role: "user", parts: [{ text: initialPrompt }] }];
+
+  const MAX_TURNS = 15;
+  for (let turn = 1; turn <= MAX_TURNS; turn++) {
+    console.log(`\n--- Agent Turn ${turn} ---`);
+    const response = await callGemini(contents);
+    const candidate = response.candidates?.[0];
+    if (!candidate) {
+      console.error("No candidate returned by model:", response);
+      break;
+    }
+
+    const modelParts = candidate.content.parts || [];
+    contents.push({ role: "model", parts: modelParts });
+
+    // Check for function calls
+    const functionCalls = modelParts.filter((p: any) => !!p.functionCall);
+
+    for (const part of modelParts) {
+      if (part.text) {
+        console.log(part.text);
+      }
+    }
+
+    if (functionCalls.length === 0) {
+      console.log("\n✅ Agent completed task without further tool requests.");
+      break;
+    }
+
+    // Execute tool calls
+    const toolResponses: any[] = [];
+    for (const call of functionCalls) {
+      const fnName = call.functionCall.name;
+      const fnArgs = call.functionCall.args || {};
+      console.log(`🔧 Executing Tool: ${fnName}(${JSON.stringify(fnArgs)})`);
+      const resultStr = executeTool(fnName, fnArgs);
+      toolResponses.push({
+        functionResponse: {
+          name: fnName,
+          response: { result: resultStr },
+        },
+      });
+    }
+
+    contents.push({ role: "user", parts: toolResponses });
+  }
+
+  const metaPath = path.join(process.cwd(), "public", "build-meta.json");
+  const metaData = {
+    timestamp: new Date().toISOString(),
+    commitSha: `issue-${ISSUE_NUMBER}`,
+    issueNumber: parseInt(ISSUE_NUMBER, 10) || null,
+    summary: `Autonomous resolution for issue #${ISSUE_NUMBER}: ${ISSUE_TITLE}`,
+  };
+  fs.writeFileSync(metaPath, JSON.stringify(metaData, null, 2), "utf-8");
+  console.log(`\n📦 Updated ${metaPath} with new deployment metadata.`);
+
+  const standaloneMetaPath = path.join(process.cwd(), ".next", "standalone", "public", "build-meta.json");
+  if (fs.existsSync(path.dirname(standaloneMetaPath))) {
+    try {
+      fs.writeFileSync(standaloneMetaPath, JSON.stringify(metaData, null, 2), "utf-8");
+      console.log(`📦 Synced to standalone: ${standaloneMetaPath}`);
+    } catch {
+      // ignore
+    }
+  }
+  console.log("==================================================================");
+}
+
+runAutonomousLoop().catch((err) => {
+  console.error("❌ Agent error:", err);
+  process.exit(1);
+});
+

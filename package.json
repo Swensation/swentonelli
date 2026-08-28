@@ -15,6 +15,7 @@
     "test:all": "tsx scripts/smoke-test.ts && tsx scripts/link-crawler-test.ts && tsx scripts/test-live-assets.ts && tsx scripts/e2e-browser-test.ts",
     "test:all:prod": "tsx scripts/smoke-test.ts && tsx scripts/link-crawler-test.ts && tsx scripts/test-live-assets.ts --prod && tsx scripts/e2e-browser-test.ts --prod",
     "test:keys": "tsx scripts/verify-pipeline-keys.ts",
+    "triage:feedback": "tsx scripts/triage-feedback.ts",
     "parse:lunch": "tsx scripts/parse-lunch-pdf.ts"
   },
   "dependencies": {

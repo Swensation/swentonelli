@@ -88,6 +88,26 @@ async function runTests() {
   const childrenRegistryDataPath = path.join(process.cwd(), "data", "children_registry.json");
   assert(fs.existsSync(childrenRegistryDataPath), "data/children_registry.json exists");
 
+  // Autonomous Pipeline Specs & Assets
+  const buildMetaPath = path.join(process.cwd(), "public", "build-meta.json");
+  assert(fs.existsSync(buildMetaPath), "public/build-meta.json exists");
+  if (fs.existsSync(buildMetaPath)) {
+    const metaJson = JSON.parse(fs.readFileSync(buildMetaPath, "utf-8"));
+    assert(!!metaJson.timestamp, "build-meta.json contains ISO deployment timestamp");
+  }
+
+  const workflowPath = path.join(process.cwd(), ".github", "workflows", "autonomous-agent.yml");
+  assert(fs.existsSync(workflowPath), ".github/workflows/autonomous-agent.yml exists");
+
+  const beagleSpecPath = path.join(process.cwd(), "specs", "talk-to-the-beagle.spec.md");
+  assert(fs.existsSync(beagleSpecPath), "specs/talk-to-the-beagle.spec.md exists");
+
+  const triageScriptPath = path.join(process.cwd(), "scripts", "triage-feedback.ts");
+  assert(fs.existsSync(triageScriptPath), "scripts/triage-feedback.ts exists");
+
+  const batchWorkflowPath = path.join(process.cwd(), ".github", "workflows", "batch-triage-feedback.yml");
+  assert(fs.existsSync(batchWorkflowPath), ".github/workflows/batch-triage-feedback.yml exists");
+
   if (fs.existsSync(dataPath)) {
     const raw = fs.readFileSync(dataPath, "utf-8");
     const json = JSON.parse(raw);
@@ -467,8 +487,27 @@ async function runTests() {
       adminJson.parentInfo.quickReference.schoolHours.millerEarly === "10:47 AM",
       "Parent Info quickReference contains verified school dismissal hours"
     );
+    assert(
+      !!adminJson.general.lastSystemUpdate && !!adminJson.general.lastSystemUpdate.timestamp,
+      "GET /api/admin returns lastSystemUpdate deployment metadata"
+    );
   } catch (err: any) {
     assert(false, "GET /api/admin", `Server unreachable: ${err.message}`);
+  }
+
+  // 7b. Check Autonomous Feedback API Endpoint
+  try {
+    const feedbackEmptyRes = await fetchUrl(`${BASE_URL}/api/agent-feedback`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({}),
+    });
+    assert(
+      feedbackEmptyRes.status === 400,
+      "POST /api/agent-feedback returns HTTP 400 when dictatedText is missing"
+    );
+  } catch (err: any) {
+    assert(false, "POST /api/agent-feedback validation", `Server unreachable: ${err.message}`);
   }
 
   // 8. Check Web Pages, Zero-Date Headers & Error Overlay Detection
@@ -480,6 +519,7 @@ async function runTests() {
     assert(pageRes.body.includes("Scouty Planner"), "Page contains Scouty Planner title");
     assert(pageRes.body.includes("Kids Columns"), "Page contains 4-Column Kids view switcher");
     assert(pageRes.body.includes("Daily Summary"), "Page contains Daily Summary view switcher");
+    assert(pageRes.body.includes("Talk to the Beagle"), "Page contains FloatingFeedbackButton with 'Talk to the Beagle'");
     
     // Check 4-Column Kids Timeline component file
     const kidsTimelineFile = fs.readFileSync(path.join(process.cwd(), "src", "components", "widgets", "CalendarWidget", "KidsColumnTimeline.tsx"), "utf-8");

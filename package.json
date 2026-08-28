@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build && tsx scripts/copy-standalone-assets.ts",
-    "start": "next start",
+    "start": "node .next/standalone/server.js",
     "test": "tsx scripts/smoke-test.ts",
     "test:crawler": "tsx scripts/link-crawler-test.ts",
     "test:assets": "tsx scripts/test-live-assets.ts",
@@ -14,6 +14,7 @@
     "test:e2e:prod": "tsx scripts/e2e-browser-test.ts --prod",
     "test:all": "tsx scripts/smoke-test.ts && tsx scripts/link-crawler-test.ts && tsx scripts/test-live-assets.ts && tsx scripts/e2e-browser-test.ts",
     "test:all:prod": "tsx scripts/smoke-test.ts && tsx scripts/link-crawler-test.ts && tsx scripts/test-live-assets.ts --prod && tsx scripts/e2e-browser-test.ts --prod",
+    "test:keys": "tsx scripts/verify-pipeline-keys.ts",
     "parse:lunch": "tsx scripts/parse-lunch-pdf.ts"
   },
   "dependencies": {

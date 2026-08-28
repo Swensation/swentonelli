@@ -61,3 +61,4 @@ jobs:
               issue_number: context.issue.number,
               body: "🐶 **Talk to the Beagle**: Batch feedback triage workflow completed! Check the Pull Requests tab for the consolidated proposal."
             })
+

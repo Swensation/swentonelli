@@ -1,0 +1,108 @@
+name: Execute Beagle Proposal
+
+on:
+  issue_comment:
+    types: [created]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'Pull Request Number to Execute'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  execute-proposal:
+    # Run if triggered manually OR if a comment on a PR starts with /execute or /implement
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.issue.pull_request &&
+        (startsWith(github.event.comment.body, '/execute') || startsWith(github.event.comment.body, '/implement')))
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Resolve Pull Request Information
+        id: pr_info
+        uses: actions/github-script@v7
+        with:
+          script: |
+            let prNumber;
+            if (context.eventName === 'workflow_dispatch') {
+              prNumber = context.payload.inputs.pr_number;
+            } else {
+              prNumber = context.issue.number;
+            }
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber,
+            });
+            core.setOutput('pr_number', prNumber);
+            core.setOutput('branch', pr.head.ref);
+            core.setOutput('title', pr.title);
+
+      - name: Post In-Progress Comment on PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: parseInt('${{ steps.pr_info.outputs.pr_number }}', 10),
+              body: "🐶 **Talk to the Beagle**: Autonomous proposal execution started! The Antigravity agent is inspecting the codebase, writing assets, and verifying code..."
+            });
+
+      - name: Checkout PR Branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.pr_info.outputs.branch }}
+          fetch-depth: 0
+          token: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Configure Git Author
+        run: |
+          git config user.name "Beagle Coding Agent"
+          git config user.email "beagle-coder@swentonelli.local"
+
+      - name: Execute Autonomous Agent
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ steps.pr_info.outputs.pr_number }}
+        run: |
+          npx tsx scripts/run-autonomous-agent.ts --pr ${{ steps.pr_info.outputs.pr_number }}
+
+      - name: Commit and Push Implemented Changes
+        run: |
+          git status
+          if [ -n "$(git status --porcelain)" ]; then
+            git add .
+            git commit -m "feat: autonomous execution of proposal (PR #${{ steps.pr_info.outputs.pr_number }})"
+            git push origin ${{ steps.pr_info.outputs.branch }}
+          else
+            echo "No changes detected."
+          fi
+
+      - name: Post Completion Comment on PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: parseInt('${{ steps.pr_info.outputs.pr_number }}', 10),
+              body: "✅ **Talk to the Beagle**: Proposal executed and verified! The changes have been committed and pushed directly to this branch. Check the **'Files changed'** tab above and click **'Merge pull request'** when you are ready to deploy!"
+            });

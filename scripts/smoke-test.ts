@@ -108,6 +108,9 @@ async function runTests() {
   const batchWorkflowPath = path.join(process.cwd(), ".github", "workflows", "batch-triage-feedback.yml");
   assert(fs.existsSync(batchWorkflowPath), ".github/workflows/batch-triage-feedback.yml exists");
 
+  const executeWorkflowPath = path.join(process.cwd(), ".github", "workflows", "execute-beagle-proposal.yml");
+  assert(fs.existsSync(executeWorkflowPath), ".github/workflows/execute-beagle-proposal.yml exists");
+
   if (fs.existsSync(dataPath)) {
     const raw = fs.readFileSync(dataPath, "utf-8");
     const json = JSON.parse(raw);

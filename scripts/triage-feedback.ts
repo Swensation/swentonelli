@@ -176,6 +176,100 @@ async function updateIssueLabels(issueNumber: number, addLabels: string[], remov
   }
 }
 
+async function closeAsNoise(issueNumber: number) {
+  try {
+    // 1. Add status:noise label
+    await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues/${issueNumber}/labels`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${GITHUB_TOKEN}`,
+        Accept: "application/vnd.github.v3+json",
+        "Content-Type": "application/json",
+        "User-Agent": "Triage-Engine",
+      },
+      body: JSON.stringify({ labels: ["status:noise"] }),
+    });
+
+    // 2. Close issue as not planned
+    await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues/${issueNumber}`, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${GITHUB_TOKEN}`,
+        Accept: "application/vnd.github.v3+json",
+        "Content-Type": "application/json",
+        "User-Agent": "Triage-Engine",
+      },
+      body: JSON.stringify({ state: "closed", state_reason: "not_planned" }),
+    });
+    console.log(`🧹 Successfully closed noise issue #${issueNumber}.`);
+  } catch (err: any) {
+    console.warn(`Could not close issue #${issueNumber} as noise:`, err.message);
+  }
+}
+
+interface OpenProposalPR {
+  number: number;
+  head: string;
+  title: string;
+  body: string;
+  hasCodeCommits: boolean;
+}
+
+async function findExistingOpenProposalPR(): Promise<OpenProposalPR | null> {
+  try {
+    const res = await fetch(
+      `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/pulls?state=open&base=main`,
+      {
+        headers: {
+          Authorization: `Bearer ${GITHUB_TOKEN}`,
+          Accept: "application/vnd.github.v3+json",
+          "User-Agent": "Triage-Engine",
+        },
+      }
+    );
+    if (!res.ok) return null;
+    const prs = await res.json();
+    const openProposal = prs.find(
+      (p: any) =>
+        p.title.startsWith("[Functional Pull Request]") ||
+        p.head.ref.startsWith("proposal/functional-pr-") ||
+        p.head.ref.startsWith("proposal/beagle-triage-")
+    );
+    if (!openProposal) return null;
+
+    // Check if PR already has implementation code commits
+    const commitsRes = await fetch(
+      `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/pulls/${openProposal.number}/commits`,
+      {
+        headers: {
+          Authorization: `Bearer ${GITHUB_TOKEN}`,
+          Accept: "application/vnd.github.v3+json",
+          "User-Agent": "Triage-Engine",
+        },
+      }
+    );
+    let hasCodeCommits = false;
+    if (commitsRes.ok) {
+      const commits = await commitsRes.json();
+      hasCodeCommits = commits.some((c: any) =>
+        (c.commit.message || "").startsWith("feat: add implementation") ||
+        (c.commit.message || "").startsWith("feat: autonomous execution")
+      );
+    }
+
+    return {
+      number: openProposal.number,
+      head: openProposal.head.ref,
+      title: openProposal.title,
+      body: openProposal.body || "",
+      hasCodeCommits,
+    };
+  } catch (err: any) {
+    console.warn("Could not inspect open PRs:", err.message);
+    return null;
+  }
+}
+
 async function main() {
   console.log("==================================================================");
   console.log("🐕 Talk to the Beagle: Batch Feedback Triage Engine");
@@ -219,7 +313,8 @@ Instructions:
    - UI & Dashboard Display
    - System & Housekeeping
 3. **Proposed Action Items**: For each actionable group, write the exact technical changes required, which files to inspect/modify, and verification steps.
-4. Format the output in clean, readable Markdown with GitHub callouts.`;
+4. **Audio Tests & Noise**: If any issue is an audio test (e.g. "test 1 2 3", "testing mic") or contains unintelligible gibberish, explicitly include a line at the very end of your response formatted as: NOISE_ISSUES: [#num1, #num2]
+5. Format the output in clean, readable Markdown with GitHub callouts.`;
 
   console.log("\n🧠 Synthesizing feedback with Google Gemini...");
   const proposalMarkdown = await callGeminiTriage(prompt);
@@ -229,20 +324,133 @@ Instructions:
   console.log(proposalMarkdown);
   console.log("\n==================================================================");
 
+  // Auto-close noise issues if detected
+  const noiseMatch = proposalMarkdown.match(/NOISE_ISSUES:\s*\[(.*?)\]/i);
+  if (noiseMatch && noiseMatch[1]) {
+    const noiseNums = noiseMatch[1]
+      .split(",")
+      .map((s) => parseInt(s.trim().replace("#", ""), 10))
+      .filter((n) => !isNaN(n));
+    for (const n of noiseNums) {
+      console.log(`🧹 Auto-closing noise/audio test issue #${n}...`);
+      await closeAsNoise(n);
+    }
+  }
+
   // Write to GitHub Step Summary if running in GitHub Actions
   if (process.env.GITHUB_STEP_SUMMARY) {
     try {
-      fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `\n# 🐕 Beagle Batch Triage Report\n\n${proposalMarkdown}\n`);
+      fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `\n# 📋 Functional PR Triage Report\n\n${proposalMarkdown}\n`);
     } catch {
       // ignore
     }
   }
 
-  // If in PR mode, create branch, write proposal, open PR
+  // If in PR mode, create branch or update existing rolling PR
   if (CREATE_PR) {
     const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+    const existingPR = await findExistingOpenProposalPR();
+
+    // CASE 1: Open PR already exists with code commits in progress
+    if (existingPR && existingPR.hasCodeCommits) {
+      console.log(
+        `⏳ Open PR #${existingPR.number} already has implementation commits in progress. Leaving new feedback in inbox for the next batch.`
+      );
+      return;
+    }
+
+    // CASE 2: Open PR exists in proposal/review phase (The Rolling PR!)
+    if (existingPR && !existingPR.hasCodeCommits) {
+      console.log(
+        `🔄 Found existing open proposal PR #${existingPR.number} on branch '${existingPR.head}'. Bundling new issues into rolling proposal...`
+      );
+      try {
+        execSync(`git fetch origin ${existingPR.head}`, { stdio: "inherit" });
+        execSync(`git checkout ${existingPR.head}`, { stdio: "inherit" });
+        execSync(`git pull origin ${existingPR.head}`, { stdio: "inherit" });
+
+        // Extract previously linked issue numbers
+        const prevMatches = Array.from(existingPR.body.matchAll(/Closes #(\d+)/g)).map((m) => parseInt(m[1], 10));
+        const allIssueNumbers = Array.from(new Set([...prevMatches, ...pendingIssues.map((i) => i.number)])).sort((a, b) => a - b);
+
+        const proposalDir = path.join(process.cwd(), "specs", "proposals");
+        if (!fs.existsSync(proposalDir)) fs.mkdirSync(proposalDir, { recursive: true });
+        const proposalFile = path.join(proposalDir, `triage-${timestamp}.md`);
+
+        const fullDoc = `# Functional Pull Request Proposal (${new Date().toLocaleDateString()})
+
+> Triaged from Issues: ${allIssueNumbers.map((n) => `#${n}`).join(", ")}
+
+${proposalMarkdown}
+`;
+        fs.writeFileSync(proposalFile, fullDoc, "utf-8");
+
+        execSync("git add specs/proposals/", { stdio: "inherit" });
+        execSync(`git commit -m "docs: update functional pull request proposal for issues ${allIssueNumbers.map((n) => '#' + n).join(', ')}"`, {
+          stdio: "inherit",
+        });
+        execSync(`git push origin ${existingPR.head}`, { stdio: "inherit" });
+
+        // Update Pull Request via GitHub API
+        console.log(`📬 Updating GitHub Pull Request #${existingPR.number}...`);
+        const updateRes = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/pulls/${existingPR.number}`, {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${GITHUB_TOKEN}`,
+            Accept: "application/vnd.github.v3+json",
+            "Content-Type": "application/json",
+            "User-Agent": "Triage-Engine",
+          },
+          body: JSON.stringify({
+            title: `[Functional Pull Request] Triaged Website Feedback (Issues ${allIssueNumbers.map((n) => `#${n}`).join(", ")})`,
+            body: `## 📋 Functional Pull Request: Triaged Website Feedback\n\nLinked Issues: ${allIssueNumbers
+              .map((n) => `Closes #${n}`)
+              .join(", ")}\n\n${proposalMarkdown}`,
+          }),
+        });
+
+        if (updateRes.ok) {
+          console.log(`✅ Pull Request #${existingPR.number} updated successfully!`);
+
+          // Post rolling update comment on PR
+          await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues/${existingPR.number}/comments`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${GITHUB_TOKEN}`,
+              Accept: "application/vnd.github.v3+json",
+              "Content-Type": "application/json",
+              "User-Agent": "Triage-Engine",
+            },
+            body: JSON.stringify({
+              body: `🔄 **Rolling PR Update**: Bundled new website feedback into this proposal: ${pendingIssues
+                .map((i) => `#${i.number}`)
+                .join(", ")}. The proposal and issue links above have been updated!`,
+            }),
+          });
+
+          // Mark newly added issues as status:triaged
+          for (const issue of pendingIssues) {
+            await updateIssueLabels(issue.number, ["status:triaged"], ["status:pending-triage"]);
+          }
+          console.log("🏷️ Updated newly bundled issue labels to 'status:triaged'.");
+        } else {
+          console.error("Failed to update existing PR:", await updateRes.text());
+        }
+      } catch (err: any) {
+        console.error("Error during rolling PR update:", err.message);
+      } finally {
+        try {
+          execSync("git checkout main", { stdio: "inherit" });
+        } catch {
+          // ignore
+        }
+      }
+      return;
+    }
+
+    // CASE 3: No open PR exists -> Create a brand new branch and PR
     const branchName = `proposal/functional-pr-${timestamp}`;
-    console.log(`\n🚀 Creating proposal branch: ${branchName}...`);
+    console.log(`\n🚀 Creating new proposal branch: ${branchName}...`);
 
     try {
       execSync(`git checkout -b ${branchName}`, { stdio: "inherit" });
@@ -276,10 +484,10 @@ ${proposalMarkdown}
           "User-Agent": "Triage-Engine",
         },
         body: JSON.stringify({
-          title: `[Functional Pull Request] Triaged Website Feedback (${pendingIssues.length} items)`,
+          title: `[Functional Pull Request] Triaged Website Feedback (Issues ${pendingIssues.map((i) => `#${i.number}`).join(", ")})`,
           head: branchName,
           base: "main",
-          body: `## 📋 Functional Pull Request: Triaged Website Feedback\n\nTriaged Issues: ${pendingIssues
+          body: `## 📋 Functional Pull Request: Triaged Website Feedback\n\nLinked Issues: ${pendingIssues
             .map((i) => `Closes #${i.number}`)
             .join(", ")}\n\n${proposalMarkdown}`,
         }),

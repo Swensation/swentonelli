@@ -103,6 +103,39 @@ async function loadProposal(prNumber: string): Promise<{ title: string; body: st
   return { title, body };
 }
 
+async function tagNeedsHumanTriage(prNumber: string, errorDetails: string) {
+  console.log(`🏷️ Tagging PR #${prNumber} with 'status:needs-human-triage'...`);
+  try {
+    // 1. Add label to PR
+    await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues/${prNumber}/labels`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${GITHUB_TOKEN}`,
+        Accept: "application/vnd.github.v3+json",
+        "Content-Type": "application/json",
+        "User-Agent": "Antigravity-Agent",
+      },
+      body: JSON.stringify({ labels: ["status:needs-human-triage"] }),
+    });
+
+    // 2. Post escalation comment on PR
+    await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues/${prNumber}/comments`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${GITHUB_TOKEN}`,
+        Accept: "application/vnd.github.v3+json",
+        "Content-Type": "application/json",
+        "User-Agent": "Antigravity-Agent",
+      },
+      body: JSON.stringify({
+        body: `⚠️ **Gemini Coding Agent**: Automated implementation could not pass all verification tests after 3 repair attempts.\n\n### Failure Details\n\`\`\`text\n${errorDetails.slice(0, 1500)}\n\`\`\`\n\n**Next Steps**:\n- Tagged with \`status:needs-human-triage\`.\n- No broken code was committed to the branch.\n- Please inspect in VS Code or clarify the requirements.`,
+      }),
+    });
+  } catch (err: any) {
+    console.warn("Could not tag PR for human triage:", err.message);
+  }
+}
+
 if (!GEMINI_API_KEY) {
   console.error("❌ Error: GEMINI_API_KEY is not set.");
   process.exit(1);
@@ -343,6 +376,72 @@ Please inspect the relevant project files, implement any required changes, run '
     }
 
     contents.push({ role: "user", parts: toolResponses });
+  }
+
+  // --- RESILIENT VERIFICATION & SELF-HEALING REPAIR LOOP ---
+  console.log("\n==================================================================");
+  console.log("🧪 Initiating Resilient Verification & Self-Healing Loop");
+  console.log("==================================================================");
+
+  let verified = false;
+  let lastError = "";
+
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    console.log(`\n🔍 Verification Attempt ${attempt}/3: Running TypeScript check & test suite...`);
+    try {
+      execSync("npx tsc --noEmit", { stdio: "pipe" });
+      execSync("npm test", { stdio: "pipe" });
+      verified = true;
+      console.log(`✅ All automated tests and typechecks passed cleanly on attempt ${attempt}!`);
+      break;
+    } catch (err: any) {
+      lastError = err.stdout?.toString() || err.stderr?.toString() || err.message;
+      console.warn(`⚠️ Verification attempt ${attempt} failed with error:\n${lastError.slice(0, 400)}`);
+
+      if (attempt < 3) {
+        console.log(`🔄 Attempt ${attempt + 1}: Engaging Gemini Coding Agent to diagnose and heal failure...`);
+        contents.push({
+          role: "user",
+          parts: [{
+            text: `Automated test verification failed with this error:\n\n${lastError}\n\nPlease inspect the failure, repair the affected code files, and verify that npm test passes.`
+          }]
+        });
+
+        // Up to 5 repair turns
+        for (let rTurn = 1; rTurn <= 5; rTurn++) {
+          const response = await callGemini(contents);
+          const candidate = response.candidates?.[0];
+          if (!candidate) break;
+          const modelParts = candidate.content.parts || [];
+          contents.push({ role: "model", parts: modelParts });
+          const functionCalls = modelParts.filter((p: any) => !!p.functionCall);
+          if (functionCalls.length === 0) break;
+          const toolResponses: any[] = [];
+          for (const call of functionCalls) {
+            const fnName = call.functionCall.name;
+            const fnArgs = call.functionCall.args || {};
+            const resultStr = executeTool(fnName, fnArgs);
+            toolResponses.push({
+              functionResponse: { name: fnName, response: { result: resultStr } }
+            });
+          }
+          contents.push({ role: "user", parts: toolResponses });
+        }
+      }
+    }
+  }
+
+  if (!verified) {
+    console.error("❌ Agent could not pass automated tests after 3 repair attempts.");
+    try {
+      execSync("git reset --hard", { stdio: "inherit" });
+    } catch {
+      // ignore
+    }
+    if (PR_NUMBER) {
+      await tagNeedsHumanTriage(PR_NUMBER, lastError);
+    }
+    process.exit(1);
   }
 
   const metaPath = path.join(process.cwd(), "public", "build-meta.json");

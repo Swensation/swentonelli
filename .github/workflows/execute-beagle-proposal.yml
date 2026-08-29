@@ -1,4 +1,4 @@
-name: Execute Beagle Proposal
+name: "Workflow: Take Functional Pull Request ➔ Gemini Coding ➔ Add Implementation to Pull Request"
 
 on:
   issue_comment:
@@ -53,7 +53,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: parseInt('${{ steps.pr_info.outputs.pr_number }}', 10),
-              body: "🐶 **Talk to the Beagle**: Autonomous proposal execution started! The Antigravity agent is inspecting the codebase, writing assets, and verifying code..."
+              body: "🤖 **Gemini Coding Agent**: Implementation started! Analyzing the Functional Pull Request, writing code, and running tests..."
             });
 
       - name: Checkout PR Branch
@@ -74,8 +74,8 @@ jobs:
 
       - name: Configure Git Author
         run: |
-          git config user.name "Beagle Coding Agent"
-          git config user.email "beagle-coder@swentonelli.local"
+          git config user.name "Gemini Coding Agent"
+          git config user.email "gemini-coder@swentonelli.local"
 
       - name: Execute Autonomous Agent
         env:
@@ -90,7 +90,7 @@ jobs:
           git status
           if [ -n "$(git status --porcelain)" ]; then
             git add .
-            git commit -m "feat: autonomous execution of proposal (PR #${{ steps.pr_info.outputs.pr_number }})"
+            git commit -m "feat: add implementation to pull request (PR #${{ steps.pr_info.outputs.pr_number }})"
             git push origin ${{ steps.pr_info.outputs.branch }}
           else
             echo "No changes detected."
@@ -104,5 +104,5 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: parseInt('${{ steps.pr_info.outputs.pr_number }}', 10),
-              body: "✅ **Talk to the Beagle**: Proposal executed and verified! The changes have been committed and pushed directly to this branch. Check the **'Files changed'** tab above and click **'Merge pull request'** when you are ready to deploy!"
+              body: "✅ **Gemini Coding Agent**: Implementation complete and verified! Code changes have been committed to this pull request. Review the **'Files changed'** tab above and click **'Merge pull request'** to deploy live!"
             });

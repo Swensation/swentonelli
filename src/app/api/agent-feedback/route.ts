@@ -108,8 +108,8 @@ export async function POST(req: NextRequest) {
     const cleanText = dictatedText.trim().replace(/\r?\n/g, " ");
     const issueTitle =
       cleanText.length > 70
-        ? `[Beagle Feedback] ${cleanText.slice(0, 67)}...`
-        : `[Beagle Feedback] ${cleanText}`;
+        ? `[Website Feedback] ${cleanText.slice(0, 67)}...`
+        : `[Website Feedback] ${cleanText}`;
 
     // Format body with User Request and Context headers
     const routeUrl = telemetry?.routeUrl || "Unknown";

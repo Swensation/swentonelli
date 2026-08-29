@@ -86,6 +86,7 @@ async function fetchPendingFeedback(): Promise<IssueItem[]> {
       labelNames.includes("feedback-inbox") ||
       labelNames.includes("status:pending-triage") ||
       labelNames.includes("auto-agent-trigger") ||
+      issue.title.startsWith("[Website Feedback]") ||
       issue.title.startsWith("[Beagle Feedback]") ||
       issue.title.startsWith("[Agent Feedback]")
     );
@@ -240,7 +241,7 @@ Instructions:
   // If in PR mode, create branch, write proposal, open PR
   if (CREATE_PR) {
     const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-    const branchName = `proposal/beagle-triage-${timestamp}`;
+    const branchName = `proposal/functional-pr-${timestamp}`;
     console.log(`\n🚀 Creating proposal branch: ${branchName}...`);
 
     try {
@@ -250,7 +251,7 @@ Instructions:
       if (!fs.existsSync(proposalDir)) fs.mkdirSync(proposalDir, { recursive: true });
       const proposalFile = path.join(proposalDir, `triage-${timestamp}.md`);
 
-      const fullDoc = `# Beagle Batch Feedback Proposal (${new Date().toLocaleDateString()})
+      const fullDoc = `# Functional Pull Request Proposal (${new Date().toLocaleDateString()})
 
 > Triaged from Issues: ${pendingIssues.map((i) => `#${i.number}`).join(", ")}
 
@@ -259,7 +260,7 @@ ${proposalMarkdown}
       fs.writeFileSync(proposalFile, fullDoc, "utf-8");
 
       execSync("git add specs/proposals/", { stdio: "inherit" });
-      execSync(`git commit -m "docs: beagle feedback batch proposal for ${pendingIssues.length} items"`, {
+      execSync(`git commit -m "docs: functional pull request proposal for ${pendingIssues.length} items"`, {
         stdio: "inherit",
       });
       execSync(`git push origin ${branchName}`, { stdio: "inherit" });
@@ -272,13 +273,13 @@ ${proposalMarkdown}
           Authorization: `Bearer ${GITHUB_TOKEN}`,
           Accept: "application/vnd.github.v3+json",
           "Content-Type": "application/json",
-          "User-Agent": "Beagle-Triage-Engine",
+          "User-Agent": "Triage-Engine",
         },
         body: JSON.stringify({
-          title: `[Beagle Proposal] Triaged Family Feedback (${pendingIssues.length} items)`,
+          title: `[Functional Pull Request] Triaged Website Feedback (${pendingIssues.length} items)`,
           head: branchName,
           base: "main",
-          body: `## 🐶 Talk to the Beagle: Batch Feedback Proposal\n\nTriaged Issues: ${pendingIssues
+          body: `## 📋 Functional Pull Request: Triaged Website Feedback\n\nTriaged Issues: ${pendingIssues
             .map((i) => `Closes #${i.number}`)
             .join(", ")}\n\n${proposalMarkdown}`,
         }),

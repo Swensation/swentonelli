@@ -30,3 +30,4 @@
   - If a "No School" or "Early Release" event is on the `aria-ben` feed or explicitly mentions Millis/MPS/Aria/Ben, it must **only** annotate Aria and Benjamin. Brighton and Bennett must continue to show normal school.
   - If an event is on the `brighton-bennett` feed or explicitly mentions Holliston/HPS/Adams/Miller, it must **only** annotate Brighton and Bennett. Aria and Benjamin must continue to show normal school.
   - Only broad, district-independent holidays (e.g. `Labor Day`, `Thanksgiving`, `Memorial Day`) apply to all four children.
+

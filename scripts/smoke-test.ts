@@ -105,9 +105,19 @@ async function runTests() {
 
   const batchWorkflowPath = path.join(process.cwd(), ".github", "workflows", "batch-triage-feedback.yml");
   assert(fs.existsSync(batchWorkflowPath), ".github/workflows/batch-triage-feedback.yml exists");
+  const batchWorkflowContent = fs.readFileSync(batchWorkflowPath, "utf-8");
+  assert(
+    batchWorkflowContent.includes("Workflow: Website Feedback ➔ Gemini Chat ➔ Functional Pull Request"),
+    "Workflow 1 has standardized name 'Workflow: Website Feedback ➔ Gemini Chat ➔ Functional Pull Request'"
+  );
 
   const executeWorkflowPath = path.join(process.cwd(), ".github", "workflows", "execute-beagle-proposal.yml");
   assert(fs.existsSync(executeWorkflowPath), ".github/workflows/execute-beagle-proposal.yml exists");
+  const executeWorkflowContent = fs.readFileSync(executeWorkflowPath, "utf-8");
+  assert(
+    executeWorkflowContent.includes("Workflow: Take Functional Pull Request ➔ Gemini Coding ➔ Add Implementation to Pull Request"),
+    "Workflow 2 has standardized name 'Workflow: Take Functional Pull Request ➔ Gemini Coding ➔ Add Implementation to Pull Request'"
+  );
 
   if (fs.existsSync(dataPath)) {
     const raw = fs.readFileSync(dataPath, "utf-8");

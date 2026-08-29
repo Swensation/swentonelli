@@ -1,4 +1,4 @@
-name: Beagle Batch Feedback Triage & Proposal
+name: "Workflow: Website Feedback ➔ Gemini Chat ➔ Functional Pull Request"
 
 on:
   issues:

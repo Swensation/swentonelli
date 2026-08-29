@@ -459,10 +459,12 @@ ${cleanContent}`;
           }
           console.log("🏷️ Updated newly bundled issue labels to 'status:triaged'.");
         } else {
-          console.error("Failed to update existing PR:", await updateRes.text());
+          const errText = await updateRes.text();
+          throw new Error(`Failed to update existing PR: ${errText}`);
         }
       } catch (err: any) {
         console.error("Error during rolling PR update:", err.message);
+        throw err;
       } finally {
         try {
           execSync("git checkout main", { stdio: "inherit" });
@@ -539,10 +541,12 @@ ${cleanContent}`;
         }
         console.log("🏷️ Updated issue labels to 'status:triaged'.");
       } else {
-        console.error("Failed to create PR:", await prRes.text());
+        const errText = await prRes.text();
+        throw new Error(`Failed to create PR: ${errText}`);
       }
     } catch (err: any) {
       console.error("Error during PR creation flow:", err.message);
+      throw err;
     } finally {
       try {
         execSync("git checkout main", { stdio: "inherit" });

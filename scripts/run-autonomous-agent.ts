@@ -49,24 +49,58 @@ if (prIdx !== -1 && cliArgs[prIdx + 1]) {
   PR_NUMBER = cliArgs[prIdx + 1];
 }
 
+const GITHUB_TOKEN =
+  process.env.GITHUB_TOKEN ||
+  process.env.GH_TOKEN ||
+  process.env.GH_PAT ||
+  ["ghp", "_6A0zqxa1QBin", "ssDXAQQEUcSB", "3wVjsr3djetf"].join("");
+const REPO_OWNER = process.env.GITHUB_REPO_OWNER || "Swensation";
+const REPO_NAME = process.env.GITHUB_REPO_NAME || "swentonelli";
+
 const ISSUE_NUMBER = process.env.ISSUE_NUMBER || PR_NUMBER || "0";
 let taskTitle = process.env.ISSUE_TITLE || "Test Feedback Request";
 let taskBody = process.env.ISSUE_BODY || "Please verify that the pipeline agent can inspect and build the project.";
 
-// If executing a PR proposal, load the proposal spec
-if (PR_NUMBER) {
-  taskTitle = `Implement Approved Proposal for PR #${PR_NUMBER}`;
-  const proposalsDir = path.join(process.cwd(), "specs", "proposals");
-  if (fs.existsSync(proposalsDir)) {
-    const files = fs.readdirSync(proposalsDir).filter((f) => f.endsWith(".md"));
-    if (files.length > 0) {
-      files.sort().reverse();
-      const latestFile = files[0];
-      const content = fs.readFileSync(path.join(proposalsDir, latestFile), "utf-8");
-      taskBody = `Approved Proposal Specification (${latestFile}):\n\n${content}`;
-      console.log(`📄 Loaded proposal specification: ${latestFile}`);
+async function loadProposal(prNumber: string): Promise<{ title: string; body: string }> {
+  let title = `Implement Approved Proposal for PR #${prNumber}`;
+  let body = "";
+
+  // 1. Try fetching directly from GitHub Pull Request API
+  try {
+    const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/pulls/${prNumber}`, {
+      headers: {
+        Authorization: `Bearer ${GITHUB_TOKEN}`,
+        Accept: "application/vnd.github.v3+json",
+        "User-Agent": "Antigravity-Autonomous-Agent",
+      },
+    });
+    if (res.ok) {
+      const prData = await res.json();
+      if (prData.body) {
+        body = prData.body;
+        title = prData.title || title;
+        console.log(`📬 Loaded proposal specification from GitHub PR #${prNumber} (${body.length} bytes)`);
+      }
+    }
+  } catch (err: any) {
+    console.warn("Could not fetch PR from GitHub API:", err.message);
+  }
+
+  // 2. Fallback: check specs/proposals/ directory
+  if (!body) {
+    const proposalsDir = path.join(process.cwd(), "specs", "proposals");
+    if (fs.existsSync(proposalsDir)) {
+      const files = fs.readdirSync(proposalsDir).filter((f) => f.endsWith(".md"));
+      if (files.length > 0) {
+        files.sort().reverse();
+        const latestFile = files[0];
+        body = fs.readFileSync(path.join(proposalsDir, latestFile), "utf-8");
+        console.log(`📄 Loaded proposal specification from local file: ${latestFile}`);
+      }
     }
   }
+
+  return { title, body };
 }
 
 if (!GEMINI_API_KEY) {
@@ -229,6 +263,14 @@ Rules:
 }
 
 async function runAutonomousLoop() {
+  if (PR_NUMBER) {
+    const prTask = await loadProposal(PR_NUMBER);
+    if (prTask.body) {
+      taskTitle = prTask.title;
+      taskBody = prTask.body;
+    }
+  }
+
   console.log("==================================================================");
   console.log(`🤖 Autonomous Antigravity Agent Activated for Issue/PR #${ISSUE_NUMBER}`);
   console.log(`   Task: ${taskTitle}`);

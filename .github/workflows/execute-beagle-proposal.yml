@@ -1,6 +1,8 @@
 name: "Workflow: Take Functional Pull Request ➔ Gemini Coding ➔ Add Implementation to Pull Request"
 
 on:
+  pull_request:
+    types: [edited]
   issue_comment:
     types: [created]
   workflow_dispatch:
@@ -17,11 +19,16 @@ permissions:
 
 jobs:
   execute-proposal:
-    # Run if triggered manually OR if a comment on a PR starts with /execute or /implement
+    # Run if triggered manually OR if PR checkbox is checked OR if comment starts with /execute or /implement
     if: >
       github.event_name == 'workflow_dispatch' ||
-      (github.event.issue.pull_request &&
-        (startsWith(github.event.comment.body, '/execute') || startsWith(github.event.comment.body, '/implement')))
+      (github.event_name == 'pull_request' &&
+       github.event.action == 'edited' &&
+       contains(github.event.pull_request.body, '- [x] **Ready to execute**') &&
+       !contains(github.event.changes.body.from, '- [x] **Ready to execute**')) ||
+      (github.event_name == 'issue_comment' &&
+       github.event.issue.pull_request &&
+       (startsWith(github.event.comment.body, '/execute') || startsWith(github.event.comment.body, '/implement')))
     runs-on: ubuntu-latest
 
     steps:
@@ -33,6 +40,8 @@ jobs:
             let prNumber;
             if (context.eventName === 'workflow_dispatch') {
               prNumber = context.payload.inputs.pr_number;
+            } else if (context.eventName === 'pull_request') {
+              prNumber = context.payload.pull_request.number;
             } else {
               prNumber = context.issue.number;
             }

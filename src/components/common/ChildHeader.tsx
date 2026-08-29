@@ -61,53 +61,49 @@ export function ChildHeader({
         </div>
       </div>
 
-      {/* Right: Top-Right Justified Badges with Fixed Width to Prevent Typography Layout Shift */}
-      <div className="flex items-center gap-1.5 flex-shrink-0 whitespace-nowrap ml-auto">
-        {/* School Lunch Badge (Clickable popup trigger) */}
+      {/* Right: Vertically Stacked Status Badges with Deterministic Priority & Standardized Width */}
+      <div className="flex flex-col items-end gap-1 flex-shrink-0 whitespace-nowrap ml-auto">
+        {/* Priority 1: Custody / Housing Location Badge (Always pinned to the top of the stack) */}
+        {annotations?.custody && (
+          <span
+            className="w-[88px] text-[10px] font-extrabold px-2 py-0.5 rounded-full border flex items-center justify-start gap-1.5 shadow-sm text-white transition-all flex-shrink-0"
+            style={annotations.custody.badgeStyle}
+            title={
+              annotations.custody.status === "error"
+                ? `Custody Conflict: ${annotations.custody.parentName} (${annotations.custody.town})`
+                : `Custody: ${annotations.custody.label} (${annotations.custody.parentName} - ${annotations.custody.town})`
+            }
+          >
+            {annotations.custody.status === "error" ? (
+              <AlertCircle className="w-2.5 h-2.5 flex-shrink-0 text-amber-200" />
+            ) : (
+              <Home className="w-2.5 h-2.5 flex-shrink-0" />
+            )}
+            <span className="truncate text-left">{annotations.custody.label}</span>
+          </span>
+        )}
+
+        {/* Priority 2: School Status Badge (e.g. No School, Early Dismissal) */}
+        {annotations?.school && (
+          <span
+            className={`w-[88px] text-[10px] font-extrabold px-2 py-0.5 rounded-full border flex items-center justify-start gap-1.5 shadow-sm flex-shrink-0 ${annotations.school.badgeClass}`}
+          >
+            <GraduationCap className="w-2.5 h-2.5 flex-shrink-0" />
+            <span className="truncate text-left">{annotations.school.label}</span>
+          </span>
+        )}
+
+        {/* Priority 3: School Lunch Badge (Clickable popup trigger) */}
         {lunchMenu && (
           <button
             type="button"
             onClick={onLunchClick}
             title={`School Lunch: ${lunchMenu.items[0]} (${lunchMenu.schoolName || "School Lunch"}) - Click to view menu`}
-            className="text-[10px] font-extrabold px-2 py-1 rounded-full border border-amber-500/40 bg-amber-500/15 text-amber-300 hover:bg-amber-500/25 hover:border-amber-400 flex items-center gap-1 shadow-sm transition-all cursor-pointer active:scale-95"
+            className="w-[88px] text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-amber-500/40 bg-amber-500/15 text-amber-300 hover:bg-amber-500/25 hover:border-amber-400 flex items-center justify-start gap-1.5 shadow-sm transition-all cursor-pointer active:scale-95 flex-shrink-0"
           >
             <Utensils className="w-2.5 h-2.5 flex-shrink-0 text-amber-400" />
-            <span className="whitespace-nowrap">Lunch</span>
+            <span className="truncate text-left">Lunch</span>
           </button>
-        )}
-
-        {annotations && (
-          <>
-            {/* Custody Badge with Fixed Width (w-[76px]) so Mom's vs Dad's Never Jumps */}
-            {annotations.custody && (
-              <span
-                className="w-[76px] text-[10px] font-extrabold px-1.5 py-1 rounded-full border flex items-center justify-center gap-1 shadow-sm text-white transition-all flex-shrink-0"
-                style={annotations.custody.badgeStyle}
-                title={
-                  annotations.custody.status === "error"
-                    ? `Custody Conflict: ${annotations.custody.parentName} (${annotations.custody.town})`
-                    : `Custody: ${annotations.custody.label} (${annotations.custody.parentName} - ${annotations.custody.town})`
-                }
-              >
-                {annotations.custody.status === "error" ? (
-                  <AlertCircle className="w-2.5 h-2.5 flex-shrink-0 text-amber-200" />
-                ) : (
-                  <Home className="w-2.5 h-2.5 flex-shrink-0" />
-                )}
-                <span className="truncate">{annotations.custody.label}</span>
-              </span>
-            )}
-
-            {/* School Status Badge */}
-            {annotations.school && (
-              <span
-                className={`text-[10px] font-extrabold px-2 py-1 rounded-full border flex items-center gap-1 shadow-sm ${annotations.school.badgeClass}`}
-              >
-                <GraduationCap className="w-2.5 h-2.5 flex-shrink-0" />
-                <span className="whitespace-nowrap">{annotations.school.label}</span>
-              </span>
-            )}
-          </>
         )}
       </div>
     </div>

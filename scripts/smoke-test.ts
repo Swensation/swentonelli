@@ -649,6 +649,10 @@ async function runTests() {
     childHeaderFile.includes("w-[76px]") || childHeaderFile.includes("min-w-[76px]") || /w-\[\d+px\]/.test(childHeaderFile),
     "ChildHeader implements fixed-width non-jumping custody badges"
   );
+  assert(
+    childHeaderFile.includes("flex-col items-end gap-1"),
+    "ChildHeader implements vertical status badge stacking with deterministic priority"
+  );
 
   // Lunch presentation check: Standalone LunchWidget removed from bottom of DashboardGrid
   const dashboardGridFile = fs.readFileSync(path.join(process.cwd(), "src", "components", "layout", "DashboardGrid.tsx"), "utf-8");
@@ -679,6 +683,14 @@ async function runTests() {
   assert(
     adminSource.includes("handleApproveIcon"),
     "Admin page implements 1-click icon approval engine with handleApproveIcon"
+  );
+  assert(
+    adminSource.includes("<PipelineTracker"),
+    "Admin page integrates visual Operational Pipeline Tracker"
+  );
+  assert(
+    fs.existsSync(path.join(process.cwd(), "src", "components", "admin", "PipelineTracker.tsx")),
+    "src/components/admin/PipelineTracker.tsx exists"
   );
 
   console.log("\n==========================================");

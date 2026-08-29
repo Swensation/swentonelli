@@ -41,6 +41,7 @@ import { format } from "date-fns";
 import { AdminDashboardData, MissingIconItem } from "@/lib/admin";
 import { ChildHeader } from "@/components/common/ChildHeader";
 import { MarkdownViewer } from "@/components/common/MarkdownViewer";
+import { PipelineTracker } from "@/components/admin/PipelineTracker";
 import { useAuth } from "@/context/AuthContext";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
@@ -362,6 +363,9 @@ export default function AdminPage() {
                 </div>
               </div>
             </div>
+
+            {/* Operational Pipeline Tracker */}
+            <PipelineTracker />
 
             {/* 1. Pending Housekeeping Checklist */}
             <div className="glass-card p-6">

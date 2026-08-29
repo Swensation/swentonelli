@@ -298,6 +298,12 @@ ${proposalMarkdown}
       }
     } catch (err: any) {
       console.error("Error during PR creation flow:", err.message);
+    } finally {
+      try {
+        execSync("git checkout main", { stdio: "inherit" });
+      } catch {
+        // ignore
+      }
     }
   } else {
     console.log("💡 Tip: Review this proposal here in VS Code, or run with '--create-pr' to publish to GitHub.");

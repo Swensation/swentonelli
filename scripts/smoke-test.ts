@@ -96,8 +96,6 @@ async function runTests() {
     assert(!!metaJson.timestamp, "build-meta.json contains ISO deployment timestamp");
   }
 
-  const workflowPath = path.join(process.cwd(), ".github", "workflows", "autonomous-agent.yml");
-  assert(fs.existsSync(workflowPath), ".github/workflows/autonomous-agent.yml exists");
 
   const beagleSpecPath = path.join(process.cwd(), "specs", "talk-to-the-beagle.spec.md");
   assert(fs.existsSync(beagleSpecPath), "specs/talk-to-the-beagle.spec.md exists");

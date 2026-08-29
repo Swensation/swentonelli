@@ -1,0 +1,154 @@
+name: "Workflow: Autonomous RCA & Self-Healing Pipeline Surgeon"
+
+on:
+  workflow_run:
+    workflows:
+      - "Workflow: Take Functional Pull Request ➔ Gemini Coding ➔ Add Implementation to Pull Request"
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: "Pull Request Number to auto-remediate"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+  actions: read
+
+concurrency:
+  group: auto-heal-pipeline
+  cancel-in-progress: false
+
+jobs:
+  auto-remediate:
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'failure')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Resolve Pull Request Context
+        id: pr_context
+        uses: actions/github-script@v7
+        with:
+          script: |
+            let prNumber;
+            let branch = 'main';
+
+            if (context.eventName === 'workflow_dispatch') {
+              prNumber = context.payload.inputs.pr_number;
+              const { data: pr } = await github.rest.pulls.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: parseInt(prNumber, 10),
+              });
+              branch = pr.head.ref;
+            } else {
+              // Extract PR number from pull_requests array of workflow_run
+              const prs = context.payload.workflow_run.pull_requests;
+              if (prs && prs.length > 0) {
+                prNumber = prs[0].number;
+                branch = prs[0].head.ref;
+              } else {
+                // Fallback: query open PRs with head branch
+                const headBranch = context.payload.workflow_run.head_branch;
+                const { data: openPRs } = await github.rest.pulls.list({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  state: 'open',
+                  head: `${context.repo.owner}:${headBranch}`,
+                });
+                if (openPRs && openPRs.length > 0) {
+                  prNumber = openPRs[0].number;
+                  branch = headBranch;
+                }
+              }
+            }
+
+            if (!prNumber) {
+              core.setFailed('Could not determine Pull Request number associated with the failed run.');
+              return;
+            }
+
+            console.log(`Resolved target PR #${prNumber} on branch ${branch}`);
+            core.setOutput('pr_number', prNumber.toString());
+            core.setOutput('branch', branch);
+
+      - name: Post Surgeon Activation Comment on PR
+        if: steps.pr_context.outputs.pr_number != ''
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: parseInt('${{ steps.pr_context.outputs.pr_number }}', 10),
+              body: "🩺 **Autonomous Pipeline Surgeon Activated**: Detected a verification failure in the previous run. Analyzing error logs, classifying root cause, and autonomously applying repairs..."
+            });
+
+      - name: Checkout PR Branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.pr_context.outputs.branch }}
+          fetch-depth: 10
+          token: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+
+      - name: Circuit Breaker Check
+        id: circuit_breaker
+        run: |
+          # Count auto-heal commits on this branch
+          AUTO_HEAL_COUNT=$(git log -n 10 --grep="fix(auto-heal)" --oneline | wc -l)
+          echo "Current auto-heal attempts on branch: $AUTO_HEAL_COUNT"
+          if [ "$AUTO_HEAL_COUNT" -ge 2 ]; then
+            echo "circuit_broken=true" >> $GITHUB_OUTPUT
+            echo "⚠️ Circuit breaker threshold reached (2 attempts)."
+          else
+            echo "circuit_broken=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Setup Node.js
+        if: steps.circuit_breaker.outputs.circuit_broken == 'false'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        if: steps.circuit_breaker.outputs.circuit_broken == 'false'
+        run: npm ci
+
+      - name: Configure Git Author
+        if: steps.circuit_breaker.outputs.circuit_broken == 'false'
+        run: |
+          git config user.name "Pipeline Surgeon Agent"
+          git config user.email "surgeon-agent@swentonelli.local"
+
+      - name: Execute Autonomous Auto-Remediation
+        if: steps.circuit_breaker.outputs.circuit_broken == 'false'
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ steps.pr_context.outputs.pr_number }}
+        run: |
+          npx tsx scripts/auto-remediate.ts --pr ${{ steps.pr_context.outputs.pr_number }}
+
+      - name: Circuit Breaker Notification
+        if: steps.circuit_breaker.outputs.circuit_broken == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: parseInt('${{ steps.pr_context.outputs.pr_number }}', 10),
+              body: "🛑 **Circuit Breaker Reached**: The Autonomous Pipeline Surgeon has executed 2 auto-repair attempts without fully resolving the tests. Halting automated repairs to conserve resources. Tagged for human triage."
+            });
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: parseInt('${{ steps.pr_context.outputs.pr_number }}', 10),
+              labels: ['status:needs-human-triage']
+            });

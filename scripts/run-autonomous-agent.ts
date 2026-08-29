@@ -239,10 +239,16 @@ function executeTool(name: string, args: any): string {
 }
 
 async function callGemini(contents: any[]) {
-  const modelsToTry = [MODEL_NAME, "gemini-3.1-flash-lite-preview", "gemini-3.7-flash"];
+  const modelsToTry = [
+    MODEL_NAME,
+    "gemini-2.5-flash",
+    "gemini-1.5-flash",
+    "gemini-3.1-flash-lite-preview",
+    "gemini-3.7-flash",
+  ];
 
   for (const model of modelsToTry) {
-    for (let attempt = 1; attempt <= 3; attempt++) {
+    for (let attempt = 1; attempt <= 4; attempt++) {
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`;
 
       const requestBody = {
@@ -277,17 +283,25 @@ Rules:
         }
 
         const errText = await res.text();
-        console.warn(`⚠️ Model ${model} returned HTTP ${res.status} (attempt ${attempt}/3): ${errText.slice(0, 120)}...`);
+        console.warn(`⚠️ Model ${model} returned HTTP ${res.status} (attempt ${attempt}/4): ${errText.slice(0, 120)}...`);
 
-        if (res.status === 503 || res.status === 429) {
-          await new Promise((r) => setTimeout(r, 1500 * attempt));
+        if (res.status === 429) {
+          // Google Gemini Free Tier resets every 60 seconds; pause with exponential backoff
+          const coolOffMs = attempt * 15000;
+          console.log(`⏳ Quota exceeded (429). Cool-off pacing active: sleeping for ${coolOffMs / 1000}s...`);
+          await new Promise((r) => setTimeout(r, coolOffMs));
+          continue;
+        }
+
+        if (res.status === 503) {
+          await new Promise((r) => setTimeout(r, attempt * 3000));
           continue;
         }
 
         break;
       } catch (err: any) {
-        console.warn(`Network error calling ${model} (attempt ${attempt}/3):`, err.message);
-        await new Promise((r) => setTimeout(r, 1500 * attempt));
+        console.warn(`Network error calling ${model} (attempt ${attempt}/4):`, err.message);
+        await new Promise((r) => setTimeout(r, attempt * 3000));
       }
     }
   }
@@ -366,7 +380,10 @@ Please inspect the relevant project files, implement any required changes, run '
       const fnName = call.functionCall.name;
       const fnArgs = call.functionCall.args || {};
       console.log(`🔧 Executing Tool: ${fnName}(${JSON.stringify(fnArgs)})`);
-      const resultStr = executeTool(fnName, fnArgs);
+      let resultStr = executeTool(fnName, fnArgs);
+      if (resultStr.length > 2500) {
+        resultStr = resultStr.slice(0, 2500) + "\n...(truncated for context efficiency)";
+      }
       toolResponses.push({
         functionResponse: {
           name: fnName,
@@ -376,6 +393,8 @@ Please inspect the relevant project files, implement any required changes, run '
     }
 
     contents.push({ role: "user", parts: toolResponses });
+    // Adaptive pacing: 3.5 second pause between agent turns to remain under 15 RPM quota
+    await new Promise((r) => setTimeout(r, 3500));
   }
 
   // --- RESILIENT VERIFICATION & SELF-HEALING REPAIR LOOP ---
@@ -420,12 +439,16 @@ Please inspect the relevant project files, implement any required changes, run '
           for (const call of functionCalls) {
             const fnName = call.functionCall.name;
             const fnArgs = call.functionCall.args || {};
-            const resultStr = executeTool(fnName, fnArgs);
+            let resultStr = executeTool(fnName, fnArgs);
+            if (resultStr.length > 2500) {
+              resultStr = resultStr.slice(0, 2500) + "\n...(truncated for context efficiency)";
+            }
             toolResponses.push({
               functionResponse: { name: fnName, response: { result: resultStr } }
             });
           }
           contents.push({ role: "user", parts: toolResponses });
+          await new Promise((r) => setTimeout(r, 3500));
         }
       }
     }

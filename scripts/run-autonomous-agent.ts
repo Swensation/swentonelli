@@ -41,9 +41,33 @@ function loadEnvLocal() {
 loadEnvLocal();
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const ISSUE_NUMBER = process.env.ISSUE_NUMBER || "0";
-const ISSUE_TITLE = process.env.ISSUE_TITLE || "Test Feedback Request";
-const ISSUE_BODY = process.env.ISSUE_BODY || "Please verify that the pipeline agent can inspect and build the project.";
+
+const cliArgs = process.argv.slice(2);
+let PR_NUMBER = process.env.PR_NUMBER || "";
+const prIdx = cliArgs.indexOf("--pr");
+if (prIdx !== -1 && cliArgs[prIdx + 1]) {
+  PR_NUMBER = cliArgs[prIdx + 1];
+}
+
+const ISSUE_NUMBER = process.env.ISSUE_NUMBER || PR_NUMBER || "0";
+let taskTitle = process.env.ISSUE_TITLE || "Test Feedback Request";
+let taskBody = process.env.ISSUE_BODY || "Please verify that the pipeline agent can inspect and build the project.";
+
+// If executing a PR proposal, load the proposal spec
+if (PR_NUMBER) {
+  taskTitle = `Implement Approved Proposal for PR #${PR_NUMBER}`;
+  const proposalsDir = path.join(process.cwd(), "specs", "proposals");
+  if (fs.existsSync(proposalsDir)) {
+    const files = fs.readdirSync(proposalsDir).filter((f) => f.endsWith(".md"));
+    if (files.length > 0) {
+      files.sort().reverse();
+      const latestFile = files[0];
+      const content = fs.readFileSync(path.join(proposalsDir, latestFile), "utf-8");
+      taskBody = `Approved Proposal Specification (${latestFile}):\n\n${content}`;
+      console.log(`📄 Loaded proposal specification: ${latestFile}`);
+    }
+  }
+}
 
 if (!GEMINI_API_KEY) {
   console.error("❌ Error: GEMINI_API_KEY is not set.");
@@ -206,21 +230,35 @@ Rules:
 
 async function runAutonomousLoop() {
   console.log("==================================================================");
-  console.log(`🤖 Autonomous Antigravity Agent Activated for Issue #${ISSUE_NUMBER}`);
-  console.log(`   Title: ${ISSUE_TITLE}`);
+  console.log(`🤖 Autonomous Antigravity Agent Activated for Issue/PR #${ISSUE_NUMBER}`);
+  console.log(`   Task: ${taskTitle}`);
   console.log("==================================================================");
 
-  const initialPrompt = `A user submitted the following feedback / task request:
+  const initialPrompt = PR_NUMBER
+    ? `You are Google Antigravity, an autonomous AI software engineering agent working on the Scouty Planner repository.
+You are tasked with autonomously executing and implementing this approved proposal on this PR branch:
 
-Issue #${ISSUE_NUMBER}: ${ISSUE_TITLE}
+Task: ${taskTitle}
 
-${ISSUE_BODY}
+${taskBody}
+
+Instructions:
+1. Inspect the relevant project files and configurations (e.g. data/children_registry.json, src/components/widgets/CalendarWidget/KidsColumnTimeline.tsx, etc.).
+2. Implement the required code and asset changes. If custom avatars or icons are requested (e.g. Tuba for Brighton, Minecraft Creeper for Benjamin), create clean valid SVG or image files in public/ or appropriate directories, and update the child profiles registry and UI components.
+3. Run 'npx tsc --noEmit' and 'npm test' using run_command to verify that all tests pass cleanly.
+4. Update public/build-meta.json with the resolution summary.
+Proceed autonomously.`
+    : `A user submitted the following feedback / task request:
+
+Issue #${ISSUE_NUMBER}: ${taskTitle}
+
+${taskBody}
 
 Please inspect the relevant project files, implement any required changes, run 'npx tsc --noEmit' to verify, and update public/build-meta.json.`;
 
   const contents: any[] = [{ role: "user", parts: [{ text: initialPrompt }] }];
 
-  const MAX_TURNS = 15;
+  const MAX_TURNS = 20;
   for (let turn = 1; turn <= MAX_TURNS; turn++) {
     console.log(`\n--- Agent Turn ${turn} ---`);
     const response = await callGemini(contents);
@@ -270,7 +308,7 @@ Please inspect the relevant project files, implement any required changes, run '
     timestamp: new Date().toISOString(),
     commitSha: `issue-${ISSUE_NUMBER}`,
     issueNumber: parseInt(ISSUE_NUMBER, 10) || null,
-    summary: `Autonomous resolution for issue #${ISSUE_NUMBER}: ${ISSUE_TITLE}`,
+    summary: `Autonomous resolution for issue #${ISSUE_NUMBER}: ${taskTitle}`,
   };
   fs.writeFileSync(metaPath, JSON.stringify(metaData, null, 2), "utf-8");
   console.log(`\n📦 Updated ${metaPath} with new deployment metadata.`);

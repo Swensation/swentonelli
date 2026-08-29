@@ -1,6 +1,8 @@
 name: Beagle Batch Feedback Triage & Proposal
 
 on:
+  issues:
+    types: [opened]
   workflow_dispatch:
     inputs:
       auto_create_pr:
@@ -16,9 +18,17 @@ permissions:
   issues: write
   pull-requests: write
 
+concurrency:
+  group: beagle-triage-pipeline
+  cancel-in-progress: false
+
 jobs:
   triage:
-    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'issue_comment' && startsWith(github.event.comment.body, '/triage'))
+    # Run if triggered manually, OR if an issue with 'feedback-inbox' is opened, OR if comment starts with /triage
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'issues' && contains(github.event.issue.labels.*.name, 'feedback-inbox')) ||
+      (github.event_name == 'issue_comment' && startsWith(github.event.comment.body, '/triage'))
     runs-on: ubuntu-latest
 
     steps:
@@ -61,4 +71,3 @@ jobs:
               issue_number: context.issue.number,
               body: "🐶 **Talk to the Beagle**: Batch feedback triage workflow completed! Check the Pull Requests tab for the consolidated proposal."
             })
-

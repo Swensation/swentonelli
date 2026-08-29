@@ -33,7 +33,7 @@ process.env.TZ = "UTC";
 let cachedAgenda: { data: CalendarAgenda; timestamp: number } | null = null;
 const CACHE_TTL_MS = 20 * 1000; // 20 seconds cache
 
-import { getEasternDateKey, formatEasternTime } from "@/lib/dateUtils";
+import { getEasternDateKey, formatEasternTime, getActiveEasternDatesForEvent } from "@/lib/dateUtils";
 
 export function isDateExcluded(date: Date, exdate?: Record<string, any>): boolean {
   if (!exdate) return false;
@@ -360,47 +360,16 @@ export async function fetchCalendarAgenda(): Promise<CalendarAgenda> {
 
   enrichedEvents.forEach((ev) => {
     try {
-      const startDate = new Date(ev.start);
-      const endDate = new Date(ev.end);
-      const startKey = getEasternDateKey(startDate);
-      const endKey = getEasternDateKey(endDate);
+      const activeDates = getActiveEasternDatesForEvent({
+        start: ev.start,
+        end: ev.end,
+        allDay: ev.allDay,
+      });
 
-      // Multi-day events (e.g. custody blocks, weekend spans, or vacation weeks)
-      // must have presence on every date they touch!
-      if (startKey !== endKey) {
-        let curr = new Date(startDate);
-        while (true) {
-          const key = getEasternDateKey(curr);
-          if (key > endKey) break;
-
-          // For all-day events ending at 00:00:00 of the end date, Google Calendar's end date is exclusive
-          if (ev.allDay && key === endKey) {
-            break;
-          }
-
-          // For timed events ending exactly at midnight (00:00:00) in Eastern Time,
-          // the event concludes as the day begins and has no active presence on the new day
-          if (
-            !ev.allDay &&
-            key === endKey &&
-            formatEasternTime(endDate) === "12:00 AM" &&
-            endDate.getSeconds() === 0
-          ) {
-            break;
-          }
-
-          if (!byDate[key]) byDate[key] = [];
-          byDate[key].push(ev);
-
-          if (key === endKey) break;
-          curr = addDays(curr, 1);
-        }
-      } else {
-        if (!byDate[startKey]) {
-          byDate[startKey] = [];
-        }
-        byDate[startKey].push(ev);
-      }
+      activeDates.forEach((key) => {
+        if (!byDate[key]) byDate[key] = [];
+        byDate[key].push(ev);
+      });
     } catch {
       // ignore parse error
     }

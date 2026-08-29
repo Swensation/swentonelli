@@ -222,6 +222,41 @@ export function extractChildAnnotations(
   // Check School Status
   for (const ev of dayEvents) {
     const summary = (ev.summary || "").toLowerCase().trim();
+    const sourceId = (ev.sourceId || "").toLowerCase();
+
+    // District & Child Scoping:
+    // Aria & Benjamin -> Millis Public Schools (MPS, CFB, Millis Middle)
+    // Brighton & Bennett -> Holliston Public Schools (HPS, Adams Middle, Miller)
+    const isMillisChild = cId === "aria" || cId === "benjamin";
+    const isHollistonChild = cId === "brighton" || cId === "bennett";
+
+    const hasMillisScope =
+      summary.includes("millis") ||
+      summary.includes("mps") ||
+      summary.includes("aria") ||
+      summary.includes("ben") ||
+      summary.includes("cfb") ||
+      sourceId === "aria-ben";
+
+    const hasHollistonScope =
+      summary.includes("holliston") ||
+      summary.includes("hps") ||
+      summary.includes("adams") ||
+      summary.includes("miller") ||
+      summary.includes("placentino") ||
+      summary.includes("brighton") ||
+      summary.includes("bennett") ||
+      sourceId === "brighton-bennett";
+
+    // If explicitly scoped to Millis, do NOT apply to Holliston children
+    if (hasMillisScope && !hasHollistonScope && !isMillisChild) {
+      continue;
+    }
+    // If explicitly scoped to Holliston, do NOT apply to Millis children
+    if (hasHollistonScope && !hasMillisScope && !isHollistonChild) {
+      continue;
+    }
+
     if (
       summary.includes("no school") ||
       summary.includes("school closed") ||

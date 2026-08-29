@@ -282,6 +282,35 @@ async function runTests() {
   const schoolAnno = extractChildAnnotations([mockNoSchoolEvent], "aria");
   assert(schoolAnno.school?.status === "no_school" && schoolAnno.school?.label === "No School", "Child with no-school event resolves to 'No School' badge");
 
+  // District & Child Scoped No-School Test (Aria/Ben Millis vs Brighton/Bennett Holliston)
+  const mockMillisNoSchool: CalendarEvent = {
+    id: "mps-1",
+    sourceId: "aria-ben",
+    sourceName: "Aria and Ben",
+    color: "#3b82f6",
+    summary: "MPS No School - Professional Development",
+    start: "2026-09-04T00:00:00Z",
+    end: "2026-09-05T00:00:00Z",
+    allDay: true,
+  };
+  assert(extractChildAnnotations([mockMillisNoSchool], "aria").school?.status === "no_school", "MPS No School applies to Aria (Millis)");
+  assert(extractChildAnnotations([mockMillisNoSchool], "benjamin").school?.status === "no_school", "MPS No School applies to Benjamin (Millis)");
+  assert(extractChildAnnotations([mockMillisNoSchool], "brighton").school === undefined, "MPS No School strictly does NOT apply to Brighton (Holliston)");
+  assert(extractChildAnnotations([mockMillisNoSchool], "bennett").school === undefined, "MPS No School strictly does NOT apply to Bennett (Holliston)");
+
+  // Timezone & Majority-of-Day Boundary Intelligence Test
+  const { getActiveEasternDatesForEvent } = require("../src/lib/dateUtils");
+  const datesSept4 = getActiveEasternDatesForEvent({
+    start: "2026-09-04T00:00:00.000Z",
+    end: "2026-09-05T00:00:00.000Z",
+    allDay: true,
+  });
+  assert(datesSept4.length === 1 && datesSept4[0] === "2026-09-04", "All-day event at UTC midnight resolves strictly to Friday Sept 4 (never Thursday Sept 3)");
+
+  // Lunch Badge Cleanliness Test (Issue #10)
+  const schoolBadgeFile = fs.readFileSync(path.join(process.cwd(), "src", "components", "widgets", "LunchWidget", "SchoolStatusBadge.tsx"), "utf-8");
+  assert(!schoolBadgeFile.includes("Vegetarian Option"), "SchoolStatusBadge does NOT render redundant vegetarian badges");
+
   // Daily Family Summary Test (Ben/Aria & Brighton/Bennett household state)
   const familyDaySummary = getDailyFamilySummary([mockLizEvent, mockCallieEvent]);
   assert(familyDaySummary.ariaBen.custody?.parentName === "Callie", "DailyFamilySummary extracts Callie for Ben/Aria");

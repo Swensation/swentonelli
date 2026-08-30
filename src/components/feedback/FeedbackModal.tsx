@@ -310,11 +310,7 @@ export function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
                       <span className="w-2 h-2 rounded-full bg-rose-500" />
                       Listening... Speak clearly into your mic
                     </span>
-                  ) : (
-                    <span className="text-slate-500">
-                      {speechSupported ? "Tap the microphone to speak or type directly" : "Type your request above"}
-                    </span>
-                  )}
+                  ) : null}
                 </div>
                 <span className="text-slate-500 font-mono">
                   {dictatedText.length} chars

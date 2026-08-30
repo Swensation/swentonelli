@@ -232,7 +232,6 @@ Rules:
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(body),
-            signal: AbortSignal.timeout(45000),
           });
 
           if (res.ok) return await res.json();

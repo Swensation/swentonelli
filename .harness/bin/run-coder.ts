@@ -41,7 +41,15 @@ async function loadPRSpec(config: HarnessConfig, prNumber: string, token: string
 
 async function main() {
   const config = loadConfig();
-  const apiKey = process.env.GEMINI_API_KEY;
+  let apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey && fs.existsSync(".env.local")) {
+    const envContent = fs.readFileSync(".env.local", "utf-8");
+    for (const line of envContent.split("\n")) {
+      if (line.startsWith("GEMINI_API_KEY=")) {
+        apiKey = line.split("=")[1].trim().replace(/['"]/g, "");
+      }
+    }
+  }
   const token =
     process.env.GITHUB_TOKEN ||
     process.env.GH_TOKEN ||

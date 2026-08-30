@@ -102,12 +102,35 @@ export class PipelineSurgeon {
         const full = path.resolve(process.cwd(), args.file_path);
         if (!fs.existsSync(full)) return `Error: File '${args.file_path}' not found.`;
         const content = fs.readFileSync(full, "utf-8");
-        if (!content.includes(args.target_content)) {
-          return `Error: target_content not found in '${args.file_path}'. Check line formatting or view file first.`;
+
+        // 1. Exact match
+        if (content.includes(args.target_content)) {
+          const updated = content.replace(args.target_content, args.replacement_content);
+          fs.writeFileSync(full, updated, "utf-8");
+          return `Successfully replaced target content in '${args.file_path}'.`;
         }
-        const updated = content.replace(args.target_content, args.replacement_content);
-        fs.writeFileSync(full, updated, "utf-8");
-        return `Successfully replaced target content in '${args.file_path}'.`;
+
+        // 2. Normalized CRLF / LF match
+        const normContent = content.replace(/\r\n/g, "\n");
+        const normTarget = args.target_content.replace(/\r\n/g, "\n");
+        if (normContent.includes(normTarget)) {
+          const normReplacement = args.replacement_content.replace(/\r\n/g, "\n");
+          const updated = normContent.replace(normTarget, normReplacement);
+          fs.writeFileSync(full, updated, "utf-8");
+          return `Successfully replaced normalized target content in '${args.file_path}'.`;
+        }
+
+        // 3. Helpful near-match diagnostic
+        const firstLine = args.target_content.trim().split("\n")[0].trim();
+        const lines = content.split("\n");
+        const nearMatches = lines
+          .map((l, i) => ({ line: i + 1, text: l }))
+          .filter((l) => l.text.includes(firstLine.slice(0, 30)))
+          .slice(0, 3);
+        const hint = nearMatches.length
+          ? ` Hint: Similar line found at Line ${nearMatches.map((m) => m.line).join(", ")}. View that range first.`
+          : "";
+        return `Error: target_content not found in '${args.file_path}'.${hint}`;
       }
       if (name === "grep_search") {
         try {
@@ -303,6 +326,11 @@ ${failureTrace.slice(0, 3000)}
         `git commit -m "${this.config.git.autoHealCommitPrefix} apply autonomous RCA repairs for PR #${prNumber}"`,
         { stdio: "inherit" }
       );
+      try {
+        execSync(`git pull --rebase origin ${branch}`, { stdio: "inherit" });
+      } catch {
+        // Proceed with push if already up to date
+      }
       execSync(`git push origin ${branch}`, { stdio: "inherit" });
 
       // Post RCA report comment to GitHub PR

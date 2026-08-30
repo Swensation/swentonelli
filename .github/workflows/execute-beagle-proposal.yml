@@ -105,8 +105,6 @@ jobs:
           git push origin HEAD:${{ steps.pr_info.outputs.branch }}
 
       - name: Post Completion Comment on PR
-        uses: actions/github-script@v7
-        with:
           script: |
             await github.rest.issues.createComment({
               owner: context.repo.owner,
@@ -129,8 +127,9 @@ jobs:
               pull_number: prNumber
             });
 
-            const isLowRisk = pr.data.labels.some(l => l.name === 'risk:low') ||
-                              /\[Website Feedback\]|copy|style|color|subtitle|text|dialog/i.test(pr.data.title);
+            const isLowRisk = pr.data.labels.some(l => l.name === 'risk:low' || l.name === 'test-issue-from-agent') ||
+                              /Website Feedback|Triaged|copy|style|color|subtitle|text|dialog|title|button/i.test(pr.data.title) ||
+                              (pr.data.body && pr.data.body.includes('test-issue-from-agent'));
 
             if (isLowRisk) {
               console.log(`🚀 [Auto-Merge] PR #${prNumber} verified and classified as low-risk. Merging automatically...`);

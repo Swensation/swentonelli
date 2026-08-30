@@ -232,6 +232,7 @@ Rules:
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(body),
+            signal: AbortSignal.timeout(45000),
           });
 
           if (res.ok) return await res.json();
@@ -324,7 +325,6 @@ Instructions:
       execSync(`git commit -m "feat(harness): implement approved proposal for PR #${prNumber}"`, {
         stdio: "inherit",
       });
-      execSync(`git push origin ${branch}`, { stdio: "inherit" });
       return true;
     }
 
@@ -336,7 +336,6 @@ Instructions:
         `git commit -m "${this.config.git.wipCommitPrefix} candidate patch for PR #${prNumber} (evaluation failed)"`,
         { stdio: "inherit" }
       );
-      execSync(`git push origin ${branch}`, { stdio: "inherit" });
       console.log(`💾 Candidate Patch preserved on branch '${branch}'. Ready for Surgeon.`);
     } catch (e) {
       console.warn("No unstaged changes to commit for WIP checkpoint.");

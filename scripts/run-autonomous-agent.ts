@@ -455,9 +455,10 @@ Please inspect the relevant project files, implement any required changes, run '
   }
 
   if (!verified) {
-    console.error("❌ Agent could not pass automated tests after 3 repair attempts.");
+    console.warn("⚠️ Verification failed. Preserving candidate patch as WIP evidence checkpoint (Invariant 2)...");
     try {
-      execSync("git reset --hard", { stdio: "inherit" });
+      execSync("git add .", { stdio: "inherit" });
+      execSync(`git commit -m "wip(harness-candidate): candidate patch for PR #${PR_NUMBER || ISSUE_NUMBER} (verification failed)"`, { stdio: "inherit" });
     } catch {
       // ignore
     }

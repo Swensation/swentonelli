@@ -90,7 +90,7 @@ export function enrichCalendarEvent(event: {
     } else if (summaryLower.includes("parent session") && sourceLower.includes("ben")) {
       child = { id: "benjamin", name: "Benjamin", color: "#ef4444" };
     } else if (summaryLower.includes("urban") && sourceLower.includes("brighton")) {
-      child = { id: "brighton", name: "Brighton", color: "#f472b6" };
+      child = { id: "brighton", name: "Brighton", color: "#f9a8d4" };
     } else if (summaryLower.includes("andrew") || sourceLower.includes("andrew")) {
       child = { id: "andrew", name: "Andrew (Dad)", color: "#10b981" };
     } else if (summaryLower.includes("liz")) {

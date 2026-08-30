@@ -32,7 +32,7 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 const KIDS = [
   { id: "aria", name: "Aria", avatarIcon: "/icons/children/aria.png", color: "#3b82f6", bgLight: "bg-blue-500/10", border: "border-blue-500/30", text: "text-blue-400" },
-  { id: "brighton", name: "Brighton", avatarIcon: "/icons/children/brighton.png", color: "#f472b6", bgLight: "bg-pink-500/10", border: "border-pink-500/30", text: "text-pink-400" },
+  { id: "brighton", name: "Brighton", avatarIcon: "/icons/children/brighton.png", color: "#f9a8d4", bgLight: "bg-pink-400/10", border: "border-pink-300/30", text: "text-pink-300" },
   { id: "benjamin", name: "Benjamin", avatarIcon: "/icons/children/benjamin.png", color: "#ef4444", bgLight: "bg-red-500/10", border: "border-red-500/30", text: "text-red-400" },
   { id: "bennett", name: "Bennett", avatarIcon: "/icons/children/bennett.png", color: "#22c55e", bgLight: "bg-emerald-500/10", border: "border-emerald-500/30", text: "text-emerald-400" },
 ];

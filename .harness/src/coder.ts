@@ -33,19 +33,46 @@ export class CodingAgent {
   private getToolDeclarations() {
     return [
       {
-        name: "view_file",
-        description: "Read the content of a file in the workspace",
+        name: "replace_file_content",
+        description: "Replace an exact target block of text in a file with new content. Atomic, surgical, and prevents sed errors.",
         parameters: {
           type: "OBJECT",
           properties: {
             file_path: { type: "STRING", description: "Relative file path from workspace root" },
+            target_content: { type: "STRING", description: "Exact text block in the file to replace (must match exactly)" },
+            replacement_content: { type: "STRING", description: "New text to replace target_content with" },
+          },
+          required: ["file_path", "target_content", "replacement_content"],
+        },
+      },
+      {
+        name: "grep_search",
+        description: "Fast pattern or keyword search across files in the workspace",
+        parameters: {
+          type: "OBJECT",
+          properties: {
+            query: { type: "STRING", description: "String or pattern to search for" },
+            path_pattern: { type: "STRING", description: "Optional path or directory filter (e.g. 'src/')" },
+          },
+          required: ["query"],
+        },
+      },
+      {
+        name: "view_file",
+        description: "Read file contents, optionally specifying start_line and end_line slices (1-indexed)",
+        parameters: {
+          type: "OBJECT",
+          properties: {
+            file_path: { type: "STRING", description: "Relative file path from workspace root" },
+            start_line: { type: "INTEGER", description: "Optional starting line number (1-indexed)" },
+            end_line: { type: "INTEGER", description: "Optional ending line number (1-indexed)" },
           },
           required: ["file_path"],
         },
       },
       {
         name: "write_file",
-        description: "Create or overwrite a file with updated code",
+        description: "Create a new file or completely overwrite an existing file",
         parameters: {
           type: "OBJECT",
           properties: {
@@ -68,7 +95,7 @@ export class CodingAgent {
       },
       {
         name: "run_command",
-        description: "Run a safe shell command for inspection (e.g. git status, grep)",
+        description: "Run a safe inspection shell command (do NOT use for sed or file editing)",
         parameters: {
           type: "OBJECT",
           properties: {
@@ -82,11 +109,37 @@ export class CodingAgent {
 
   private executeTool(name: string, args: any): string {
     try {
-      if (name === "view_file") {
+      if (name === "replace_file_content") {
         const full = path.resolve(process.cwd(), args.file_path);
         if (!fs.existsSync(full)) return `Error: File '${args.file_path}' not found.`;
         const content = fs.readFileSync(full, "utf-8");
-        return content.length > 4000 ? content.slice(0, 4000) + "\n...(truncated)" : content;
+        if (!content.includes(args.target_content)) {
+          return `Error: target_content not found in '${args.file_path}'. Check line formatting or view file first.`;
+        }
+        const updated = content.replace(args.target_content, args.replacement_content);
+        fs.writeFileSync(full, updated, "utf-8");
+        return `Successfully replaced target content in '${args.file_path}'.`;
+      }
+      if (name === "grep_search") {
+        try {
+          const filter = args.path_pattern ? ` ${args.path_pattern}` : "";
+          const out = execSync(`git grep -n "${args.query.replace(/"/g, '\\"')}" --${filter}`, {
+            stdio: "pipe",
+            timeout: 30000,
+          }).toString();
+          return out.slice(0, 3000) || "No matches found.";
+        } catch {
+          return "No matches found.";
+        }
+      }
+      if (name === "view_file") {
+        const full = path.resolve(process.cwd(), args.file_path);
+        if (!fs.existsSync(full)) return `Error: File '${args.file_path}' not found.`;
+        const lines = fs.readFileSync(full, "utf-8").split("\n");
+        const start = args.start_line ? Math.max(1, parseInt(args.start_line, 10)) : 1;
+        const end = args.end_line ? Math.min(lines.length, parseInt(args.end_line, 10)) : lines.length;
+        const sliced = lines.slice(start - 1, end).map((l, i) => `${start + i}: ${l}`);
+        return sliced.join("\n").slice(0, 4500);
       }
       if (name === "write_file") {
         const full = path.resolve(process.cwd(), args.file_path);
@@ -107,8 +160,8 @@ export class CodingAgent {
       }
       if (name === "run_command") {
         const cmd = args.command;
-        if (cmd.includes("rm -rf /") || cmd.includes("format ")) {
-          return "Error: Command rejected by safety policy.";
+        if (cmd.includes("rm -rf /") || cmd.includes("format ") || cmd.startsWith("sed ")) {
+          return "Error: Command rejected. For code editing, use replace_file_content.";
         }
         const out = execSync(cmd, { stdio: "pipe", timeout: 60000 }).toString();
         return out.length > 3000 ? out.slice(0, 3000) + "\n...(truncated)" : out || "(Success)";
@@ -133,11 +186,13 @@ export class CodingAgent {
             parts: [
               {
                 text: `You are the Autonomous Coding Agent for ${this.config.project.name}.
-Your mission: Implement the approved specification cleanly, surgically, and robustly.
+Your mission: Implement the approved specification cleanly, surgically, and decisively.
+
 Rules:
-1. Examine existing files first before making modifications.
-2. Implement surgical, high-conviction code changes.
-3. Conclude with a clear summary of files modified.`,
+1. TOOLING PARITY: Always use 'replace_file_content' for surgical edits. Never use sed, cat, or shell commands to edit code.
+2. ACTION EFFICIENCY: You have an exploration budget of at most 2 turns (using grep_search or view_file slices). By Turn 3, you MUST call replace_file_content or write_file to apply the code changes.
+3. ANTI-RULE BEATING: You must modify the target feature files requested in the specification. Modifying only build-meta.json or test files without touching the feature components is strictly rejected.
+4. Conclude with a clear summary once file edits are written.`,
               },
             ],
           },

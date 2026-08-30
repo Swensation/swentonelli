@@ -12,3 +12,5 @@ See global preferences in `~/.gemini/config/plugins/user-preferences-plugin/rule
    - Stock Transformed
    - Active Loop
    - Delays & Velocity
+4. **Tooling Parity Invariant**: Cloud runners in GitHub Actions must execute with the exact same high-conviction tools (`replace_file_content`, `grep_search`, slice-based `view_file`) as local Antigravity sessions. Primitive shell paging loops (`sed`/`cat`) are strictly prohibited.
+

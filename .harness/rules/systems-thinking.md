@@ -55,4 +55,6 @@ To prevent amnesiac loops, the harness implements the **Actor-Evaluator-Reflecto
 2. **Deterministic Priority**: High-leverage rules always override low-leverage ones (Meadows Leverage Points).
 3. **No Secrets in Code**: API keys and tokens must strictly flow through environment variables.
 4. **Adaptive Pacing**: Protect the API quota stock. Always pace inter-turn tool calls (minimum 4-second delay) and implement exponential backoff on HTTP 429.
+5. **Tooling Parity**: Cloud runners must execute with the exact same high-conviction tools (`replace_file_content`, `grep_search`, slice-based `view_file`) used in local Antigravity sessions. Primitive shell paging loops (`sed`/`cat`) are strictly prohibited to prevent passive reading spirals and quota waste.
+
 

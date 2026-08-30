@@ -33,19 +33,46 @@ export class PipelineSurgeon {
   private getToolDeclarations() {
     return [
       {
+        name: "replace_file_content",
+        description: "Replace an exact target block of text in a file with new content. Atomic and surgical.",
+        parameters: {
+          type: "OBJECT",
+          properties: {
+            file_path: { type: "STRING", description: "Relative file path from workspace root" },
+            target_content: { type: "STRING", description: "Exact text block in the file to replace (must match exactly)" },
+            replacement_content: { type: "STRING", description: "New text to replace target_content with" },
+          },
+          required: ["file_path", "target_content", "replacement_content"],
+        },
+      },
+      {
+        name: "grep_search",
+        description: "Fast pattern or keyword search across files in the workspace",
+        parameters: {
+          type: "OBJECT",
+          properties: {
+            query: { type: "STRING", description: "String or pattern to search for" },
+            path_pattern: { type: "STRING", description: "Optional path or directory filter (e.g. 'src/')" },
+          },
+          required: ["query"],
+        },
+      },
+      {
         name: "view_file",
-        description: "Read file contents",
+        description: "Read file contents, optionally specifying start_line and end_line slices (1-indexed)",
         parameters: {
           type: "OBJECT",
           properties: {
             file_path: { type: "STRING", description: "Relative file path" },
+            start_line: { type: "INTEGER", description: "Optional starting line number (1-indexed)" },
+            end_line: { type: "INTEGER", description: "Optional ending line number (1-indexed)" },
           },
           required: ["file_path"],
         },
       },
       {
         name: "write_file",
-        description: "Update or patch file contents",
+        description: "Update or patch complete file contents",
         parameters: {
           type: "OBJECT",
           properties: {
@@ -57,7 +84,7 @@ export class PipelineSurgeon {
       },
       {
         name: "run_command",
-        description: "Execute a command for verification or inspection",
+        description: "Execute a command for verification or inspection (do NOT use for sed)",
         parameters: {
           type: "OBJECT",
           properties: {
@@ -71,11 +98,37 @@ export class PipelineSurgeon {
 
   private executeTool(name: string, args: any): string {
     try {
-      if (name === "view_file") {
+      if (name === "replace_file_content") {
         const full = path.resolve(process.cwd(), args.file_path);
         if (!fs.existsSync(full)) return `Error: File '${args.file_path}' not found.`;
         const content = fs.readFileSync(full, "utf-8");
-        return content.length > 5000 ? content.slice(0, 5000) + "\n...(truncated)" : content;
+        if (!content.includes(args.target_content)) {
+          return `Error: target_content not found in '${args.file_path}'. Check line formatting or view file first.`;
+        }
+        const updated = content.replace(args.target_content, args.replacement_content);
+        fs.writeFileSync(full, updated, "utf-8");
+        return `Successfully replaced target content in '${args.file_path}'.`;
+      }
+      if (name === "grep_search") {
+        try {
+          const filter = args.path_pattern ? ` ${args.path_pattern}` : "";
+          const out = execSync(`git grep -n "${args.query.replace(/"/g, '\\"')}" --${filter}`, {
+            stdio: "pipe",
+            timeout: 30000,
+          }).toString();
+          return out.slice(0, 3000) || "No matches found.";
+        } catch {
+          return "No matches found.";
+        }
+      }
+      if (name === "view_file") {
+        const full = path.resolve(process.cwd(), args.file_path);
+        if (!fs.existsSync(full)) return `Error: File '${args.file_path}' not found.`;
+        const lines = fs.readFileSync(full, "utf-8").split("\n");
+        const start = args.start_line ? Math.max(1, parseInt(args.start_line, 10)) : 1;
+        const end = args.end_line ? Math.min(lines.length, parseInt(args.end_line, 10)) : lines.length;
+        const sliced = lines.slice(start - 1, end).map((l, i) => `${start + i}: ${l}`);
+        return sliced.join("\n").slice(0, 5000);
       }
       if (name === "write_file") {
         const full = path.resolve(process.cwd(), args.file_path);
@@ -86,8 +139,8 @@ export class PipelineSurgeon {
       }
       if (name === "run_command") {
         const cmd = args.command;
-        if (cmd.includes("rm -rf /") || cmd.includes("format ")) {
-          return "Error: Command rejected by safety policy.";
+        if (cmd.includes("rm -rf /") || cmd.includes("format ") || cmd.startsWith("sed ")) {
+          return "Error: Command rejected. For code editing, use replace_file_content.";
         }
         const out = execSync(cmd, { stdio: "pipe", timeout: 60000 }).toString();
         return out.length > 3000 ? out.slice(0, 3000) + "\n...(truncated)" : out || "(Success)";

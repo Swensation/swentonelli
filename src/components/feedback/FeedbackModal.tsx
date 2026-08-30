@@ -211,9 +211,6 @@ export function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
               <div className="flex items-center gap-2">
                 <h3 className="text-base font-black text-white">Talk to the Beagle</h3>
               </div>
-              <p className="text-xs text-slate-400">
-                Dictate or type any update, bug, or request for Scouty Planner
-              </p>
             </div>
           </div>
 
@@ -354,12 +351,11 @@ export function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
                   {isSubmitting ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>Uploading to the Beagle...</span>
+                      <span>Sending...</span>
                     </>
                   ) : (
                     <>
-                      <Send className="w-4 h-4" />
-                      <span>Upload to the Beagle</span>
+                      <span>Send to Beagle</span>
                     </>
                   )}
                 </button>

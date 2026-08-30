@@ -13,7 +13,7 @@ export function FloatingFeedbackButton() {
         <button
           onClick={() => setIsModalOpen(true)}
           className="group relative flex items-center gap-2.5 px-4 py-3 rounded-full bg-slate-900/90 hover:bg-slate-800 text-slate-100 border-2 border-amber-500/50 hover:border-amber-400 shadow-2xl backdrop-blur-md transition-all active:scale-95 hover:shadow-amber-500/20"
-          title="Talk to the Beagle (Voice or Text Request)"
+          title="Talk to the Beagle"
           aria-label="Talk to the Beagle"
         >
           {/* Pulsing subtle glow behind the button */}

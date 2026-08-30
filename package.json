@@ -17,6 +17,8 @@
     "test:keys": "tsx scripts/verify-pipeline-keys.ts",
     "triage:feedback": "tsx scripts/triage-feedback.ts",
     "parse:lunch": "tsx scripts/parse-lunch-pdf.ts",
+    "harness:simulate": "tsx .harness/bin/run-simulator.ts"
+  },
   "dependencies": {
     "canvas-confetti": "^1.9.4",
     "clsx": "^2.1.1",

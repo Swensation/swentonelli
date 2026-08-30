@@ -331,6 +331,14 @@ ${failureTrace.slice(0, 3000)}
       } catch {
         // Proceed with push if already up to date
       }
+      // Append takeaway to episodic memory ledger
+      try {
+        const lessonsPath = path.resolve(process.cwd(), ".harness/memory/lessons.md");
+        const entry = `\n- **PR #${prNumber} Auto-Heal**: ${finalSummary.slice(0, 180).replace(/\n/g, " ")}\n`;
+        fs.appendFileSync(lessonsPath, entry, "utf-8");
+        execSync("git add .harness/memory/lessons.md && git commit --amend --no-edit", { stdio: "ignore" });
+      } catch {}
+
       execSync(`git push origin ${branch}`, { stdio: "inherit" });
 
       // Post RCA report comment to GitHub PR

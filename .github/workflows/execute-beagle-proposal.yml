@@ -114,5 +114,47 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: parseInt('${{ steps.pr_info.outputs.pr_number }}', 10),
-              body: "✅ **Gemini Coding Agent**: Implementation complete and verified! Code changes have been committed to this pull request. Review the **'Files changed'** tab above and click **'Merge pull request'** to deploy live!"
+              body: "✅ **Gemini Coding Agent**: Implementation complete and verified! Code changes have been committed to this pull request."
             });
+
+      - name: Risk-Tiered Auto-Merge on Green
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+          script: |
+            const prNumber = parseInt('${{ steps.pr_info.outputs.pr_number }}', 10);
+            
+            // Check PR labels and title for risk tier
+            const pr = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber
+            });
+
+            const isLowRisk = pr.data.labels.some(l => l.name === 'risk:low') ||
+                              /\[Website Feedback\]|copy|style|color|subtitle|text|dialog/i.test(pr.data.title);
+
+            if (isLowRisk) {
+              console.log(`🚀 [Auto-Merge] PR #${prNumber} verified and classified as low-risk. Merging automatically...`);
+              try {
+                await github.rest.pulls.merge({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: prNumber,
+                  merge_method: 'squash',
+                  commit_title: `feat(autonomous): auto-merge verified proposal #${prNumber}`,
+                  commit_message: `Auto-merged by Autonomous Engineering Harness after all verification gates passed cleanly.`
+                });
+                
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: prNumber,
+                  body: "🚀 **Autonomous 0-Touch Delivery**: Verified low-risk proposal passed all gates and has been **automatically merged** to `main`! Live deployment is in progress."
+                });
+              } catch (e) {
+                console.warn("Auto-merge encountered an issue, leaving open for manual 1-tap review:", e.message);
+              }
+            } else {
+              console.log(`🛡️ [Risk Gate] PR #${prNumber} is standard/high-risk. Pausing for human 1-tap review.`);
+            }

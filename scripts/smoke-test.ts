@@ -579,6 +579,7 @@ async function runTests() {
         pageRes.body.includes("Syntax Error") ||
         pageRes.body.includes("Failed to compile");
       assert(!hasErrorOverlay, "Page / renders cleanly with NO build/syntax error overlays");
+      assert(pageRes.body.includes('name="viewport"'), "Page includes mobile responsive viewport configuration");
 
       const adminPageRes = await fetchUrl(`${BASE_URL}/admin`);
       assert(adminPageRes.status === 200, "GET /admin returns HTTP 200 HTML");

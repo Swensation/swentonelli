@@ -199,6 +199,12 @@ export class CodingAgent {
   private async callGemini(contents: any[]) {
     const models = [this.config.llm.primaryModel, ...this.config.llm.fallbackModels];
 
+    let lessonsLearned = "";
+    const lessonsPath = path.resolve(process.cwd(), ".harness/memory/lessons.md");
+    if (fs.existsSync(lessonsPath)) {
+      lessonsLearned = "\n\n### Repository Memory (Lessons Learned from Past Runs):\n" + fs.readFileSync(lessonsPath, "utf-8");
+    }
+
     for (const model of models) {
       for (let attempt = 1; attempt <= 4; attempt++) {
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${this.apiKey}`;
@@ -215,7 +221,7 @@ Rules:
 1. TOOLING PARITY: Always use 'replace_file_content' for surgical edits. Never use sed, cat, or shell commands to edit code.
 2. ACTION EFFICIENCY: You have an exploration budget of at most 2 turns (using grep_search or view_file slices). By Turn 3, you MUST call replace_file_content or write_file to apply the code changes.
 3. ANTI-RULE BEATING: You must modify the target feature files requested in the specification. Modifying only build-meta.json or test files without touching the feature components is strictly rejected.
-4. Conclude with a clear summary once file edits are written.`,
+4. Conclude with a clear summary once file edits are written.${lessonsLearned}`,
               },
             ],
           },

@@ -1,0 +1,140 @@
+==========================================
+🧪 Running Dashboard Automated Test Suite
+==========================================
+1. Checking TypeScript & JSX Syntax (tsc --noEmit)...
+  ✅ PASS: All TypeScript & TSX files pass typechecking and syntax validation
+
+2. Checking Data Integrity & Specs...
+  ✅ PASS: lunch_schedule.json exists
+  ✅ PASS: specs/annotations-and-badges.spec.md exists
+  ✅ PASS: specs/family-registry.spec.md exists
+  ✅ PASS: data/children_registry.json exists
+  ✅ PASS: public/build-meta.json exists
+  ✅ PASS: build-meta.json contains ISO deployment timestamp
+  ✅ PASS: specs/talk-to-the-beagle.spec.md exists
+  ✅ PASS: scripts/triage-feedback.ts exists
+  ✅ PASS: .github/workflows/batch-triage-feedback.yml exists
+  ✅ PASS: Workflow 1 has standardized name 'Workflow: Website Feedback ➔ Gemini Chat ➔ Functional Pull Request'
+  ✅ PASS: .github/workflows/execute-beagle-proposal.yml exists
+  ✅ PASS: Workflow 2 has standardized name 'Workflow: Take Functional Pull Request ➔ Gemini Coding ➔ Add Implementation to Pull Request'
+  ✅ PASS: .github/workflows/auto-heal-pipeline.yml exists
+  ✅ PASS: Workflow 3 has standardized name 'Workflow: Autonomous RCA & Self-Healing Pipeline Surgeon'
+  ✅ PASS: scripts/auto-remediate.ts exists
+  ✅ PASS: JSON contains month and year
+  ✅ PASS: JSON contains 26 menu days
+  ✅ PASS: All school days contain array of line items ('items')
+  ✅ PASS: All item strings are clean (no '(V)' tags)
+  ✅ PASS: config/calendars.json exists
+  ✅ PASS: config/calendars.json contains 3 active family calendar feeds
+  ✅ PASS: All calendar feeds have name, color, and icsUrl
+  ✅ PASS: OSFC team logo exists
+  ✅ PASS: Adams Rams logo exists
+  ✅ PASS: Millis Middle School logo exists
+  ✅ PASS: Clyde F. Brown (CFB) logo exists
+  ✅ PASS: Holliston Field Hockey logo exists
+  ✅ PASS: Miller School logo exists
+  ✅ PASS: Therapy logo exists
+  ✅ PASS: Holliston Pediatrics logo exists
+  ✅ PASS: Aria Galinda (Wicked) avatar exists
+  ✅ PASS: Brighton Elphaba (Wicked) avatar exists
+  ✅ PASS: Benjamin Fortnite avatar exists
+  ✅ PASS: Bennett Moe's Tavern avatar exists
+
+3. Testing Child Profiles Registry & Accurate Family Attributes...
+  ✅ PASS: Children registry loads 4 child profiles (found 4)
+  ✅ PASS: Aria: Millis Middle School, 7th Grade, Coastal Counseling
+  ✅ PASS: Aria primary sport is Soccer
+  ✅ PASS: Brighton: Adams Middle School, 6th Grade, Coastal Counseling
+  ✅ PASS: Brighton primary sport is Field Hockey
+  ✅ PASS: Benjamin: CFB (Millis), 5th Grade, Therapist Kelley (spelled K-E-L-L-E-Y)
+  ✅ PASS: Bennett: Miller School, 4th Grade, Katie Pellegri, Football
+  ✅ PASS: '4th Grade Classroom Meet and Greet' automatically maps to Bennett
+  ✅ PASS: 'Conference with Katie Pellegri' automatically maps to Bennett
+  ✅ PASS: 'Weekly check-in with Kelley' automatically maps to Benjamin
+  ✅ PASS: 'Coastal Counseling' maps to Aria/Brighton
+
+4. Testing Custody & Annotation Badges Engine...
+  ✅ PASS: isAnnotationEvent returns true for 'Liz kids'
+  ✅ PASS: isAnnotationEvent returns true for 'Swen kids'
+  ✅ PASS: isAnnotationEvent returns true for 'Callie kids'
+  ✅ PASS: isAnnotationEvent returns true for 'No School'
+  ✅ PASS: isAnnotationEvent returns false for regular 'OSFC U13 Soccer Practice'
+  ✅ PASS: filterActivityEvents excludes custody/no-school banners from timeline cards
+  ✅ PASS: Brighton with 'Liz kids' resolves to Mom's (Liz in Holliston - Red #dc2626)
+  ✅ PASS: Bennett with 'Swen kids' resolves to Dad's (Andrew in Millis - Maroon #800020)
+  ✅ PASS: Aria with 'Callie kids' resolves to Mom's (Callie in Millis - Maroon #800020)
+  ✅ PASS: Benjamin without 'Callie kids' defaults to Dad's (Chris in Franklin - Blue #2563eb)
+  ✅ PASS: Conflicting 'Liz kids' + 'Andrew kids' on same day falls back to error badge [ ! ]
+  ✅ PASS: Conflicting 'Callie kids' + 'Chris kids' on same day falls back to error badge [ ! ]
+  ✅ PASS: Bennett on non-'Liz kids' day defaults to Andrew (Dad's - Maroon)
+  ✅ PASS: Child with no-school event resolves to 'No School' badge
+  ✅ PASS: MPS No School applies to Aria (Millis)
+  ✅ PASS: MPS No School applies to Benjamin (Millis)
+  ✅ PASS: MPS No School strictly does NOT apply to Brighton (Holliston)
+  ✅ PASS: MPS No School strictly does NOT apply to Bennett (Holliston)
+  ✅ PASS: All-day event at UTC midnight resolves strictly to Friday Sept 4 (never Thursday Sept 3)
+  ✅ PASS: SchoolStatusBadge does NOT render redundant vegetarian badges
+  ✅ PASS: DailyFamilySummary extracts Callie for Ben/Aria
+  ✅ PASS: DailyFamilySummary extracts Liz for Brighton/Bennett
+  ✅ PASS: buildGoogleCalendarDirectUrl routes directly to Google Calendar day view to prevent 400/500 errors
+  ✅ PASS: AuthContext configures DAD_EMAIL as aswens@gmail.com
+  ✅ PASS: Header strictly gates the Admin button on Dad (aswens@gmail.com) login
+
+5. Testing Business Rules Engine & Dynamic AI Discovery...
+  ✅ PASS: OSFC event resolves to Aria
+  ✅ PASS: OSFC event category is 'OSFC Soccer'
+  ✅ PASS: OSFC event attaches '/icons/teams/osfc.png' logo
+  ✅ PASS: Adams orientation resolves to 'Adams Middle School'
+  ✅ PASS: Adams event attaches '/icons/schools/adams.png' logo
+  ✅ PASS: Millis event resolves to 'Millis Middle School'
+  ✅ PASS: Millis event attaches '/icons/schools/millis.png' logo
+  ✅ PASS: Millis Middle event resolves to Aria
+  ✅ PASS: CFB event resolves to 'Clyde F. Brown Elementary'
+  ✅ PASS: CFB event attaches '/icons/schools/cfb.png' logo
+  ✅ PASS: CFB event resolves to Benjamin
+  ✅ PASS: Field hockey event resolves to Brighton
+  ✅ PASS: Field hockey event category is 'Field Hockey'
+  ✅ PASS: Field hockey event attaches '/icons/teams/brighton_field_hockey.png' logo
+  ✅ PASS: '4th Grade Classroom Meet and Greet' resolves to 'Miller Elementary School'
+  ✅ PASS: Miller event attaches '/icons/schools/miller.png' logo
+  ✅ PASS: '4th Grade Classroom Meet and Greet' resolves to child 'Bennett'
+  ✅ PASS: Therapy session resolves to 'Therapy'
+  ✅ PASS: Therapy event attaches '/icons/general/therapy.png' logo
+  ✅ PASS: Brighton Therapy @ Coastal Counseling strictly maps to Brighton, not Aria
+  ✅ PASS: Dr. Urban visit resolves to 'Holliston Pediatrics'
+  ✅ PASS: Dr. Urban visit attaches '/icons/general/holliston_pediatrics.png' logo
+  ✅ PASS: AI Discovery matches Level99 event
+  ✅ PASS: AI Discovery correctly infers level99.com domain
+  ✅ PASS: AI Discovery identifies Level99 category
+  ✅ PASS: AI Discovery generates high-res candidate logo URL for Level99
+  ✅ PASS: AI Discovery dynamically resolves Urban Air to urbanair.com
+  ✅ PASS: AI Discovery resolves dance recital to performing arts badge
+
+ℹ️  Live server not active on ports 3000-3002: skipping live HTTP endpoint checks (running comprehensive component & static suite).
+
+8. Checking Component Structure, 4-Column Layout & Badges UI...
+  ✅ PASS: KidsColumnTimeline configures 4 child columns: Aria, Brighton, Benjamin, Bennett
+  ✅ PASS: KidsColumnTimeline integrates universal ChildHeader component
+  ✅ PASS: KidsColumnTimeline integrates annotations engine for custody and no-school badges
+  ✅ PASS: KidsColumnTimeline classifies unassigned activities into red 'Unknown / Uncategorized Events' section with question mark icon
+  ✅ PASS: KidsColumnTimeline includes subtle link icon to open Google Calendar invite
+  ✅ PASS: ChildHeader implements 50% larger avatars with consistent neutral borders
+  ✅ PASS: ChildHeader implements fixed-width non-jumping custody badges
+  ✅ PASS: ChildHeader implements vertical status badge stacking with deterministic priority
+  ✅ PASS: DashboardGrid removes bottom LunchWidget in favor of child calendar badges
+  ✅ PASS: ChildHeader supports interactive lunch badges
+  ✅ PASS: ChildLunchModal displays simplified unified bulleted menu list
+  ✅ PASS: ChildLunchModal excludes redundant district standard inclusions
+  ✅ PASS: Admin page implements 'General Overview' tab
+  ✅ PASS: Admin page implements 'Child Profiles & Schedules' tab
+  ✅ PASS: Admin page implements 'Family Calendar' tab
+  ✅ PASS: Admin page implements 'School Lunch' tab
+  ✅ PASS: Admin page implements Child Profiles Matrix table with row headers on the left
+  ✅ PASS: Admin page implements 1-click icon approval engine with handleApproveIcon
+  ✅ PASS: Admin page integrates visual Operational Pipeline Tracker
+  ✅ PASS: src/components/admin/PipelineTracker.tsx exists
+
+==========================================
+Test Results: 119 passed, 0 failed
+==========================================
+

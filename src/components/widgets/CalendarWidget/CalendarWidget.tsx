@@ -184,7 +184,7 @@ export function CalendarWidget() {
                         onClick={() =>
                           setActiveLunchModal({
                             childName: "Brighton",
-                            childColor: "#f472b6",
+                            childColor: "#f9a8d4",
                             avatarIcon: "/icons/children/brighton.png",
                             menu: {
                               ...lunchData.secondary![selectedDateStr],
@@ -307,7 +307,7 @@ export function CalendarWidget() {
                         onClick={() =>
                           setActiveLunchModal({
                             childName: "Brighton",
-                            childColor: "#f472b6",
+                            childColor: "#f9a8d4",
                             avatarIcon: "/icons/children/brighton.png",
                             menu: {
                               ...lunchData.secondary![selectedDateStr],

@@ -16,7 +16,7 @@ This registry serves two key purposes:
 | **Child ID** | `aria` | `brighton` | `benjamin` | `bennett` |
 | **Full Name** | Aria | Brighton | Benjamin | Bennett |
 | **Avatar Theme** | Glinda (Galinda) from *Wicked* | Elphaba from *Wicked* | *Fortnite* Supply Llama | *Moe's Tavern* (*The Simpsons*) |
-| **Signature Color** | Blue (`#3b82f6`) | Light Pink (`#f472b6`) | Red (`#ef4444`) | Green (`#22c55e`) |
+| **Signature Color** | Blue (`#3b82f6`) | Light Pink (`#f9a8d4`) | Red (`#ef4444`) | Green (`#22c55e`) |
 | **School** | **Millis Middle School** (Millis) | **Adams Middle School** (Holliston) | **CFB (Clyde F. Brown)** (Millis) | **Miller Elementary School** (Holliston) |
 | **Current Grade** | **7th Grade** | **6th Grade** | **5th Grade** | **4th Grade** |
 | **Homeroom / Teacher** | Millis 7th Grade Team | Adams 6th Grade Team | CFB 5th Grade Team | **Katie Pellegri** (Ms. Pellegri) |

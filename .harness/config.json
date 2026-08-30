@@ -1,0 +1,40 @@
+{
+  "project": {
+    "name": "swentonelli-dashboard",
+    "description": "Family kiosk dashboard and operational planning board"
+  },
+  "evaluation": {
+    "typecheckCommand": "npx tsc --noEmit",
+    "testCommand": "npm test",
+    "buildCheckCommand": "npm run build"
+  },
+  "git": {
+    "repoOwner": "Swensation",
+    "repoName": "swentonelli",
+    "defaultBranch": "main",
+    "proposalBranchPrefix": "proposal/functional-pr-",
+    "wipCommitPrefix": "wip(harness-candidate):",
+    "autoHealCommitPrefix": "fix(auto-heal):"
+  },
+  "paths": {
+    "specDirectory": "specs/proposals",
+    "targetSourceDirectories": ["src", "data", "config", "public"]
+  },
+  "llm": {
+    "primaryModel": "gemini-3.5-flash",
+    "fallbackModels": [
+      "gemini-2.5-flash",
+      "gemini-1.5-flash",
+      "gemini-3.1-flash-lite-preview",
+      "gemini-3.7-flash"
+    ],
+    "interTurnDelayMs": 4000,
+    "rateLimitBackoffMultiplierMs": 15000,
+    "maxTurnsPerTask": 20
+  },
+  "resilience": {
+    "maxAutoHealAttempts": 2,
+    "preserveDiffOnFailure": true
+  }
+}
+

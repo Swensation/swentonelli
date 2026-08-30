@@ -1,0 +1,60 @@
+name: "Harness: 2. Autonomous Coding & Verification Gate"
+
+on:
+  pull_request:
+    types: [edited, opened, synchronize]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: "PR Number to execute"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  execute-proposal:
+    # Trigger when user checks the Ready to execute box
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.action == 'edited' && contains(github.event.pull_request.body, '- [x] **Ready to execute**'))
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Resolve PR Info
+        id: pr_info
+        run: |
+          PR_NUM="${{ github.event.pull_request.number || github.event.inputs.pr_number }}"
+          echo "pr_number=$PR_NUM" >> $GITHUB_OUTPUT
+
+      - name: Checkout PR Branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 10
+          token: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Configure Git Author
+        run: |
+          git config user.name "Harness Coding Agent"
+          git config user.email "coder-agent@autonomous.local"
+
+      - name: Run Autonomous Coder
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ steps.pr_info.outputs.pr_number }}
+        run: |
+          npx tsx .harness/bin/run-coder.ts --pr ${{ steps.pr_info.outputs.pr_number }}
+

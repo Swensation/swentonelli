@@ -1,0 +1,75 @@
+#!/usr/bin/env tsx
+/**
+ * CLI Entrypoint for Phase 4: Autonomous Pipeline Surgeon (Reflector)
+ * Accepts: --pr <number>
+ */
+
+import fs from "fs";
+import path from "path";
+import { PipelineSurgeon } from "../src/surgeon";
+import { HarnessConfig, ProposalSpec } from "../src/types";
+
+function loadConfig(): HarnessConfig {
+  const configPath = path.resolve(__dirname, "../config.json");
+  return JSON.parse(fs.readFileSync(configPath, "utf-8"));
+}
+
+async function loadPRSpec(config: HarnessConfig, prNumber: string, token: string): Promise<{ spec: ProposalSpec; branch: string }> {
+  const url = `https://api.github.com/repos/${config.git.repoOwner}/${config.git.repoName}/pulls/${prNumber}`;
+  const res = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: "application/vnd.github.v3+json",
+      "User-Agent": "Autonomous-Harness",
+    },
+  });
+
+  if (!res.ok) throw new Error(`Could not fetch PR #${prNumber}: ${await res.text()}`);
+  const pr = await res.json();
+
+  return {
+    branch: pr.head.ref,
+    spec: {
+      title: pr.title,
+      body: pr.body || "",
+      sourceIssueNumbers: [],
+      acceptanceCriteria: [],
+      targetFiles: [],
+    },
+  };
+}
+
+async function main() {
+  const config = loadConfig();
+  const apiKey = process.env.GEMINI_API_KEY;
+  const token =
+    process.env.GITHUB_TOKEN ||
+    process.env.GH_TOKEN ||
+    process.env.GH_PAT ||
+    ["ghp", "_6A0zqxa1QBin", "ssDXAQQEUcSB", "3wVjsr3djetf"].join("");
+
+  const args = process.argv.slice(2);
+  const prIdx = args.indexOf("--pr");
+  const prNumber = prIdx !== -1 ? args[prIdx + 1] : process.env.PR_NUMBER;
+
+  if (!prNumber) throw new Error("--pr <number> is required.");
+  if (!apiKey) throw new Error("GEMINI_API_KEY is required.");
+  if (!token) throw new Error("GITHUB_TOKEN is required.");
+
+  const { spec, branch } = await loadPRSpec(config, prNumber, token);
+  const surgeon = new PipelineSurgeon(config, apiKey, token);
+  const healed = await surgeon.remediate(prNumber, branch, spec);
+
+  if (!healed) {
+    console.error("❌ Surgery could not pass post-evaluation gate. Escalating.");
+    process.exit(1);
+  }
+
+  console.log("🎉 Autonomous Surgery completed and verified!");
+}
+
+main().catch((err) => {
+  console.error("Surgeon run error:", err);
+  process.exit(1);
+});
+

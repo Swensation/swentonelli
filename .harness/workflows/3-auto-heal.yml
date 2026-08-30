@@ -1,0 +1,87 @@
+name: "Harness: 3. Autonomous Reflexion & Pipeline Surgeon"
+
+on:
+  workflow_run:
+    workflows:
+      - "Harness: 2. Autonomous Coding & Verification Gate"
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: "PR Number to auto-remediate"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  auto-remediate:
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'failure')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Resolve Pull Request Info
+        id: pr_context
+        uses: actions/github-script@v7
+        with:
+          script: |
+            let prNumber;
+            let branch = 'main';
+
+            if (context.eventName === 'workflow_dispatch') {
+              prNumber = context.payload.inputs.pr_number;
+              const { data: pr } = await github.rest.pulls.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: parseInt(prNumber, 10),
+              });
+              branch = pr.head.ref;
+            } else {
+              const prs = context.payload.workflow_run.pull_requests;
+              if (prs && prs.length > 0) {
+                prNumber = prs[0].number;
+                branch = prs[0].head.ref;
+              }
+            }
+
+            if (!prNumber) {
+              core.setFailed('Could not determine Pull Request number associated with failed run.');
+              return;
+            }
+
+            core.setOutput('pr_number', prNumber.toString());
+            core.setOutput('branch', branch);
+
+      - name: Checkout PR Branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.pr_context.outputs.branch }}
+          fetch-depth: 10
+          token: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Configure Git Author
+        run: |
+          git config user.name "Harness Surgeon Agent"
+          git config user.email "surgeon-agent@autonomous.local"
+
+      - name: Execute Autonomous Surgery
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ steps.pr_context.outputs.pr_number }}
+        run: |
+          npx tsx .harness/bin/run-surgeon.ts --pr ${{ steps.pr_context.outputs.pr_number }}
+

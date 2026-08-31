@@ -16,6 +16,12 @@
     "name": "Andrew",
     "color": "#10b981",
     "icsUrl": "https://calendar.google.com/calendar/ical/aswens%40gmail.com/private-10eff41c0105c29887cd79269b6ce061/basic.ics"
+  },
+  {
+    "id": "aria-osfc-soccer",
+    "name": "OSFC Girls U13",
+    "color": "#3b82f6",
+    "icsUrl": "https://calendar.google.com/calendar/ical/dno68vgi29lj52e9rg29ubn2dv3i3bri%40import.calendar.google.com/public/basic.ics"
   }
 ]
 

@@ -1,0 +1,81 @@
+# ==============================================================================
+# Swentonelli Family Dashboard - 1-Click Contributor PC Bootstrapper
+# ==============================================================================
+# Run from an elevated or standard PowerShell terminal:
+# irm https://raw.githubusercontent.com/Swensation/swentonelli/main/scripts/bootstrap-contributor.ps1 | iex
+# ==============================================================================
+
+$ErrorActionPreference = "Stop"
+
+Write-Host "==================================================================" -ForegroundColor Cyan
+Write-Host "🚀 Welcome to the Swentonelli Dashboard Contributor Setup!" -ForegroundColor Yellow
+Write-Host "==================================================================" -ForegroundColor Cyan
+Write-Host "Preparing this PC for autonomous development with Antigravity...`n"
+
+# 1. Ensure winget is available
+if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
+    Write-Error "winget was not found. Please update App Installer from the Microsoft Store first."
+    exit 1
+}
+
+# 2. Package manifest to install via winget
+$packages = @(
+    @{ Name = "Git for Windows"; Id = "Git.Git" },
+    @{ Name = "Node.js (LTS)"; Id = "OpenJS.NodeJS.LTS" },
+    @{ Name = "GitHub CLI"; Id = "GitHub.cli" },
+    @{ Name = "Visual Studio Code"; Id = "Microsoft.VisualStudioCode" },
+    @{ Name = "Python 3.12"; Id = "Python.Python.3.12" }
+)
+
+Write-Host "📦 Step 1 / 4: Checking and installing core developer toolchain..." -ForegroundColor Cyan
+foreach ($pkg in $packages) {
+    Write-Host "  • Checking $($pkg.Name) ($($pkg.Id))..." -NoNewline
+    $check = winget list --id $pkg.Id --exact 2>$null
+    if ($LASTEXITCODE -eq 0 -and $check -match $pkg.Id) {
+        Write-Host " [Already Installed] ✅" -ForegroundColor Green
+    } else {
+        Write-Host " [Installing via winget] ⏳" -ForegroundColor Yellow
+        winget install --id $pkg.Id --exact --silent --accept-source-agreements --accept-package-agreements
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "  • $($pkg.Name) installed successfully! ✅" -ForegroundColor Green
+        } else {
+            Write-Host "  ⚠️ Warning: Winget returned code $LASTEXITCODE for $($pkg.Name). Continuing..." -ForegroundColor DarkYellow
+        }
+    }
+}
+
+# 3. Refresh environment PATH in current PowerShell session
+$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+
+# 4. Clone or update repository in personal folder
+$targetDir = "$HOME\personal\swentonelli"
+Write-Host "`n📁 Step 2 / 4: Setting up local repository at $targetDir..." -ForegroundColor Cyan
+
+if (-not (Test-Path "$HOME\personal")) {
+    New-Item -ItemType Directory -Path "$HOME\personal" -Force | Out-Null
+}
+
+if (-not (Test-Path "$targetDir\.git")) {
+    Write-Host "  Cloning Swensation/swentonelli..." -ForegroundColor Yellow
+    git clone https://github.com/Swensation/swentonelli.git $targetDir
+} else {
+    Write-Host "  Repository already cloned. Pulling latest main..." -ForegroundColor Green
+    Push-Location $targetDir
+    git checkout main
+    git pull origin main
+    Pop-Location
+}
+
+# 5. Install Node dependencies
+Write-Host "`n📚 Step 3 / 4: Installing project dependencies (npm install)..." -ForegroundColor Cyan
+Push-Location $targetDir
+npm install
+Pop-Location
+
+# 6. Launch VS Code directly into the project
+Write-Host "`n🎉 Step 4 / 4: Launching Visual Studio Code..." -ForegroundColor Green
+code $targetDir
+
+Write-Host "`n==================================================================" -ForegroundColor Cyan
+Write-Host "✅ Setup Complete! Follow the prompt in docs/ONBOARDING.md" -ForegroundColor Yellow
+Write-Host "==================================================================" -ForegroundColor Cyan

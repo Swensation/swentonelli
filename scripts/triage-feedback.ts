@@ -140,7 +140,41 @@ Your job is to review raw dictated voice/text feedback issues from family member
   throw new Error("All Gemini models exhausted for triage synthesis.");
 }
 
-// 4. Update GitHub labels
+// 4. Dispatch Autonomous Coder Execution Workflow
+async function dispatchExecuteWorkflow(prNumber: number) {
+  try {
+    const res = await fetch(
+      `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/actions/workflows/execute-beagle-proposal.yml/dispatches`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${GITHUB_TOKEN}`,
+          Accept: "application/vnd.github.v3+json",
+          "Content-Type": "application/json",
+          "User-Agent": "Beagle-Triage-Engine",
+        },
+        body: JSON.stringify({
+          ref: "main",
+          inputs: { pr_number: prNumber.toString() },
+        }),
+      }
+    );
+
+    if (res.ok || res.status === 204) {
+      console.log(`🚀 [0-Touch Dispatch] Triggered execute-beagle-proposal.yml for PR #${prNumber}!`);
+      return true;
+    } else {
+      const errText = await res.text();
+      console.warn(`Could not dispatch execute workflow for PR #${prNumber}:`, errText);
+      return false;
+    }
+  } catch (err: any) {
+    console.warn(`Error dispatching execute workflow:`, err.message);
+    return false;
+  }
+}
+
+// 5. Update GitHub labels
 async function updateIssueLabels(issueNumber: number, addLabels: string[], removeLabels: string[]) {
   // Add labels
   if (addLabels.length > 0) {
@@ -326,9 +360,13 @@ Instructions:
    - UI & Dashboard Display
    - System & Housekeeping
 3. **Proposed Action Items**: For each actionable group, write the exact technical changes required, which files to inspect/modify, and verification steps.
-4. **Audio Tests & Noise**: If any issue is an audio test (e.g. "test 1 2 3", "testing mic") or contains unintelligible gibberish, explicitly include a line at the very end of your response formatted as: NOISE_ISSUES: [#num1, #num2]
-5. **No Metadata Headers**: DO NOT output metadata lines such as 'Date:', 'Reporter:', or 'Dashboard:'. Start directly with the proposals.
-6. Format the output in clean, readable Markdown with GitHub callouts.`;
+4. **Risk Assessment**: Classify the overall proposal batch into one of two risk tiers:
+   - If all action items are straightforward and non-breaking (e.g. adding or subscribing to a calendar, styling, colors, labels, text/copy, child icons, isolated helper logic), classify as LOW risk.
+   - If any action item involves authentication, database schema, major architectural redesign, or is ambiguous, classify as HIGH risk.
+   Include a line formatted as: RISK_TIER: [LOW|HIGH] - <one-line rationale>
+5. **Audio Tests & Noise**: If any issue is an audio test (e.g. "test 1 2 3", "testing mic") or contains unintelligible gibberish, explicitly include a line at the very end of your response formatted as: NOISE_ISSUES: [#num1, #num2]
+6. **No Metadata Headers**: DO NOT output metadata lines such as 'Date:', 'Reporter:', or 'Dashboard:'. Start directly with the proposals.
+7. Format the output in clean, readable Markdown with GitHub callouts.`;
 
   console.log("\n🧠 Synthesizing feedback with Google Gemini...");
   const proposalMarkdown = await callGeminiTriage(prompt);
@@ -475,6 +513,12 @@ ${cleanContent}`;
       return;
     }
 
+    // Determine Risk Tier from proposal
+    const isLowRiskProposal = /RISK_TIER:\s*LOW/i.test(proposalMarkdown) ||
+      (!/RISK_TIER:\s*HIGH/i.test(proposalMarkdown) && !/auth|database|security|breaking/i.test(proposalMarkdown));
+    const riskLabel = isLowRiskProposal ? "risk:low" : "risk:high";
+    console.log(`🛡️ Evaluated Proposal Risk Tier: ${isLowRiskProposal ? "LOW (0-Touch Auto-Approved)" : "HIGH (Needs Human Review)"}`);
+
     // CASE 3: No open PR exists -> Create a brand new branch and PR
     const branchName = `proposal/functional-pr-${timestamp}`;
     console.log(`\n🚀 Creating new proposal branch: ${branchName}...`);
@@ -487,9 +531,13 @@ ${cleanContent}`;
       if (!fs.existsSync(proposalDir)) fs.mkdirSync(proposalDir, { recursive: true });
       const proposalFile = path.join(proposalDir, `triage-${timestamp}.md`);
 
+      const checkboxLine = isLowRiskProposal
+        ? "- [x] **Ready to execute**: Auto-approved for 0-touch execution (Low Risk)"
+        : "- [ ] **Ready to execute**: Complex / High-risk request. Human review required.";
+
       const fullDoc = `# Beagle Triage Report & Implementation Proposal
 
-- [ ] **Ready to execute**: Check this box to start autonomous implementation
+${checkboxLine}
 
 > Triaged from Issues: ${pendingIssues.map((i) => `#${i.number}`).join(", ")}
 
@@ -507,7 +555,7 @@ ${cleanContent}
       console.log("📬 Opening GitHub Pull Request...");
       const prBody = `## Beagle Triage Report & Implementation Proposal
 
-- [ ] **Ready to execute**: Check this box to start autonomous implementation
+${checkboxLine}
 
 **Linked Issues**: ${pendingIssues.map((i) => `Closes #${i.number}`).join(", ")}
 
@@ -535,14 +583,26 @@ ${cleanContent}`;
         const prJson = await prRes.json();
         console.log(`✅ Pull Request Created: ${prJson.html_url}`);
 
-        // Update issue labels to status:triaged
+        // Add labels to PR
+        const prLabels = [riskLabel];
+        if (!isLowRiskProposal) prLabels.push("needs-human-review");
+        await updateIssueLabels(prJson.number, prLabels, []);
+
+        // Update issue labels to status:triaged and risk label
         for (const issue of pendingIssues) {
-          await updateIssueLabels(issue.number, ["status:triaged"], ["status:pending-triage"]);
+          const issueLabels = ["status:triaged", riskLabel];
+          if (!isLowRiskProposal) issueLabels.push("needs-human-review");
+          await updateIssueLabels(issue.number, issueLabels, ["status:pending-triage"]);
         }
-        console.log("🏷️ Updated issue labels to 'status:triaged'.");
-      } else {
-        const errText = await prRes.text();
-        throw new Error(`Failed to create PR: ${errText}`);
+        console.log("🏷️ Updated issue and PR labels.");
+
+        // For LOW RISK: Immediately trigger 0-touch execution in GitHub Actions
+        if (isLowRiskProposal) {
+          console.log(`🚀 [0-Touch Automation] Triggering autonomous coder for low-risk PR #${prJson.number}...`);
+          await dispatchExecuteWorkflow(prJson.number);
+        } else {
+          console.log(`⏸️ [Human Gate] PR #${prJson.number} tagged with 'needs-human-review'. Awaiting Andrew's approval.`);
+        }
       }
     } catch (err: any) {
       console.error("Error during PR creation flow:", err.message);

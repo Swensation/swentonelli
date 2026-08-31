@@ -132,17 +132,22 @@ export class AutonomousSimulator {
     }
     console.log(`  ✅ Functional PR #${targetPr.number} detected: "${targetPr.title}"`);
 
-    // Step 4: Programmatically Check the Execution Box
-    console.log(`\n☑️ Step 4 / 6: Programmatically toggling execution trigger on PR #${targetPr.number}...`);
-    const checkedBody = targetPr.body.replace(
-      "- [ ] **Ready to execute**",
-      "- [x] **Ready to execute**"
-    );
-    await this.fetchGithub(`/pulls/${targetPr.number}`, {
-      method: "PATCH",
-      body: JSON.stringify({ body: checkedBody }),
-    });
-    console.log("  ✅ Execution box checked. Cloud coder runner triggered!");
+    // Step 4: Verify or Trigger Autonomous Execution
+    console.log(`\n☑️ Step 4 / 6: Inspecting execution trigger on PR #${targetPr.number}...`);
+    if (targetPr.body && targetPr.body.includes("- [x] **Ready to execute**")) {
+      console.log("  🚀 PR was already auto-approved & dispatched via 0-touch low-risk tier!");
+    } else {
+      console.log("  ℹ️ Gated PR requires human trigger; programmatically checking execution box...");
+      const checkedBody = targetPr.body.replace(
+        "- [ ] **Ready to execute**",
+        "- [x] **Ready to execute**"
+      );
+      await this.fetchGithub(`/pulls/${targetPr.number}`, {
+        method: "PATCH",
+        body: JSON.stringify({ body: checkedBody }),
+      });
+      console.log("  ✅ Execution box checked. Cloud coder runner triggered!");
+    }
 
     // Step 5: Poll for Execution and Auto-Merge Completion
     console.log("\n🚀 Step 5 / 6: Monitoring autonomous execution & auto-merge gate...");

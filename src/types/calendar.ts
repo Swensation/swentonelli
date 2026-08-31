@@ -32,6 +32,7 @@ export interface CalendarEvent {
   url?: string;
   isHappeningNow?: boolean;
   minutesUntilStart?: number;
+  status?: string;
   enrichment?: EventEnrichment;
 }
 

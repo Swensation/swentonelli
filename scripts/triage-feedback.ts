@@ -360,13 +360,14 @@ Instructions:
    - UI & Dashboard Display
    - System & Housekeeping
 3. **Proposed Action Items**: For each actionable group, write the exact technical changes required, which files to inspect/modify, and verification steps.
-4. **Risk Assessment**: Classify the overall proposal batch into one of two risk tiers:
+4. **Resource Verification Requirement**: For any request to connect to an external resource (e.g. calendar ICS feed, school lunch URL, API endpoint), explicitly state the exact direct feed URL (e.g. direct TeamSnap, SportsEngine, or private iCal token) and state that it must be validated for HTTP 200 reachability before merge.
+5. **Risk Assessment**: Classify the overall proposal batch into one of two risk tiers:
    - If all action items are straightforward and non-breaking (e.g. adding or subscribing to a calendar, styling, colors, labels, text/copy, child icons, isolated helper logic), classify as LOW risk.
    - If any action item involves authentication, database schema, major architectural redesign, or is ambiguous, classify as HIGH risk.
    Include a line formatted as: RISK_TIER: [LOW|HIGH] - <one-line rationale>
-5. **Audio Tests & Noise**: If any issue is an audio test (e.g. "test 1 2 3", "testing mic") or contains unintelligible gibberish, explicitly include a line at the very end of your response formatted as: NOISE_ISSUES: [#num1, #num2]
-6. **No Metadata Headers**: DO NOT output metadata lines such as 'Date:', 'Reporter:', or 'Dashboard:'. Start directly with the proposals.
-7. Format the output in clean, readable Markdown with GitHub callouts.`;
+6. **Audio Tests & Noise**: If any issue is an audio test (e.g. "test 1 2 3", "testing mic") or contains unintelligible gibberish, explicitly include a line at the very end of your response formatted as: NOISE_ISSUES: [#num1, #num2]
+7. **No Metadata Headers**: DO NOT output metadata lines such as 'Date:', 'Reporter:', or 'Dashboard:'. Start directly with the proposals.
+8. Format the output in clean, readable Markdown with GitHub callouts.`;
 
   console.log("\n🧠 Synthesizing feedback with Google Gemini...");
   const proposalMarkdown = await callGeminiTriage(prompt);

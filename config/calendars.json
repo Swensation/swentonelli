@@ -21,7 +21,7 @@
     "id": "aria-osfc-soccer",
     "name": "OSFC Girls U13",
     "color": "#3b82f6",
-    "icsUrl": "https://calendar.google.com/calendar/ical/dno68vgi29lj52e9rg29ubn2dv3i3bri%40import.calendar.google.com/public/basic.ics"
+    "icsUrl": "https://calendar-api.teamsnap.com/v1/team.ics?token=5WvRqU7KOIBT4iYZXuQnvbpQsoqg1kx9fqvpM7gDS2mNQMezJrlaQhMQhKu-MjkZ&teamId=019e9825-8522-7d6a-8499-8f3599c44588&v=1787587802947"
   }
 ]
 

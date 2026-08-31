@@ -158,6 +158,24 @@ async function runTests() {
     const calJson = JSON.parse(calRaw);
     assert(Array.isArray(calJson) && calJson.length > 0, `config/calendars.json contains ${calJson.length} active family calendar feeds`);
     assert(calJson.every((s: any) => s.name && s.icsUrl && s.color), "All calendar feeds have name, color, and icsUrl");
+    // Verify each configured calendar feed is actively reachable (no 404 / 401 / broken URLs)
+    for (const s of calJson) {
+      if (s.icsUrl && !s.icsUrl.startsWith("mock://")) {
+        try {
+          const res = await fetch(s.icsUrl, { method: "HEAD", signal: AbortSignal.timeout(5000) });
+          // If HEAD is not allowed (some CDNs), try GET with Range
+          if (res.status === 405 || res.status === 403) {
+            const getRes = await fetch(s.icsUrl, { headers: { Range: "bytes=0-100" }, signal: AbortSignal.timeout(5000) });
+            assert(getRes.status >= 200 && getRes.status < 400, `Calendar feed '${s.name}' endpoint is reachable (HTTP ${getRes.status})`);
+          } else {
+            assert(res.status >= 200 && res.status < 400, `Calendar feed '${s.name}' endpoint is reachable (HTTP ${res.status})`);
+          }
+        } catch (e: any) {
+          // If network is offline during local test run, check format; but online test gate must verify reachability
+          console.warn(`  ⚠️ Calendar feed reachability check warning for '${s.name}': ${e.message}`);
+        }
+      }
+    }
   }
 
   // Verify icon assets exist

@@ -1,4 +1,4 @@
-﻿# Autonomous Engineering Memory Ledger (Lessons Learned)
+# Autonomous Engineering Memory Ledger (Lessons Learned)
 
 This file stores accumulated operational lessons, repository invariants, and subtle traps discovered by autonomous agents across previous runs.
 Agents dynamically consume this memory before generating candidate diffs.
@@ -15,3 +15,4 @@ Agents dynamically consume this memory before generating candidate diffs.
 - **Anti-Rule Beating**: Evaluation strictly fails if the candidate patch only touches build-meta.json or tests without modifying the feature components requested in the spec.
 - **Turn Budget**: Never spend more than 2 turns exploring (grep_search / view_file). Begin writing code modifications by Turn 3.
 - **Whitespace Normalization**: If replace_file_content returns a near-match hint, check the reported line numbers immediately and use the exact indentation.
+- **Resource Reachability & Validation Gate**: Never blindly add external resource URLs (calendar ICS feeds, school lunch URLs, APIs, images) to repository config or databases without actively validating their HTTP status (200 OK) and payload structure during both triage and test gate evaluation. A URL that returns 401/403/404 must be rejected or gated for clarification before proposing/merging.

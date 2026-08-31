@@ -190,6 +190,7 @@ export async function fetchCalendarAgenda(): Promise<CalendarAgenda> {
           if (!Object.prototype.hasOwnProperty.call(icsData, k)) continue;
           const ev = icsData[k];
           if (!ev || ev.type !== "VEVENT") continue;
+          if (String(ev.status).toUpperCase() === "CANCELLED") continue;
 
           const summary = ev.summary || "Untitled Event";
           const description = ev.description ? String(ev.description) : undefined;

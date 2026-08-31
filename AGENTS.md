@@ -13,4 +13,5 @@ See global preferences in `~/.gemini/config/plugins/user-preferences-plugin/rule
    - Active Loop
    - Delays & Velocity
 4. **Tooling Parity Invariant**: Cloud runners in GitHub Actions must execute with the exact same high-conviction tools (`replace_file_content`, `grep_search`, slice-based `view_file`) as local Antigravity sessions. Primitive shell paging loops (`sed`/`cat`) are strictly prohibited.
+5. **External Resource Validation Invariant**: Any external resource URL added to the system (calendar ICS feeds, school lunch URLs, APIs, images) must be actively probed for HTTP 200 reachability and payload integrity before being merged. Unreachable or unauthenticated URLs (401/403/404) must fail the evaluation gate or be tagged for human review.
 

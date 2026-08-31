@@ -5,6 +5,7 @@
 # irm https://raw.githubusercontent.com/Swensation/swentonelli/main/scripts/bootstrap-contributor.ps1 | iex
 # ==============================================================================
 
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force -ErrorAction SilentlyContinue
 $ErrorActionPreference = "Stop"
 
 Write-Host "==================================================================" -ForegroundColor Cyan
@@ -44,8 +45,26 @@ foreach ($pkg in $packages) {
     }
 }
 
-# 3. Refresh environment PATH in current PowerShell session
+# 3. Refresh environment PATH in current PowerShell session & inject known install paths
 $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+$knownPaths = @(
+    "C:\Program Files\Git\cmd",
+    "C:\Program Files\Git\bin",
+    "C:\Program Files\nodejs",
+    "C:\Program Files\GitHub CLI",
+    "$env:LOCALAPPDATA\Programs\Microsoft VS Code\bin",
+    "C:\Program Files\Microsoft VS Code\bin",
+    "$env:LOCALAPPDATA\Programs\Python\Python312",
+    "$env:LOCALAPPDATA\Programs\Python\Python312\Scripts",
+    "C:\Program Files\Python312",
+    "C:\Program Files\Python312\Scripts",
+    "$env:APPDATA\npm"
+)
+foreach ($p in $knownPaths) {
+    if ((Test-Path $p) -and ($env:Path -notlike "*$p*")) {
+        $env:Path = "$p;$env:Path"
+    }
+}
 
 # 4. Clone or update repository in personal folder
 $targetDir = "$HOME\personal\swentonelli"
@@ -66,6 +85,12 @@ if (-not (Test-Path "$targetDir\.git")) {
     Pop-Location
 }
 
+# Create .env.local if not present
+if (-not (Test-Path "$targetDir\.env.local") -and (Test-Path "$targetDir\.env.example")) {
+    Copy-Item "$targetDir\.env.example" "$targetDir\.env.local"
+    Write-Host "  Created initial .env.local from template ✅" -ForegroundColor Green
+}
+
 # 5. Install Node dependencies
 Write-Host "`n📚 Step 3 / 4: Installing project dependencies (npm install)..." -ForegroundColor Cyan
 Push-Location $targetDir
@@ -74,8 +99,14 @@ Pop-Location
 
 # 6. Launch VS Code directly into the project
 Write-Host "`n🎉 Step 4 / 4: Launching Visual Studio Code..." -ForegroundColor Green
-code $targetDir
+if (Get-Command code -ErrorAction SilentlyContinue) {
+    code $targetDir
+} else {
+    Write-Host "  VS Code installed. Open VS Code and open folder $targetDir." -ForegroundColor Yellow
+}
 
 Write-Host "`n==================================================================" -ForegroundColor Cyan
-Write-Host "✅ Setup Complete! Follow the prompt in docs/ONBOARDING.md" -ForegroundColor Yellow
+Write-Host "✅ Setup Complete!" -ForegroundColor Green
+Write-Host "👉 In VS Code Antigravity chat, paste this single prompt:" -ForegroundColor Yellow
+Write-Host '   "Please get Bennett (my son) able to contribute at the same level that Dad is. Configure my git identity, verify my GitHub and Gemini credentials, test my local server, and guide me through any remaining human input."' -ForegroundColor White
 Write-Host "==================================================================" -ForegroundColor Cyan

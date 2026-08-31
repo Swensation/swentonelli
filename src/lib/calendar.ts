@@ -184,7 +184,20 @@ export async function fetchCalendarAgenda(): Promise<CalendarAgenda> {
       if (!source.icsUrl) return;
 
       try {
-        const icsData = await ical.async.fromURL(source.icsUrl);
+        const res = await fetch(source.icsUrl, {
+          headers: { "User-Agent": "Scouty-Planner-Calendar/1.0" },
+        });
+        if (!res.ok) {
+          console.warn(`Calendar source '${source.name}' returned HTTP ${res.status}`);
+          return;
+        }
+        const rawIcs = await res.text();
+        // Normalize line endings and repair bare CR / malformed closing tags (e.g. TeamSnap trailing \rEND:VCALENDAR)
+        const normalizedIcs = rawIcs
+          .replace(/\rEND:VCALENDAR/g, "\r\nEND:VCALENDAR")
+          .replace(/\r(?!\n)/g, "\r\n");
+
+        const icsData = ical.sync.parseICS(normalizedIcs);
 
         for (const k in icsData) {
           if (!Object.prototype.hasOwnProperty.call(icsData, k)) continue;

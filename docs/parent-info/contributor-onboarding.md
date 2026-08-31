@@ -25,7 +25,7 @@ irm https://raw.githubusercontent.com/Swensation/swentonelli/main/scripts/bootst
 
 In VS Code, open the **Antigravity** chat assistant and copy-paste this prompt:
 
-> **"Please get Bennett (my son) able to contribute at the same level that Dad is. Configure my git identity, verify my GitHub and Gemini credentials, test my local server, and guide me through any remaining human input."**
+> **"Please help Bennett (my son) sign up for GitHub and get able to contribute at the same level that Dad is. Help me create my GitHub account and git identity, connect my Gemini credentials, test my local server, and guide me through any remaining steps."**
 
 ---
 
@@ -33,18 +33,20 @@ In VS Code, open the **Antigravity** chat assistant and copy-paste this prompt:
 
 When the agent receives that prompt, it runs through the automated checklist below:
 
-### 1. Git Identity & GitHub Authentication
-- Configures local Git identity:
+### 1. GitHub Account Sign-Up & Authentication
+- If you don't have a GitHub account yet:
+  - Directs you to [github.com/signup](https://github.com/signup) to create your free GitHub account using your family Google/Gmail address.
+- Configures your local Git identity:
   ```powershell
   git config --global user.name "Bennett Swenson"
-  git config --global user.email "<bennett-email>@gmail.com"
+  git config --global user.email "<your-email>@gmail.com"
   ```
-- Prompts for GitHub authentication via GitHub CLI:
+- Authenticates with GitHub CLI:
   ```powershell
   gh auth login --web
   ```
-  *(Opens browser where you log into your personal GitHub account and approve with 1 click).*
-- Checks access to `Swensation/swentonelli` (or asks Dad to add your GitHub username as an Outside Collaborator with Write access).
+  *(Opens your browser to link your new GitHub account with 1 click).*
+- Prompts Dad to add your new GitHub username as an Outside Collaborator on `Swensation/swentonelli` with Write access.
 
 ### 2. Environment & Google Gemini API Setup
 - Checks `.env.local`:
@@ -53,8 +55,9 @@ When the agent receives that prompt, it runs through the automated checklist bel
   - Guides you to enter the key safely.
 
 ### 3. Local Verification & First Test
-- Runs `npm test` to verify all 156 test checks pass on your machine.
+- Runs `npm test` to verify all tests pass cleanly on your machine.
 - Launches `npm run dev` to verify `http://localhost:3000` loads the 4-column family dashboard with your Moe's Tavern avatar!
+
 
 ---
 

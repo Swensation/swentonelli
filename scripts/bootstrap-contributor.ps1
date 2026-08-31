@@ -108,5 +108,6 @@ if (Get-Command code -ErrorAction SilentlyContinue) {
 Write-Host "`n==================================================================" -ForegroundColor Cyan
 Write-Host "✅ Setup Complete!" -ForegroundColor Green
 Write-Host "👉 In VS Code Antigravity chat, paste this single prompt:" -ForegroundColor Yellow
-Write-Host '   "Please get Bennett (my son) able to contribute at the same level that Dad is. Configure my git identity, verify my GitHub and Gemini credentials, test my local server, and guide me through any remaining human input."' -ForegroundColor White
+Write-Host '   "Please help Bennett (my son) sign up for GitHub and get able to contribute at the same level that Dad is. Help me create my GitHub account and git identity, connect my Gemini credentials, test my local server, and guide me through any remaining steps."' -ForegroundColor White
 Write-Host "==================================================================" -ForegroundColor Cyan
+

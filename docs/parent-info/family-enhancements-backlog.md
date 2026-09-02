@@ -33,6 +33,7 @@ This document tracks future hardware integrations, automation ideas, and househo
 | **The Weather Wardrobe Advisor** | Stop the morning arguments about whether someone needs a coat. | Weather API & Dashboard UI | Every morning, the dashboard displays a clear, emoji-based recommendation for what to wear based on the local weather forecast (e.g., 🧥 for coats, ☂️ for rain). |
 | **The 'Is Dad in a Meeting?' Indicator** | Prevent accidental interruptions when working from home. | Dad's Work Calendar API & Smart Outlet (controlling an indicator light) | When Dad's calendar shows a meeting, a red light turns on outside his office, and the dashboard clearly states *"Dad is on a call"*. |
 | **The Meal Plan Broadcaster** | Stop the daily *"What's for dinner?"* question before it starts. | Shared Recipe Doc/API & Dashboard UI | The dashboard prominently displays tonight's planned dinner, complete with an estimated time and a list of who is helping prep. |
+| **The External Calendar Aggregator** | Ingest and route fragmented external schedule feeds (therapy, sports, school, medical) per child across multiple households. | iCal / JaneApp / TeamSnap / RFC 5545 Feeds & Dashboard Engine | When a therapy clinic (e.g. JaneApp) or sports league adds or updates an appointment on their external calendar, the event automatically populates the correct child's column without needing manual entry into a shared Google Calendar. |
 
 ---
 

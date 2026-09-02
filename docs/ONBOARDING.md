@@ -5,17 +5,33 @@ This guide lets Dad set up your PC with a single PowerShell line, and then hands
 
 ---
 
-## ⚡ Step 1: The 1-Click PC Bootstrapper (Run Once in PowerShell)
+## ⚡ Step 1: Contributor Bootstrapper (Choose Your System)
 
-On your PC, open **PowerShell** (press `Win + X` and select **Terminal** or **PowerShell**) and paste this single command:
-
+### Option A: Windows (PowerShell)
+On your PC, open **PowerShell** (press `Win + X` and select **Terminal** or **PowerShell**) and paste:
 ```powershell
 irm https://raw.githubusercontent.com/Swensation/swentonelli/main/scripts/bootstrap-contributor.ps1 | iex
 ```
 
+### Option B: Windows (Command Prompt / `cmd.exe` — No PowerShell shortcut)
+If you don't have a PowerShell shortcut or are in standard Command Prompt:
+```cmd
+powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/Swensation/swentonelli/main/scripts/bootstrap-contributor.ps1 | iex"
+```
+*Or install directly via `winget` in Command Prompt:*
+```cmd
+winget install Git.Git OpenJS.NodeJS.LTS GitHub.cli Microsoft.VisualStudioCode Python.Python.3.12
+```
+
+### Option C: macOS / Linux (Terminal)
+Open Terminal and run:
+```bash
+curl -fsSL https://raw.githubusercontent.com/Swensation/swentonelli/main/scripts/bootstrap-contributor.sh | bash
+```
+
 ### What this automatically does:
-1. Installs **Git for Windows**, **Node.js (LTS)**, **GitHub CLI (`gh`)**, **Python 3.12**, and **Visual Studio Code** via Windows Package Manager (`winget`).
-2. Clones the project into `C:\Users\<username>\personal\swentonelli`.
+1. Installs **Git**, **Node.js (LTS)**, **GitHub CLI (`gh`)**, and **Visual Studio Code**.
+2. Clones the project into your personal workspace (`personal/swentonelli`).
 3. Runs `npm install` to download all project libraries and engines.
 4. Opens **Visual Studio Code** directly into the project.
 
@@ -25,7 +41,7 @@ irm https://raw.githubusercontent.com/Swensation/swentonelli/main/scripts/bootst
 
 In VS Code, open the **Antigravity** chat assistant and copy-paste this prompt:
 
-> **"Please help Bennett (my son) sign up for GitHub and get able to contribute at the same level that Dad is. Help me create my GitHub account and git identity, connect my Gemini credentials, test my local server, and guide me through any remaining steps."**
+> **"Please get Bennett (my son) able to contribute at the same level that Dad is. Configure my git identity, verify my GitHub and Gemini credentials, test my local server, and guide me through any remaining human input."**
 
 ---
 
@@ -33,20 +49,18 @@ In VS Code, open the **Antigravity** chat assistant and copy-paste this prompt:
 
 When the agent receives that prompt, it runs through the automated checklist below:
 
-### 1. GitHub Account Sign-Up & Authentication
-- If you don't have a GitHub account yet:
-  - Directs you to [github.com/signup](https://github.com/signup) to create your free GitHub account using your family Google/Gmail address.
-- Configures your local Git identity:
+### 1. Git Identity & GitHub Authentication
+- Configures local Git identity:
   ```powershell
   git config --global user.name "Bennett Swenson"
-  git config --global user.email "<your-email>@gmail.com"
+  git config --global user.email "<bennett-email>@gmail.com"
   ```
-- Authenticates with GitHub CLI:
+- Prompts for GitHub authentication via GitHub CLI:
   ```powershell
   gh auth login --web
   ```
-  *(Opens your browser to link your new GitHub account with 1 click).*
-- Prompts Dad to add your new GitHub username as an Outside Collaborator on `Swensation/swentonelli` with Write access.
+  *(Opens browser where you log into your personal GitHub account and approve with 1 click).*
+- Checks access to `Swensation/swentonelli` (or asks Dad to add your GitHub username as an Outside Collaborator with Write access).
 
 ### 2. Environment & Google Gemini API Setup
 - Checks `.env.local`:
@@ -55,9 +69,8 @@ When the agent receives that prompt, it runs through the automated checklist bel
   - Guides you to enter the key safely.
 
 ### 3. Local Verification & First Test
-- Runs `npm test` to verify all tests pass cleanly on your machine.
+- Runs `npm test` to verify all 156 test checks pass on your machine.
 - Launches `npm run dev` to verify `http://localhost:3000` loads the 4-column family dashboard with your Moe's Tavern avatar!
-
 
 ---
 

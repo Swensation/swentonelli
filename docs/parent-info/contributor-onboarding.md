@@ -5,17 +5,33 @@ This guide lets Dad set up your PC with a single PowerShell line, and then hands
 
 ---
 
-## ⚡ Step 1: The 1-Click PC Bootstrapper (Run Once in PowerShell)
+## ⚡ Step 1: Contributor Bootstrapper (Choose Your System)
 
-On your PC, open **PowerShell** (press `Win + X` and select **Terminal** or **PowerShell**) and paste this single command:
-
+### Option A: Windows (PowerShell)
+On your PC, open **PowerShell** (press `Win + X` and select **Terminal** or **PowerShell**) and paste:
 ```powershell
 irm https://raw.githubusercontent.com/Swensation/swentonelli/main/scripts/bootstrap-contributor.ps1 | iex
 ```
 
+### Option B: Windows (Command Prompt / `cmd.exe` — No PowerShell shortcut)
+If you don't have a PowerShell shortcut or are in standard Command Prompt:
+```cmd
+powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/Swensation/swentonelli/main/scripts/bootstrap-contributor.ps1 | iex"
+```
+*Or install directly via `winget` in Command Prompt:*
+```cmd
+winget install Git.Git OpenJS.NodeJS.LTS GitHub.cli Microsoft.VisualStudioCode Python.Python.3.12
+```
+
+### Option C: macOS / Linux (Terminal)
+Open Terminal and run:
+```bash
+curl -fsSL https://raw.githubusercontent.com/Swensation/swentonelli/main/scripts/bootstrap-contributor.sh | bash
+```
+
 ### What this automatically does:
-1. Installs **Git for Windows**, **Node.js (LTS)**, **GitHub CLI (`gh`)**, **Python 3.12**, and **Visual Studio Code** via Windows Package Manager (`winget`).
-2. Clones the project into `C:\Users\<username>\personal\swentonelli`.
+1. Installs **Git**, **Node.js (LTS)**, **GitHub CLI (`gh`)**, and **Visual Studio Code**.
+2. Clones the project into your personal workspace (`personal/swentonelli`).
 3. Runs `npm install` to download all project libraries and engines.
 4. Opens **Visual Studio Code** directly into the project.
 

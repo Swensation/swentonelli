@@ -21,26 +21,25 @@ if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
 
 # 2. Package manifest to install via winget
 $packages = @(
-    @{ Name = "Git for Windows"; Id = "Git.Git" },
-    @{ Name = "Node.js (LTS)"; Id = "OpenJS.NodeJS.LTS" },
-    @{ Name = "GitHub CLI"; Id = "GitHub.cli" },
-    @{ Name = "Visual Studio Code"; Id = "Microsoft.VisualStudioCode" },
-    @{ Name = "Python 3.12"; Id = "Python.Python.3.12" }
+    @{ Name = "Git for Windows"; Id = "Git.Git"; Cmd = "git" },
+    @{ Name = "Node.js (LTS)"; Id = "OpenJS.NodeJS.LTS"; Cmd = "node" },
+    @{ Name = "GitHub CLI"; Id = "GitHub.cli"; Cmd = "gh" },
+    @{ Name = "Visual Studio Code"; Id = "Microsoft.VisualStudioCode"; Cmd = "code" },
+    @{ Name = "Python 3.12"; Id = "Python.Python.3.12"; Cmd = "python" }
 )
 
 Write-Host "📦 Step 1 / 4: Checking and installing core developer toolchain..." -ForegroundColor Cyan
 foreach ($pkg in $packages) {
-    Write-Host "  • Checking $($pkg.Name) ($($pkg.Id))..." -NoNewline
-    $check = winget list --id $pkg.Id --exact 2>$null
-    if ($LASTEXITCODE -eq 0 -and $check -match $pkg.Id) {
+    Write-Host "  • Checking $($pkg.Name)..." -NoNewline
+    if (Get-Command $pkg.Cmd -ErrorAction SilentlyContinue) {
         Write-Host " [Already Installed] ✅" -ForegroundColor Green
     } else {
         Write-Host " [Installing via winget] ⏳" -ForegroundColor Yellow
-        winget install --id $pkg.Id --exact --silent --accept-source-agreements --accept-package-agreements
+        winget install --id $pkg.Id --exact --accept-source-agreements --accept-package-agreements --disable-interactivity
         if ($LASTEXITCODE -eq 0) {
             Write-Host "  • $($pkg.Name) installed successfully! ✅" -ForegroundColor Green
         } else {
-            Write-Host "  ⚠️ Warning: Winget returned code $LASTEXITCODE for $($pkg.Name). Continuing..." -ForegroundColor DarkYellow
+            Write-Host "  ⚠️ Winget status code $LASTEXITCODE for $($pkg.Name). Continuing..." -ForegroundColor DarkYellow
         }
     }
 }

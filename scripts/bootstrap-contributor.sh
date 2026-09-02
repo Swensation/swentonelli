@@ -102,3 +102,4 @@ echo "✅ Setup Complete!"
 echo "👉 In VS Code Antigravity chat, paste this prompt:"
 echo '   "Please get Bennett (my son) able to contribute at the same level that Dad is. Configure my git identity, verify my GitHub and Gemini credentials, test my local server, and guide me through any remaining human input."'
 echo "=================================================================="
+

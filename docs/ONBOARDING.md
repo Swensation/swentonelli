@@ -2,62 +2,57 @@
 
 Welcome to the **Swentonelli Family Engineering Team**! 🚀  
 
-![Swentonelli Family Dashboard](../live-screenshot.png)
-
 ---
 
 ## 🚀 We Have Many Options How to Contribute!
-*(Choose the way that feels easiest and most fun for you!)*
 
 ```mermaid
 flowchart TD
     Start([How do you want to contribute?]) --> Q1{Want to install anything?}
     
     Q1 -->|No, keep it in browser| Q2{What are you doing?}
-    Q2 -->|Quick request / daily check-in| Opt1["✨ Option 1: The Beagle Chat<br><i>(On the dashboard webpage)</i>"]
-    Q2 -->|Brainstorm new ideas & widgets| Opt2["💬 Option 2: Gemini Web Chat<br><i>(gemini.google.com)</i>"]
+    Q2 -->|Send a feature request| Beagle["✨ The Beagle Chat<br><i>(On the planner)</i>"]
+    Q2 -->|Brainstorm new ideas & widgets| Gem["💬 Gemini in Browser<br><i>(gemini.google.com)</i>"]
     
     Q1 -->|Yes, install an app| Q3{Want to write raw code?}
-    Q3 -->|No, just talk with AI| Opt3["🤖 Option 3: Antigravity Desktop App<br><i>(Pure chat for Mac & Windows)</i>"]
-    Q3 -->|Yes, code & test everything| Opt4["💻 Option 4: VS Code + Antigravity<br><i>(Full developer setup)</i>"]
+    Q3 -->|No, just talk with AI| AG["🤖 Antigravity Desktop App<br><i>(Pure chat for Mac & Windows)</i>"]
+    Q3 -->|Yes, code & test everything| VSC["💻 VS Code + Antigravity<br><i>(Desktop Developer IDE)</i>"]
 
     classDef optBox fill:#f0fdf4,stroke:#16a34a,stroke-width:2px,color:#15803d;
-    class Opt1,Opt2,Opt3,Opt4 optBox;
+    class Beagle,Gem,AG,VSC optBox;
 ```
 
-| Option | From Where | Example Thing You Can Do | Get Started |
+| Option | From | Capability | Example |
 | :--- | :--- | :--- | :--- |
-| **1. The Beagle Chat** | Directly on the dashboard webpage | *"Vote thumbs-up on Friday tacos"*, *"Scout ate breakfast"* | [Go to Option 1](#option-1-the-beagle-chat-on-the-webpage) |
-| **2. Gemini Chat in Browser** | Any web browser (`gemini.google.com`) | *"Design a summer countdown widget with confetti"* | [Go to Option 2](#option-2-gemini-chat-in-browser) |
-| **3. Antigravity Desktop App** | Desktop app on your Mac or PC | *"Make sports events purple and add a picture day badge"* | [Go to Option 3](#option-3-antigravity-desktop-app) |
-| **4. VS Code + Antigravity** | Full developer setup on your PC | Write code, build widgets, run tests, push Git branches | [Go to Option 4](#option-4-vs-code--antigravity-full-developer) |
+| **[The Beagle Chat](#the-beagle-chat)** | On the Planner | Send feature requests directly; AI attempts automatic implementation or funnels to Dad | *"Add a reminder badge for picture day"*, *"Highlight Friday pizza days in yellow"* |
+| **[Gemini in Browser](#gemini-in-browser)** | [Gemini in Browser](https://gemini.google.com) | Brainstorm and draft complete feature blueprints & specs | *"Design a summer countdown widget with confetti"* |
+| **[Antigravity Desktop App](#antigravity-desktop-app)** | Desktop App | Conversational AI workspace on your Mac or PC with zero code clutter | *"Make soccer events green and adjust the timeline layout"* |
+| **[VS Code + Antigravity](#vs-code--antigravity)** | Desktop Developer IDE | Full code editing, automated test suite verification, and Git branches | Write React components, add backend APIs, run test suites |
 
 ---
 
 ## 🛠️ Instructions
 
-### Option 1: The Beagle Chat (On the Webpage)
-* **Where to go**: Open the family dashboard on your iPad, phone, or laptop.
-* **Setup required**: None!
-* **Steps**:
-  1. Click the **"✨ Suggest Idea / Request Change"** button on the screen.
-  2. Type or speak what you'd like (e.g. *"Change my avatar"*, *"Vote for pizza on Tuesday"*).
-  3. The system updates your preferences instantly.
+### The Beagle Chat
+* **From**: Right on the live family planner webpage.
+* **How it works**:
+  1. Click the **"✨ Suggest Idea / Request Change"** button on the planner screen.
+  2. Type or voice-record your feature request.
+  3. Our autonomous AI pipeline attempts to implement and test the change automatically, or funnels the request to Dad if human approval is needed.
 
 ---
 
-### Option 2: Gemini Chat in Browser
-* **Where to go**: Open [gemini.google.com](https://gemini.google.com) in any browser.
-* **Setup required**: Sign in with your family Google account.
-* **Steps**:
-  1. Go to [gemini.google.com](https://gemini.google.com).
-  2. Tell Gemini your idea:
+### Gemini in Browser
+* **From**: [gemini.google.com](https://gemini.google.com) in any browser (logged into your family Google account).
+* **How it works**:
+  1. Open [gemini.google.com](https://gemini.google.com).
+  2. Describe your idea:
      > *"Design a Pet Care Tracker widget for Scout for our family dashboard with checkmarks for breakfast, dinner, and walks."*
-  3. Gemini creates your feature blueprint for Dad and Bennett to build!
+  3. Gemini drafts a structured blueprint spec for Dad and Bennett to build into the dashboard.
 
 ---
 
-### Option 3: Antigravity Desktop App
+### Antigravity Desktop App
 
 > A clean AI chat app for your computer — no code files or complex menus.
 
@@ -79,9 +74,9 @@ flowchart TD
 
 ---
 
-### Option 4: VS Code + Antigravity (Full Developer)
+### VS Code + Antigravity
 
-> For Bennett & Dad: Full code editor, Git branches, and automated tests.
+> Full developer toolchain for Bennett & Dad with live code editor, Git branches, and automated tests.
 
 #### 1-Click Windows Setup (PowerShell or Command Prompt)
 Open **PowerShell** or **Command Prompt** and paste:

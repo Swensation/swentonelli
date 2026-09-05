@@ -712,6 +712,26 @@ async function runTests() {
     fs.existsSync(path.join(process.cwd(), "src", "components", "admin", "PipelineTracker.tsx")),
     "src/components/admin/PipelineTracker.tsx exists"
   );
+  assert(
+    adminSource.includes("<AutomationArchitectureDiagram"),
+    "Admin page integrates living Automation Architecture Diagram (Invariant 7)"
+  );
+  assert(
+    fs.existsSync(path.join(process.cwd(), "src", "components", "admin", "AutomationArchitectureDiagram.tsx")),
+    "src/components/admin/AutomationArchitectureDiagram.tsx exists"
+  );
+
+  const agentsRules = fs.readFileSync(path.join(process.cwd(), "AGENTS.md"), "utf-8");
+  assert(
+    agentsRules.includes("Automation Architecture & Living Pipeline Diagram Invariant") &&
+      agentsRules.includes("Stage 1 (Physical Origin)") &&
+      agentsRules.includes("Stage 5 (Tangible Concrete Result)"),
+    "AGENTS.md strictly codifies Invariant 7 living architecture diagram rule"
+  );
+  assert(
+    agentsRules.includes("Terse, Scannable UI Invariant"),
+    "AGENTS.md strictly codifies Invariant 8 terse, scannable UI rule"
+  );
 
   // 9. Checking 10 Bullard Lane Smart Systems Peer & Hardware Scaffolding
   console.log("\n9. Checking 10 Bullard Lane Smart Systems Peer & Hardware Scaffolding...");

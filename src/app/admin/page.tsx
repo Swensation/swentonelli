@@ -42,6 +42,7 @@ import { AdminDashboardData, MissingIconItem } from "@/lib/admin";
 import { ChildHeader } from "@/components/common/ChildHeader";
 import { MarkdownViewer } from "@/components/common/MarkdownViewer";
 import { PipelineTracker } from "@/components/admin/PipelineTracker";
+import { AutomationArchitectureDiagram } from "@/components/admin/AutomationArchitectureDiagram";
 import { useAuth } from "@/context/AuthContext";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
@@ -305,8 +306,8 @@ export default function AdminPage() {
                     <Bot className="w-5 h-5" />
                   </div>
                   <div>
-                    <h2 className="text-lg font-black text-white">Last System Update</h2>
-                    <p className="text-xs text-slate-400">Autonomous Feedback-to-Deploy Pipeline status</p>
+                    <h2 className="text-base font-black text-white">Last System Update</h2>
+                    <p className="text-xs text-slate-400">CI/CD Pipeline Status</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -366,6 +367,9 @@ export default function AdminPage() {
 
             {/* Operational Pipeline Tracker */}
             <PipelineTracker />
+
+            {/* Living Automation Architecture Diagram (Invariant 7) */}
+            <AutomationArchitectureDiagram />
 
             {/* 1. Pending Housekeeping Checklist */}
             <div className="glass-card p-6">

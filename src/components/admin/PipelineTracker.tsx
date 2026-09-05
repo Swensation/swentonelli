@@ -106,9 +106,9 @@ export function PipelineTracker() {
             <Activity className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="text-lg font-black text-white">Operational Pipeline Tracker</h2>
+            <h2 className="text-base font-black text-white">System Pipeline</h2>
             <p className="text-xs text-slate-400">
-              End-to-end telemetry across data ingestion, rules engine, CI/CD verification & live kiosk
+              Ingestion, rules engine, and verification status
             </p>
           </div>
         </div>
@@ -219,13 +219,11 @@ export function PipelineTracker() {
       </div>
 
       {/* Resilient Self-Healing Safeguard Notice */}
-      <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-slate-900/50 border border-slate-800 text-xs">
+      <div className="flex items-center justify-between gap-3 p-2.5 rounded-xl bg-slate-900/50 border border-slate-800 text-xs">
         <div className="flex items-center gap-2 text-slate-300">
           <ShieldCheck className="w-4 h-4 text-emerald-400 flex-shrink-0" />
           <span>
-            <strong>Autonomous Resilience Engine Active:</strong> Failures in any stage trigger the
-            Pipeline Surgeon to run root-cause analysis, auto-repair code, and retry with a 2-attempt
-            circuit breaker.
+            <strong>Self-Healing:</strong> Stage failures trigger automated remediation with 2-attempt circuit breaker.
           </span>
         </div>
       </div>

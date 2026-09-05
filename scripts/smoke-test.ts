@@ -736,7 +736,11 @@ async function runTests() {
 
   // Header & Grid Peer Navigation
   const houseHeaderFile = fs.readFileSync(path.join(process.cwd(), "src", "components", "layout", "Header.tsx"), "utf-8");
-  assert(houseHeaderFile.includes("10 Bullard Lane") && houseHeaderFile.includes("Family Calendar"), "Header implements peer switcher between Family Calendar and 10 Bullard Lane");
+  assert(
+    (houseHeaderFile.includes("Our Home") || houseHeaderFile.includes("10 Bullard Lane")) &&
+    (houseHeaderFile.includes("Our Calendar") || houseHeaderFile.includes("Family Calendar")),
+    "Header implements peer switcher between Our Calendar and Our Home"
+  );
 
   const gridFile = fs.readFileSync(path.join(process.cwd(), "src", "components", "layout", "DashboardGrid.tsx"), "utf-8");
   assert(gridFile.includes("HouseSystemsWidget"), "DashboardGrid integrates HouseSystemsWidget peer view");

@@ -75,9 +75,4 @@ flowchart TD
 2. **Handoff**: Inside VS Code Antigravity chat, paste:
    > *"Please help Bennett sign up for GitHub and get able to contribute at the same level that Dad is. Configure my git identity, authenticate GitHub via gh auth login, verify my .env.local Gemini credentials, run npm test, and launch the server."*
 
----
 
-## 👨‍💻 Admin & Verification
-
-- **GitHub Collaborators**: Add family members at [Swensation/swentonelli Settings ➔ Collaborators](https://github.com/Swensation/swentonelli/settings/access).
-- **Run Tests**: `npm test` *(156+ automated checks)*

@@ -259,7 +259,7 @@ export function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
                     setSuccessData(null);
                     onClose();
                   }}
-                  className="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs transition-all shadow-md"
+                  className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs transition-all shadow-md"
                 >
                   Done
                 </button>
@@ -342,7 +342,7 @@ export function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
                 <button
                   type="submit"
                   disabled={!dictatedText.trim() || isSubmitting}
-                  className="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs transition-all shadow-lg active:scale-95 flex items-center gap-2 disabled:opacity-50 disabled:pointer-events-none"
+                  className="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-black text-xs transition-all shadow-lg active:scale-95 flex items-center gap-2 disabled:opacity-50 disabled:pointer-events-none"
                 >
                   {isSubmitting ? (
                     <>

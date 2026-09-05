@@ -98,7 +98,7 @@ export function PipelineTracker() {
   ];
 
   return (
-    <div className="glass-card p-6 border-l-4 border-blue-500">
+    <div className="glass-card p-6 border border-blue-500/30">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-700/60 mb-5">
         <div className="flex items-center gap-2.5">

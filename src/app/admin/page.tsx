@@ -132,7 +132,7 @@ export default function AdminPage() {
           <div className="pt-2 space-y-2.5">
             <button
               onClick={loginWithGoogle}
-              className="w-full py-3 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-sm shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2"
+              className="w-full py-3 px-4 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-black text-sm shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2"
             >
               <span>Sign In as Dad (aswens@gmail.com)</span>
             </button>
@@ -159,7 +159,7 @@ export default function AdminPage() {
           <p className="text-xs text-slate-400 mt-2 mb-4">Could not retrieve system housekeeping state.</p>
           <button
             onClick={() => mutate()}
-            className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs"
+            className="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs"
           >
             Retry Connection
           </button>
@@ -174,7 +174,7 @@ export default function AdminPage() {
     <div className="min-h-screen bg-slate-950 text-slate-100 p-4 md:p-8 font-sans">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed top-5 right-5 z-50 px-4 py-3 rounded-2xl bg-emerald-500 text-slate-950 font-black text-sm shadow-2xl flex items-center gap-2 animate-bounce">
+        <div className="fixed top-5 right-5 z-50 px-4 py-3 rounded-2xl bg-emerald-600 text-white font-black text-sm shadow-2xl flex items-center gap-2 transition-all duration-300">
           <CheckCircle2 className="w-5 h-5" />
           <span>{toastMessage}</span>
         </div>
@@ -232,7 +232,7 @@ export default function AdminPage() {
             onClick={() => setActiveTab("general")}
             className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-xs md:text-sm transition-all flex-shrink-0 ${
               activeTab === "general"
-                ? "bg-amber-500 text-slate-950 shadow-md font-black"
+                ? "bg-amber-600 text-white shadow-md font-black"
                 : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
             }`}
           >
@@ -263,7 +263,7 @@ export default function AdminPage() {
             <CalendarIcon className="w-4 h-4" />
             <span>Family Calendar</span>
             {data.calendar.missingIcons.length > 0 && (
-              <span className="px-1.5 py-0.2 rounded-full bg-blue-400 text-slate-950 text-[10px] font-black">
+              <span className="px-1.5 py-0.2 rounded-full bg-blue-500 text-white text-[10px] font-black">
                 {data.calendar.missingIcons.length}
               </span>
             )}
@@ -298,7 +298,7 @@ export default function AdminPage() {
         {activeTab === "general" && (
           <div className="space-y-6">
             {/* Last System Update & Deployment Telemetry */}
-            <div className="glass-card p-6 border-l-4 border-amber-400">
+            <div className="glass-card p-6 border border-amber-500/30">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-700/60 mb-4">
                 <div className="flex items-center gap-2.5">
                   <div className="p-2 rounded-xl bg-amber-500/20 text-amber-400">
@@ -394,7 +394,7 @@ export default function AdminPage() {
                       className="p-4 rounded-2xl border transition-all bg-amber-500/5 border-amber-500/30 text-slate-200"
                     >
                       <div className="flex items-start gap-3">
-                        <div className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-black flex-shrink-0 mt-0.5 bg-amber-500 text-slate-950">
+                        <div className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-black flex-shrink-0 mt-0.5 bg-amber-600 text-white">
                           !
                         </div>
                         <div className="flex-1 min-w-0">
@@ -772,7 +772,7 @@ export default function AdminPage() {
                           <button
                             onClick={() => handleApproveIcon(item, customUrls[item.id])}
                             disabled={!customUrls[item.id] || approvingId === item.id}
-                            className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs transition-all disabled:opacity-50"
+                            className="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-black text-xs transition-all disabled:opacity-50"
                           >
                             Apply
                           </button>
@@ -948,7 +948,7 @@ export default function AdminPage() {
             {/* Quick Reference Summary Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Card 1: Standard Dismissal */}
-              <div className="glass-card p-5 border-l-4 border-emerald-500 space-y-3">
+              <div className="glass-card p-5 border border-emerald-500/30 space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-extrabold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
                     <Clock className="w-4 h-4" />
@@ -977,7 +977,7 @@ export default function AdminPage() {
               </div>
 
               {/* Card 2: Early Release Pickup */}
-              <div className="glass-card p-5 border-l-4 border-amber-500 space-y-3">
+              <div className="glass-card p-5 border border-amber-500/30 space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-extrabold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
                     <AlertTriangle className="w-4 h-4" />
@@ -1006,7 +1006,7 @@ export default function AdminPage() {
               </div>
 
               {/* Card 3: Departure Recommendation */}
-              <div className="glass-card p-5 border-l-4 border-sky-500 space-y-3">
+              <div className="glass-card p-5 border border-sky-500/30 space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-extrabold text-sky-400 uppercase tracking-wider flex items-center gap-1.5">
                     <Car className="w-4 h-4" />

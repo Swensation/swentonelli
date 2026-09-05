@@ -7,6 +7,7 @@
     "build": "next build && tsx scripts/copy-standalone-assets.ts",
     "start": "node .next/standalone/server.js",
     "test": "tsx scripts/smoke-test.ts",
+    "test:design": "npx --yes impeccable detect --no-advisory src/",
     "test:crawler": "tsx scripts/link-crawler-test.ts",
     "test:assets": "tsx scripts/test-live-assets.ts",
     "test:assets:prod": "tsx scripts/test-live-assets.ts --prod",

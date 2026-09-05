@@ -19,6 +19,7 @@ export class TestEvaluator {
    */
   evaluate(): EvaluationResult {
     let typecheckPassed = true;
+    let designPassed = true;
     let testsPassed = true;
     let fullStdout = "";
     let fullStderr = "";
@@ -43,7 +44,25 @@ export class TestEvaluator {
       }
     }
 
-    // 2. Run Test Gate Command
+    // 2. Run Design Anti-Pattern Detector if configured
+    if (this.config.evaluation.designCheckCommand) {
+      try {
+        const designOut = execSync(this.config.evaluation.designCheckCommand, {
+          stdio: "pipe",
+          timeout: 60000,
+        }).toString();
+        fullStdout += `--- Design Detector Output ---\n${designOut}\n`;
+      } catch (err: any) {
+        designPassed = false;
+        exitCode = err.status || 1;
+        const errOut = err.stdout?.toString() || "";
+        const errErr = err.stderr?.toString() || err.message;
+        fullStderr += `--- Design Detector Violations ---\n${errOut}\n${errErr}\n`;
+        failureSummary += `Design Anti-Pattern Violations:\n${errOut.slice(0, 500) || errErr.slice(0, 500)}\n`;
+      }
+    }
+
+    // 3. Run Test Gate Command
     try {
       const testOut = execSync(this.config.evaluation.testCommand, {
         stdio: "pipe",
@@ -77,11 +96,12 @@ export class TestEvaluator {
     }
 
     const hasTargetFileModifications = modifiedTargetFiles.length > 0;
-    const passed = typecheckPassed && testsPassed;
+    const passed = typecheckPassed && designPassed && testsPassed;
 
     return {
       passed,
       typecheckPassed,
+      designPassed,
       testsPassed,
       exitCode,
       stdout: fullStdout,

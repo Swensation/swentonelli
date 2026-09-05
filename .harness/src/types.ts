@@ -10,6 +10,7 @@ export interface HarnessConfig {
   };
   evaluation: {
     typecheckCommand?: string;
+    designCheckCommand?: string;
     testCommand: string;
     buildCheckCommand?: string;
   };
@@ -67,6 +68,7 @@ export interface CandidatePatch {
 export interface EvaluationResult {
   passed: boolean;
   typecheckPassed?: boolean;
+  designPassed?: boolean;
   testsPassed: boolean;
   exitCode: number;
   stdout: string;

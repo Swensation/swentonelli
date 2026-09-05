@@ -5,6 +5,7 @@
   },
   "evaluation": {
     "typecheckCommand": "npx tsc --noEmit",
+    "designCheckCommand": "npm run test:design",
     "testCommand": "npm test",
     "buildCheckCommand": "npm run build"
   },

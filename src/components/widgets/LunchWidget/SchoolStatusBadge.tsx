@@ -30,7 +30,7 @@ export function SchoolStatusBadge({ menu }: SchoolStatusBadgeProps) {
       )}
 
       {menu.isLastDay && (
-        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30 animate-bounce">
+        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30 animate-pulse">
           <Sun className="w-3 h-3 text-yellow-400" /> Summer Break!
         </span>
       )}

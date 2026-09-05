@@ -69,7 +69,7 @@ export function Header() {
               onClick={() => setActiveTab("calendar")}
               className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 active:scale-95 ${
                 activeTab === "calendar"
-                  ? "bg-amber-500 text-slate-950 shadow-sm"
+                  ? "bg-amber-600 text-white shadow-sm"
                   : "text-slate-400 hover:text-white"
               }`}
               title="Switch to Family Calendar"
@@ -81,7 +81,7 @@ export function Header() {
               onClick={() => setActiveTab("house")}
               className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 active:scale-95 ${
                 activeTab === "house"
-                  ? "bg-emerald-500 text-slate-950 shadow-sm"
+                  ? "bg-emerald-600 text-white shadow-sm"
                   : "text-slate-400 hover:text-white"
               }`}
               title="Switch to 10 Bullard Lane Smart Systems"

@@ -59,7 +59,7 @@ export function MarkdownViewer({ content, title, filename, lastModified }: Markd
         elements.push(
           <div
             key={`quote-${elements.length}`}
-            className="my-4 p-4 rounded-2xl bg-amber-500/10 border-l-4 border-amber-400 text-slate-200 shadow-sm space-y-1"
+            className="my-4 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-slate-200 shadow-sm space-y-1"
           >
             {inQuote}
           </div>
@@ -255,7 +255,7 @@ export function MarkdownViewer({ content, title, filename, lastModified }: Markd
               onClick={() => setViewMode("rendered")}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                 viewMode === "rendered"
-                  ? "bg-amber-500 text-slate-950 shadow-sm"
+                  ? "bg-amber-600 text-white shadow-sm"
                   : "text-slate-400 hover:text-white"
               }`}
             >
@@ -266,7 +266,7 @@ export function MarkdownViewer({ content, title, filename, lastModified }: Markd
               onClick={() => setViewMode("raw")}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                 viewMode === "raw"
-                  ? "bg-amber-500 text-slate-950 shadow-sm"
+                  ? "bg-amber-600 text-white shadow-sm"
                   : "text-slate-400 hover:text-white"
               }`}
             >

@@ -23,9 +23,9 @@ We have tailored setup paths so everyone in the family can contribute comfortabl
 > **No code editor, no debugger windows, and no terminal required.** Just an AI chat window where you can request features, calendar adjustments, or dashboard changes in plain English.
 
 ### Step 1: Install Antigravity Standalone on Mac
-1. Download **Antigravity Standalone for Mac** (Apple Silicon or Intel).
+1. Download: **[👉 Download Antigravity for Mac (.dmg)](https://antigravity.google/download)**
 2. Drag **Antigravity** into your `Applications` folder and open it.
-3. In Antigravity, click **Open Project** (or **Clone Repository**) and select `Swensation/swentonelli`.
+3. In Antigravity, click **Open Project** and select `Swensation/swentonelli`.
 
 ### Step 2: Chat with Antigravity!
 Simply type what you want changed:

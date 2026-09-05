@@ -38,38 +38,38 @@ export function TemplateWidget() {
   const joke = JOKES[jokeIndex];
 
   return (
-    <div className="glass-card p-6 flex flex-col justify-between h-full bg-gradient-to-br from-indigo-950/40 to-purple-950/30 border-indigo-500/20">
+    <div className="glass-card p-6 flex flex-col justify-between h-full bg-slate-900/60 border-slate-700/60">
       <div>
         {/* Header */}
-        <div className="flex items-center justify-between pb-3 border-b border-indigo-900/50 mb-4">
+        <div className="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
           <div className="flex items-center gap-2">
-            <div className="p-2 rounded-xl bg-purple-500/20 text-purple-300">
+            <div className="p-2 rounded-xl bg-amber-500/20 text-amber-300">
               <Smile className="w-5 h-5" />
             </div>
             <div>
               <h3 className="font-extrabold text-white text-lg">Daily Fun & Joke</h3>
-              <p className="text-xs text-purple-300/80">Kids Custom Widget</p>
+              <p className="text-xs text-slate-400">Kids Custom Widget</p>
             </div>
           </div>
-          <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">
+          <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
             Kid Built 🚀
           </span>
         </div>
 
         {/* Joke Content */}
-        <div className="p-4 rounded-xl bg-slate-900/60 border border-indigo-500/30 text-center space-y-3">
+        <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-700/60 text-center space-y-3">
           <p className="text-base md:text-lg font-bold text-white leading-relaxed">
             &ldquo;{joke.q}&rdquo;
           </p>
 
           {showPunchline ? (
-            <div className="p-3 rounded-lg bg-indigo-950/80 border border-indigo-500/50 text-amber-300 font-extrabold text-lg animate-bounce">
+            <div className="p-3 rounded-lg bg-slate-800 border border-amber-500/50 text-amber-300 font-extrabold text-lg transition-all duration-300">
               {joke.a}
             </div>
           ) : (
             <button
               onClick={handleReveal}
-              className="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs md:text-sm shadow-md active:scale-95 transition-all flex items-center gap-1.5 mx-auto"
+              className="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs md:text-sm shadow-md active:scale-95 transition-all flex items-center gap-1.5 mx-auto"
             >
               <Sparkles className="w-4 h-4" /> Tap for Punchline!
             </button>

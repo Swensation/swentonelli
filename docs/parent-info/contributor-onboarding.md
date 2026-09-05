@@ -18,7 +18,7 @@ This guide provides simplified pathways tailored to each family member's comfort
 ## 🌸 Lane 1: Mom / Wife (Mac — Antigravity Standalone App)
 
 1. **Install Antigravity Standalone for Mac**:
-   - Download the `.dmg` installer for macOS.
+   - Download the app installer: **[👉 Download Antigravity for Mac (.dmg)](https://antigravity.google/download)**
    - Drag **Antigravity** into `Applications` and launch it.
 2. **Open the Swentonelli Repository**:
    - In Antigravity, click **Open Project** and select `Swensation/swentonelli`.

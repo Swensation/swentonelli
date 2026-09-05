@@ -29,7 +29,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <body className="bg-slate-950 bg-ambient min-h-screen text-slate-100 selection:bg-amber-500 selection:text-slate-950 p-4 md:p-6 lg:p-8 max-w-[1800px] mx-auto">
+      <body className="bg-slate-950 bg-ambient min-h-screen text-white selection:bg-amber-600 selection:text-white p-4 md:p-6 lg:p-8 max-w-[1800px] mx-auto">
         <AuthProvider>
           {children}
           <FloatingFeedbackButton />

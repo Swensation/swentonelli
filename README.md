@@ -54,8 +54,8 @@ flowchart TD
 ### 🤖 Antigravity Desktop App
 
 #### Step 1: Install the App
-* **🍎 Mac (because Daddy's got you baby!)**: **[👉 Download Antigravity for Mac (.dmg)](https://antigravity.google/download)** — Drag into `Applications` and open.
-* **🪟 Windows**: **[👉 Download Antigravity for Windows (.exe)](https://antigravity.google/download)** — Run the installer and open.
+* **🍎 Mac (because Daddy's got you baby!)**: **[👉 Download Antigravity for Mac (.dmg)](https://antigravity.google/download)**
+* **🪟 Windows**: **[👉 Download Antigravity for Windows (.exe)](https://antigravity.google/download)**
 
 #### Step 2: Open & Chat
 1. **Sign In**: Click **Sign in with Google**.

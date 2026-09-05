@@ -5,6 +5,7 @@ import Link from "next/link";
 import {
   Calendar as CalendarIcon,
   Dog,
+  HelpCircle,
   Home,
   LogIn,
   LogOut,
@@ -74,8 +75,19 @@ export function Header() {
           </button>
         </nav>
 
-        {/* Ribbon Right: QR Code + Dad Admin Utility Cluster */}
+        {/* Ribbon Right: Help Guide + QR Code + Dad Admin Utility Cluster */}
         <div className="flex items-center gap-2">
+          <a
+            href="https://github.com/Swensation/swentonelli#readme"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-2.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 hover:border-slate-700 transition-all flex items-center justify-center group shadow-sm active:scale-95"
+            title="How to Contribute (Help & Guides)"
+            aria-label="How to Contribute (Help & Guides)"
+          >
+            <HelpCircle className="w-4 h-4 text-sky-400 group-hover:scale-110 transition-transform" />
+          </a>
+
           <button
             onClick={() => setIsQrModalOpen(true)}
             className="p-2.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 hover:border-slate-700 transition-all flex items-center justify-center group shadow-sm active:scale-95"

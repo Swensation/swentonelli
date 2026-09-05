@@ -11,6 +11,7 @@ import { getDailyFamilySummary, filterActivityEvents } from "@/lib/annotations";
 import { AlertCircle, Calendar as CalendarIcon, Columns3, GraduationCap, Home, LayoutList, Sparkles, Utensils } from "lucide-react";
 import { useDashboard } from "@/context/DashboardContext";
 import { format } from "date-fns";
+import { DateStepper } from "@/components/calendar/DateStepper";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -48,14 +49,17 @@ export function CalendarWidget() {
 
   return (
     <div className="glass-card p-6 flex flex-col h-full">
-      {/* Pure Icon + Title Header + View Toggle (Zero Date Display) */}
-      <div className="flex items-center justify-between pb-4 border-b border-slate-700/60 mb-3 flex-wrap gap-2">
+      {/* Pure Icon + Title Header + View Toggle */}
+      <div className="flex items-center justify-between pb-4 border-b border-slate-700/60 mb-3 flex-wrap gap-3">
         <div className="flex items-center gap-2.5">
           <div className="p-2 rounded-xl bg-blue-500/20 text-blue-400">
             <CalendarIcon className="w-5 h-5" />
           </div>
           <h2 className="text-xl font-black text-white tracking-tight">Family Calendar</h2>
         </div>
+
+        {/* Master Date Stepper */}
+        <DateStepper />
 
         {/* View Mode Switcher */}
         <div className="flex items-center bg-slate-900/90 rounded-xl p-1 border border-slate-800 text-xs font-bold shadow-sm">

@@ -12,12 +12,15 @@ interface DashboardContextType {
   goToNextDay: () => void;
   isToday: boolean;
   isTomorrow: boolean;
+  activeTab: "calendar" | "house";
+  setActiveTab: (tab: "calendar" | "house") => void;
 }
 
 const DashboardContext = createContext<DashboardContextType | undefined>(undefined);
 
 export function DashboardProvider({ children }: { children: React.ReactNode }) {
   const [selectedDate, setSelectedDate] = useState<Date>(startOfDay(new Date()));
+  const [activeTab, setActiveTab] = useState<"calendar" | "house">("calendar");
 
   const today = startOfDay(new Date());
   const tomorrow = addDays(today, 1);
@@ -41,6 +44,8 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
         goToNextDay,
         isToday,
         isTomorrow,
+        activeTab,
+        setActiveTab,
       }}
     >
       {children}

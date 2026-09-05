@@ -1,0 +1,138 @@
+{
+  "houseName": "10 Bullard Lane",
+  "address": "10 Bullard Lane, Millis, MA",
+  "devices": [
+    {
+      "id": "06c841fc-7b20-f881-3194-3901fa31c728",
+      "name": "First Floor - Heat Pump",
+      "category": "climate",
+      "roomOrZone": "First Floor",
+      "provider": "smartthings",
+      "providerBrandName": "Samsung Electronics",
+      "status": "active",
+      "statusDetail": "Heat Pump Cooling Active",
+      "telemetry": {
+        "temperature": 69,
+        "targetTemperature": 70,
+        "powerState": "on",
+        "hvacMode": "cool"
+      }
+    },
+    {
+      "id": "7d994521-4166-98b2-d8b8-7946db220fda",
+      "name": "Second Floor - Heat Pump",
+      "category": "climate",
+      "roomOrZone": "Second Floor",
+      "provider": "smartthings",
+      "providerBrandName": "Samsung Electronics",
+      "status": "active",
+      "statusDetail": "Heat Pump Cooling Active",
+      "telemetry": {
+        "temperature": 71,
+        "targetTemperature": 72,
+        "powerState": "on",
+        "hvacMode": "cool"
+      }
+    },
+    {
+      "id": "818a506a-10f9-4ef9-9759-dedfe3aa11e5",
+      "name": "First Floor - Baseboard Heat",
+      "category": "climate",
+      "roomOrZone": "First Floor",
+      "provider": "ecobee",
+      "providerBrandName": "Ecobee",
+      "status": "idle",
+      "statusDetail": "Baseboard Heat Standby (Off for Summer)",
+      "telemetry": {
+        "temperature": 70,
+        "targetTemperature": 70,
+        "hvacMode": "off"
+      }
+    },
+    {
+      "id": "8902ef6b-bfdf-420d-a29e-e7bf20b67d6a",
+      "name": "Second Floor - Baseboard Heat",
+      "category": "climate",
+      "roomOrZone": "Second Floor",
+      "provider": "ecobee",
+      "providerBrandName": "Ecobee",
+      "status": "idle",
+      "statusDetail": "Baseboard Heat Standby (Off for Summer)",
+      "telemetry": {
+        "temperature": 70,
+        "targetTemperature": 69,
+        "hvacMode": "off"
+      }
+    },
+    {
+      "id": "sprinkler-controller",
+      "name": "Rain Bird ARC4 Sprinkler Controller",
+      "category": "irrigation",
+      "provider": "rainbird",
+      "providerBrandName": "Rain Bird ARC4",
+      "status": "unconfigured",
+      "statusDetail": "4-Zone Smart Sprinkler Controller • Rain Sensor armed",
+      "dadTodo": "Link Rain Bird in SmartThings app (+ > Add Device > Rain Bird)"
+    },
+    {
+      "id": "sprinkler-one-off-1",
+      "name": "SmartLife Hose Sprinkler 1",
+      "category": "irrigation",
+      "provider": "smartlife",
+      "providerBrandName": "SmartLife / Tuya",
+      "status": "unconfigured",
+      "statusDetail": "Hose Timer Valve • Controlled in SmartLife",
+      "dadTodo": "Link SmartLife in SmartThings app (+ > Add Device > SmartLife)"
+    },
+    {
+      "id": "sprinkler-one-off-2",
+      "name": "SmartLife Hose Sprinkler 2",
+      "category": "irrigation",
+      "provider": "smartlife",
+      "providerBrandName": "SmartLife / Tuya",
+      "status": "unconfigured",
+      "statusDetail": "Hose Timer Valve • Controlled in SmartLife",
+      "dadTodo": "Link SmartLife in SmartThings app (+ > Add Device > SmartLife)"
+    },
+    {
+      "id": "smart-outlet-1",
+      "name": "SmartLife Smart Outlet 1",
+      "category": "power",
+      "provider": "smartlife",
+      "providerBrandName": "SmartLife / Tuya",
+      "status": "unconfigured",
+      "statusDetail": "Smart Plug • Power & schedule in SmartLife",
+      "dadTodo": "Link SmartLife in SmartThings app"
+    },
+    {
+      "id": "smart-outlet-2",
+      "name": "SmartLife Smart Outlet 2",
+      "category": "power",
+      "provider": "smartlife",
+      "providerBrandName": "SmartLife / Tuya",
+      "status": "unconfigured",
+      "statusDetail": "Smart Plug • Power & schedule in SmartLife",
+      "dadTodo": "Link SmartLife in SmartThings app"
+    },
+    {
+      "id": "smart-outlet-3",
+      "name": "SmartLife Smart Outlet 3",
+      "category": "power",
+      "provider": "smartlife",
+      "providerBrandName": "SmartLife / Tuya",
+      "status": "unconfigured",
+      "statusDetail": "Smart Plug • Power & schedule in SmartLife",
+      "dadTodo": "Link SmartLife in SmartThings app"
+    },
+    {
+      "id": "alexa-assistant",
+      "name": "Alexa Voice Assistant",
+      "category": "assistant",
+      "provider": "alexa",
+      "providerBrandName": "Amazon Alexa",
+      "status": "unconfigured",
+      "statusDetail": "Echo Speakers & Household Audio",
+      "dadTodo": "Echo device status monitoring"
+    }
+  ]
+}

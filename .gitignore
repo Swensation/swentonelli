@@ -27,6 +27,11 @@ yarn-error.log*
 .env*.local
 .env
 
+# credentials and secrets
+.credentials/
+credentials*.json
+token*.json
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

@@ -8,6 +8,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Dog,
+  Home,
   LogIn,
   LogOut,
   QrCode,
@@ -21,7 +22,7 @@ export function Header() {
   const [imageError, setImageError] = useState(false);
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
   const dateInputRef = useRef<HTMLInputElement>(null);
-  const { selectedDate, goToPrevDay, goToNextDay, setSelectedDate } = useDashboard();
+  const { selectedDate, goToPrevDay, goToNextDay, setSelectedDate, activeTab, setActiveTab } = useDashboard();
   const { user, isAdmin, loginWithGoogle, logout } = useAuth();
 
   const formattedSelectedDate = format(selectedDate, "EEEE, MMMM d, yyyy");
@@ -62,50 +63,87 @@ export function Header() {
           {/* Divider */}
           <div className="h-8 w-px bg-slate-700/80 hidden sm:block" />
 
-          {/* Master Date Stepper + Interactive Calendar Picker (Rock-solid fixed width so < > never jump) */}
+          {/* Peer View Switcher */}
           <div className="flex items-center bg-slate-900/90 rounded-2xl border border-slate-800 p-1 shadow-sm">
             <button
-              onClick={goToPrevDay}
-              className="p-2 rounded-xl hover:bg-slate-800 text-slate-300 hover:text-white transition-all active:scale-95 flex-shrink-0"
-              title="Previous Day"
-              aria-label="Previous Day"
+              onClick={() => setActiveTab("calendar")}
+              className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 active:scale-95 ${
+                activeTab === "calendar"
+                  ? "bg-amber-500 text-slate-950 shadow-sm"
+                  : "text-slate-400 hover:text-white"
+              }`}
+              title="Switch to Family Calendar"
             >
-              <ChevronLeft className="w-5 h-5" />
+              <CalendarIcon className="w-3.5 h-3.5" />
+              <span>Family Calendar</span>
             </button>
-
-            {/* Clickable Date Display Container with FIXED Width to prevent jumping */}
-            <div className="relative w-[230px] sm:w-[260px] md:w-[300px] flex items-center justify-center">
-              <button
-                onClick={() => dateInputRef.current?.showPicker?.() || dateInputRef.current?.click()}
-                className="w-full flex items-center justify-center gap-2 px-2 py-1.5 rounded-xl hover:bg-slate-800/80 text-amber-400 hover:text-amber-300 transition-all font-sans group select-none"
-                title="Click to jump to any date"
-              >
-                <CalendarIcon className="w-4 h-4 text-amber-400/80 group-hover:text-amber-300 transition-transform group-hover:scale-110 flex-shrink-0" />
-                <span className="text-xs sm:text-sm md:text-base font-extrabold tracking-tight truncate text-center">
-                  {formattedSelectedDate}
-                </span>
-              </button>
-
-              <input
-                ref={dateInputRef}
-                type="date"
-                value={isoSelectedDate}
-                onChange={handleDateChange}
-                className="sr-only"
-                tabIndex={-1}
-                aria-label="Select Date"
-              />
-            </div>
-
             <button
-              onClick={goToNextDay}
-              className="p-2 rounded-xl hover:bg-slate-800 text-slate-300 hover:text-white transition-all active:scale-95 flex-shrink-0"
-              title="Next Day"
-              aria-label="Next Day"
+              onClick={() => setActiveTab("house")}
+              className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 active:scale-95 ${
+                activeTab === "house"
+                  ? "bg-emerald-500 text-slate-950 shadow-sm"
+                  : "text-slate-400 hover:text-white"
+              }`}
+              title="Switch to 10 Bullard Lane Smart Systems"
             >
-              <ChevronRight className="w-5 h-5" />
+              <Home className="w-3.5 h-3.5" />
+              <span>10 Bullard Lane</span>
             </button>
           </div>
+
+          {/* Master Date Stepper + Interactive Calendar Picker (Rock-solid fixed width so < > never jump) */}
+          {activeTab === "calendar" ? (
+            <div className="flex items-center bg-slate-900/90 rounded-2xl border border-slate-800 p-1 shadow-sm h-[46px]">
+              <button
+                onClick={goToPrevDay}
+                className="p-2 rounded-xl hover:bg-slate-800 text-slate-300 hover:text-white transition-all active:scale-95 flex-shrink-0"
+                title="Previous Day"
+                aria-label="Previous Day"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+
+              {/* Clickable Date Display Container with FIXED Width to prevent jumping */}
+              <div className="relative w-[230px] sm:w-[260px] md:w-[300px] flex items-center justify-center">
+                <button
+                  onClick={() => dateInputRef.current?.showPicker?.() || dateInputRef.current?.click()}
+                  className="w-full flex items-center justify-center gap-2 px-2 py-1.5 rounded-xl hover:bg-slate-800/80 text-amber-400 hover:text-amber-300 transition-all font-sans group select-none"
+                  title="Click to jump to any date"
+                >
+                  <CalendarIcon className="w-4 h-4 text-amber-400/80 group-hover:text-amber-300 transition-transform group-hover:scale-110 flex-shrink-0" />
+                  <span className="text-xs sm:text-sm md:text-base font-extrabold tracking-tight truncate text-center">
+                    {formattedSelectedDate}
+                  </span>
+                </button>
+
+                <input
+                  ref={dateInputRef}
+                  type="date"
+                  value={isoSelectedDate}
+                  onChange={handleDateChange}
+                  className="sr-only"
+                  tabIndex={-1}
+                  aria-label="Select Date"
+                />
+              </div>
+
+              <button
+                onClick={goToNextDay}
+                className="p-2 rounded-xl hover:bg-slate-800 text-slate-300 hover:text-white transition-all active:scale-95 flex-shrink-0"
+                title="Next Day"
+                aria-label="Next Day"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center bg-slate-900/90 rounded-2xl border border-slate-800 p-1 shadow-sm h-[46px] px-4 gap-2.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-xs sm:text-sm font-extrabold text-emerald-300">
+                10 Bullard Lane • Real-Time Monitor
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Ribbon Right: QR Code + Dad Admin Housekeeping (Gated on aswens@gmail.com) */}

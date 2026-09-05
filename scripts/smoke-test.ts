@@ -24,6 +24,7 @@ import { discoverIconForEventGroup } from "../src/lib/iconDiscovery";
 import { extractChildAnnotations, isAnnotationEvent, filterActivityEvents, getDailyFamilySummary } from "../src/lib/annotations";
 import { buildGoogleCalendarDirectUrl } from "../src/lib/calendar";
 import { getChildrenRegistry, findChildByEventText } from "../src/lib/childrenRegistry";
+import { getHouseSystemsData } from "../src/lib/houseSystems";
 
 async function fetchUrl(url: string, options?: RequestInit): Promise<{ status: number; body: string }> {
   const res = await fetch(url, options);
@@ -711,6 +712,40 @@ async function runTests() {
     fs.existsSync(path.join(process.cwd(), "src", "components", "admin", "PipelineTracker.tsx")),
     "src/components/admin/PipelineTracker.tsx exists"
   );
+
+  // 9. Checking 10 Bullard Lane Smart Systems Peer & Hardware Scaffolding
+  console.log("\n9. Checking 10 Bullard Lane Smart Systems Peer & Hardware Scaffolding...");
+  const houseDataPath = path.join(process.cwd(), "data", "house_systems.json");
+  assert(fs.existsSync(houseDataPath), "data/house_systems.json exists");
+
+  const houseSystems = getHouseSystemsData();
+  assert(houseSystems.houseName === "10 Bullard Lane", "House systems data configures '10 Bullard Lane'");
+  assert(houseSystems.address.includes("Millis, MA"), "House systems address correctly configures 'Millis, MA'");
+  assert(houseSystems.summary.totalDevices >= 8, `House systems includes all 10 Bullard Lane devices (found ${houseSystems.summary.totalDevices})`);
+
+  // Specific hardware requested by user
+  assert(houseSystems.devicesByCategory.climate.length >= 2, "Includes Samsung SmartThings & Ecobee thermostats");
+  assert(houseSystems.devicesByCategory.irrigation.length >= 3, "Includes smart sprinkler controller & one-off sprinklers");
+  assert(houseSystems.devicesByCategory.power.length >= 3, "Includes smart outlets & plugs");
+  assert(houseSystems.devicesByCategory.assistant.length >= 1, "Includes Alexa Echo devices");
+
+  // DAD TODO placeholders engine
+  assert(houseSystems.summary.unconfiguredDevices > 0, "Provides DAD TODO placeholders for unlinked hardware");
+  const samsungDevice = houseSystems.devicesByCategory.climate.find((d) => d.id === "samsung-thermostat" || d.provider === "smartthings");
+  assert(!!samsungDevice, "Samsung thermostat is present in climate devices");
+
+  // Header & Grid Peer Navigation
+  const houseHeaderFile = fs.readFileSync(path.join(process.cwd(), "src", "components", "layout", "Header.tsx"), "utf-8");
+  assert(houseHeaderFile.includes("10 Bullard Lane") && houseHeaderFile.includes("Family Calendar"), "Header implements peer switcher between Family Calendar and 10 Bullard Lane");
+
+  const gridFile = fs.readFileSync(path.join(process.cwd(), "src", "components", "layout", "DashboardGrid.tsx"), "utf-8");
+  assert(gridFile.includes("HouseSystemsWidget"), "DashboardGrid integrates HouseSystemsWidget peer view");
+
+  const houseWidgetPath = path.join(process.cwd(), "src", "components", "widgets", "HouseSystemsWidget", "HouseSystemsWidget.tsx");
+  assert(fs.existsSync(houseWidgetPath), "HouseSystemsWidget component file exists");
+  const houseWidgetContent = fs.readFileSync(houseWidgetPath, "utf-8");
+  assert(houseWidgetContent.includes("lg:grid-cols-4"), "HouseSystemsWidget implements 4-column layout matching Family Calendar");
+  assert(houseWidgetContent.includes("DAD TODO"), "HouseSystemsWidget displays DAD TODO badges");
 
   console.log("\n==========================================");
   console.log(`Test Results: ${passed} passed, ${failed} failed`);

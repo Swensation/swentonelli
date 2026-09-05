@@ -44,26 +44,6 @@ If you do not see PowerShell or are using standard Command Prompt (`cmd.exe`):
 
 ### Option C: 1-Click in Browser / Mac / iPad (Zero Install — Perfect for Mom & Non-Technical Users! 🌟)
 No terminal or downloads required:
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespaces/new?repo=Swensation/swentonelli)
-
-1. Click **[Open in GitHub Codespaces](https://github.com/codespaces/new?repo=Swensation/swentonelli)**.
-2. Sign in with GitHub.
-3. It launches a full VS Code and development environment right inside Safari or Chrome!
-
----
-
-### Option D: Mac (Double-Click Installer)
-If on Mac and prefer local install without typing commands in Terminal:
-1. Download **[`setup-mac.command`](https://raw.githubusercontent.com/Swensation/swentonelli/main/scripts/setup-mac.command)** to your Mac Desktop.
-2. Double-click **`setup-mac.command`** in Finder.
-3. It automatically downloads Git, Node.js, project files, and opens VS Code!
-
----
-
-### Option E: macOS / Linux (Terminal 1-Liner)
-If comfortable with Terminal:
-```bash
-curl -fsSL https://raw.githubusercontent.com/Swensation/swentonelli/main/scripts/bootstrap-contributor.sh | bash
 ```
 
 ---

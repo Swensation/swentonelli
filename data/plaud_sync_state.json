@@ -1,0 +1,119 @@
+{
+  "lastSyncTimestamp": "2026-09-03T12:55:04.755Z",
+  "processedRecordings": [
+    {
+      "recordingId": "78f0214902f03e37bcfbf4189678aaf5",
+      "title": "2026-09-02 07:23:29",
+      "processedAt": "2026-09-03T01:13:35.956Z",
+      "status": "moved_to_google_tasks",
+      "destinations": [
+        "google_tasks"
+      ],
+      "createdTasks": [
+        {
+          "taskList": "Brighton",
+          "taskId": "MHVXTGhLQzJxUzU3VHdDYw",
+          "title": "Give Brighton a battery pack for her watch for school",
+          "assignee": "Brighton"
+        },
+        {
+          "taskList": "Bennett",
+          "taskId": "Q0VYZDd0MEpUN24xWXVIaw",
+          "title": "Tell Bennett about his iPad limit",
+          "assignee": "Bennett"
+        }
+      ]
+    },
+    {
+      "recordingId": "24d16756fcdc2cfd3a54d51ed4862a21",
+      "title": "09-02 Reminder: Inform Callie about Bennett's Group",
+      "processedAt": "2026-09-03T01:13:36.218Z",
+      "status": "moved_to_google_tasks",
+      "destinations": [
+        "google_tasks"
+      ],
+      "createdTasks": [
+        {
+          "taskList": "Callie",
+          "taskId": "c3ZUaGZCaDMydjBhVjIzVA",
+          "title": "Tell Callie about Bennett's social group on Thursdays.",
+          "assignee": "Callie"
+        }
+      ]
+    },
+    {
+      "recordingId": "4355cd24e68c295f06d3f64c2888482a",
+      "title": "2026-09-02 13:44:07",
+      "processedAt": "2026-09-03T01:13:36.497Z",
+      "status": "moved_to_google_tasks",
+      "destinations": [
+        "google_tasks"
+      ],
+      "createdTasks": [
+        {
+          "taskList": "Andrew",
+          "taskId": "VWRBcHlzbHdrajRCX0kwTg",
+          "title": "Personal note for Andrew to call the doctor to schedule Brighton's medication",
+          "assignee": "Andrew"
+        }
+      ]
+    },
+    {
+      "recordingId": "dbd15ab62f94b7e68326e88fba4b24d0",
+      "title": "2026-09-02 15:26:29",
+      "processedAt": "2026-09-03T01:26:55.910Z",
+      "status": "moved_to_google_tasks",
+      "destinations": [
+        "google_tasks"
+      ],
+      "createdTasks": [
+        {
+          "taskList": "Andrew",
+          "taskId": "S3llUWxDY0xGUWJqVkpWNw",
+          "title": "Personal note for Andrew: Send Beth Brighton's therapist an email about getting on the wait list for after school, and send her a note summarizing the SSRI decisions",
+          "assignee": "Andrew"
+        },
+        {
+          "taskList": "Family",
+          "taskId": "bFRWbGhFLWJ5Z0Vwc2pMRg",
+          "title": "All in one email",
+          "assignee": "Family"
+        }
+      ]
+    },
+    {
+      "recordingId": "02549ebdce717247dc535c240bc94742",
+      "title": "2026-09-02 21:16:33",
+      "processedAt": "2026-09-03T01:26:56.098Z",
+      "status": "moved_to_google_tasks",
+      "destinations": [
+        "google_tasks"
+      ],
+      "createdTasks": [
+        {
+          "taskList": "Bennett",
+          "taskId": "UW0xNzVHUVZuenZIR0x6aQ",
+          "title": "Reminder, personal reminder for Andrews to check with Liz about picking up Bennett from the dentist and bring him to the dentist, bring him to football",
+          "assignee": "Bennett"
+        }
+      ]
+    },
+    {
+      "recordingId": "33f703eaa7e292bebc301c21b43dd048",
+      "title": "09-03 Dictation: HVAC Condensate Residue Investigation",
+      "processedAt": "2026-09-03T12:55:04.738Z",
+      "status": "moved_to_google_tasks",
+      "destinations": [
+        "google_tasks"
+      ],
+      "createdTasks": [
+        {
+          "taskList": "Andrew",
+          "taskId": "TDB0ZG43SlZSMjhoUmJ5aQ",
+          "title": "Review Antigravity research results on attic HVAC condensate white roof residue",
+          "assignee": "Andrew"
+        }
+      ]
+    }
+  ]
+}

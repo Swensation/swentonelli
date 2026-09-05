@@ -8,18 +8,28 @@ Welcome to the **Swentonelli Family Dashboard**! 🚀
 
 ```mermaid
 flowchart TD
-    Start([How do you want to contribute?]) --> Q1{Want to install anything?}
-    
-    Q1 -->|No, keep it in browser| Q2{What are you doing?}
-    Q2 -->|Send a feature request| Beagle["✨ The Beagle Chat<br><i>(On the planner)</i>"]
-    Q2 -->|Brainstorm new ideas & widgets| Gem["💬 Gemini in Browser<br><i>(gemini.google.com)</i>"]
-    
-    Q1 -->|Yes, install an app| Q3{Want to write raw code?}
-    Q3 -->|No, just talk with AI| AG["🤖 Antigravity Desktop App<br><i>(Pure chat for Mac & Windows)</i>"]
-    Q3 -->|Yes, code & test everything| VSC["💻 VS Code + Antigravity<br><i>(Desktop Developer IDE)</i>"]
+    Start([How do you want to contribute?]) --> Q1{What are you doing?}
 
+    %% Path 1: Quick requests / feedback on live screen
+    Q1 -->|Quick request / daily check-in| Ex1["📝 <b>Example</b><br><i>'Add picture day reminder'</i><br><i>'Highlight Friday pizza in yellow'</i>"]
+    Ex1 --> Opt1["✨ <b>The Beagle Chat</b><br><b>From:</b> On the Planner Webpage"]
+
+    %% Path 2: Brainstorming & spec creation
+    Q1 -->|Brainstorm ideas & design widgets| Ex2["📝 <b>Example</b><br><i>'Design a Scout pet care checklist'</i><br><i>'Create summer vacation countdown'</i>"]
+    Ex2 --> Opt2["💬 <b>Gemini in Browser</b><br><b>From:</b> gemini.google.com"]
+
+    %% Path 3: Direct desktop conversational app
+    Q1 -->|Talk with AI assistant on desktop| Ex3["📝 <b>Example</b><br><i>'Make soccer practices green'</i><br><i>'Add cleats alert for Thursday'</i>"]
+    Ex3 --> Opt3["🤖 <b>Antigravity Desktop App</b><br><b>From:</b> Desktop App (Mac & Windows)"]
+
+    %% Path 4: Full coding & testing
+    Q1 -->|Write code, build widgets & test| Ex4["📝 <b>Example</b><br><i>'Code new React widget component'</i><br><i>'Run test suite & push Git branch'</i>"]
+    Ex4 --> Opt4["💻 <b>VS Code + Antigravity</b><br><b>From:</b> Desktop Developer IDE"]
+
+    classDef exBox fill:#f8fafc,stroke:#94a3b8,stroke-width:1px,color:#334155;
     classDef optBox fill:#f0fdf4,stroke:#16a34a,stroke-width:2px,color:#15803d;
-    class Beagle,Gem,AG,VSC optBox;
+    class Ex1,Ex2,Ex3,Ex4 exBox;
+    class Opt1,Opt2,Opt3,Opt4 optBox;
 ```
 
 ---

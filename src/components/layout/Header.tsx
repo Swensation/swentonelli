@@ -56,10 +56,10 @@ export function Header() {
                 ? "bg-amber-600 text-white shadow-sm"
                 : "text-slate-400 hover:text-white hover:bg-slate-800/40"
             }`}
-            title="Family Calendar"
+            title="Our Calendar (Family Calendar)"
           >
             <CalendarIcon className="w-4 h-4" />
-            <span>Family Calendar</span>
+            <span>Our Calendar</span>
           </button>
           <button
             onClick={() => setActiveTab("house")}
@@ -68,10 +68,10 @@ export function Header() {
                 ? "bg-emerald-600 text-white shadow-sm"
                 : "text-slate-400 hover:text-white hover:bg-slate-800/40"
             }`}
-            title="10 Bullard Lane"
+            title="Our Home (10 Bullard Lane)"
           >
             <Home className="w-4 h-4" />
-            <span>10 Bullard Lane</span>
+            <span>Our Home</span>
           </button>
         </nav>
 

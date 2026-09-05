@@ -53,20 +53,17 @@ flowchart TD
 
 ### 🤖 Antigravity Desktop App
 
-#### 🍎 Mac Instructions (because Daddy's got you baby!)
-1. **Download**: **[👉 Download Antigravity for Mac (.dmg)](https://antigravity.google/download)**
-2. **Install**: Drag into `Applications` and open. Sign in with Google.
-3. **Open Project**: Click **Clone from GitHub / URL** and paste:
+#### Step 1: Install the App
+* **🍎 Mac (because Daddy's got you baby!)**: **[👉 Download Antigravity for Mac (.dmg)](https://antigravity.google/download)** — Drag into `Applications` and open.
+* **🪟 Windows**: **[👉 Download Antigravity for Windows (.exe)](https://antigravity.google/download)** — Run the installer and open.
+
+#### Step 2: Open & Chat
+1. **Sign In**: Click **Sign in with Google**.
+2. **Open Project**: Click **Clone from GitHub / URL** (or **Open Project**) and paste:
    ```
    https://github.com/Swensation/swentonelli
    ```
-4. **Chat**: Ask Antigravity for any updates (e.g. *"Implement driving directions for my sports"*).
-
-#### 🪟 Windows Instructions
-1. **Download**: **[👉 Download Antigravity for Windows (.exe)](https://antigravity.google/download)**
-2. **Install**: Run the installer and sign in with Google.
-3. **Open Project**: Click **Open Project** and select `Swensation/swentonelli`.
-4. **Chat**: Ask Antigravity for any updates you want!
+3. **Chat**: Ask Antigravity for any updates (e.g. *"Implement driving directions for my sports"*).
 
 ---
 

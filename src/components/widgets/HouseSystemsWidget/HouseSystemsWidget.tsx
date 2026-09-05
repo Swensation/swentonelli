@@ -1,13 +1,11 @@
 "use client";
 
-import { useState } from "react";
 import useSWR from "swr";
 import {
   AlertTriangle,
   Droplets,
   Home,
   Mic,
-  RotateCw,
   Thermometer,
   Zap,
 } from "lucide-react";
@@ -22,9 +20,6 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json());
 interface SystemColumnConfig {
   id: SmartDeviceCategory;
   title: string;
-  subtitle: string;
-  color: string;
-  borderColor: string;
   icon: React.ComponentType<{ className?: string }>;
 }
 
@@ -32,39 +27,27 @@ const COLUMNS: SystemColumnConfig[] = [
   {
     id: "climate",
     title: "Climate & Comfort",
-    subtitle: "House Thermostats",
-    color: "#f59e0b",
-    borderColor: "border-amber-500/40",
     icon: Thermometer,
   },
   {
     id: "irrigation",
     title: "Sprinklers",
-    subtitle: "Yard & Irrigation",
-    color: "#3b82f6",
-    borderColor: "border-blue-500/40",
     icon: Droplets,
   },
   {
     id: "power",
     title: "Smart Outlets",
-    subtitle: "Plugs & Power",
-    color: "#a855f7",
-    borderColor: "border-purple-500/40",
     icon: Zap,
   },
   {
     id: "assistant",
     title: "Alexa",
-    subtitle: "Voice & Speakers",
-    color: "#0ea5e9",
-    borderColor: "border-sky-500/40",
     icon: Mic,
   },
 ];
 
 export function HouseSystemsWidget() {
-  const { data, isLoading, mutate } = useSWR<HouseSystemsResponse>(
+  const { data } = useSWR<HouseSystemsResponse>(
     "/api/house-systems",
     fetcher,
     {
@@ -73,14 +56,6 @@ export function HouseSystemsWidget() {
     }
   );
 
-  const [isRefreshing, setIsRefreshing] = useState(false);
-
-  const handleManualRefresh = async () => {
-    setIsRefreshing(true);
-    await mutate();
-    setTimeout(() => setIsRefreshing(false), 500);
-  };
-
   const devicesByCategory = data?.devicesByCategory || {
     climate: [],
     irrigation: [],
@@ -88,40 +63,15 @@ export function HouseSystemsWidget() {
     assistant: [],
   };
 
-  const summary = data?.summary;
-  const alerts = data?.alerts || [];
-
   return (
     <div className="glass-card p-6 flex flex-col h-full">
-      {/* Compact Pure Icon + Title Header matching Family Calendar */}
+      {/* Clean Icon + Title Header matching Our Calendar */}
       <div className="flex items-center justify-between pb-4 border-b border-slate-700/60 mb-3 flex-wrap gap-2">
         <div className="flex items-center gap-2.5">
           <div className="p-2 rounded-xl bg-emerald-500/20 text-emerald-400">
             <Home className="w-5 h-5" />
           </div>
-          <h2 className="text-xl font-black text-white tracking-tight">10 Bullard Lane</h2>
-        </div>
-
-        {/* Status Controls Pill matching Family Calendar View Mode Switcher */}
-        <div className="flex items-center bg-slate-900/90 rounded-xl p-1 border border-slate-800 text-xs font-bold shadow-sm gap-1">
-          {summary && summary.unconfiguredDevices > 0 && (
-            <span className="hidden lg:inline-flex px-2 py-1 rounded-lg bg-amber-500/15 text-amber-300 border border-amber-500/25 text-[11px] font-extrabold">
-              {summary.unconfiguredDevices} DAD TODO
-            </span>
-          )}
-          <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/15 text-emerald-300 font-extrabold border border-emerald-500/20">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            SmartThings Live
-          </span>
-          <button
-            onClick={handleManualRefresh}
-            disabled={isRefreshing || isLoading}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition-all active:scale-95 disabled:opacity-50"
-            title="Refresh live telemetry"
-          >
-            <RotateCw className={`w-3.5 h-3.5 ${isRefreshing ? "animate-spin text-amber-400" : ""}`} />
-            <span className="hidden sm:inline">Refresh</span>
-          </button>
+          <h2 className="text-xl font-black text-white tracking-tight">Our Home</h2>
         </div>
       </div>
 
@@ -137,39 +87,16 @@ export function HouseSystemsWidget() {
               return (
                 <div
                   key={col.id}
-                  className={`rounded-2xl p-3.5 bg-slate-900/85 border-2 flex flex-col h-full min-h-[360px] shadow-lg transition-all ${col.borderColor}`}
+                  className="rounded-2xl p-3.5 bg-slate-900/85 border border-slate-800 flex flex-col h-full min-h-[360px] shadow-lg transition-all"
                 >
-                  {/* Column Header matching ChildHeader geometry */}
-                  <div className="flex items-center justify-between gap-2.5 pb-3 mb-3 border-b border-slate-800/80">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div
-                        className="w-14 h-14 rounded-full overflow-hidden flex items-center justify-center border border-slate-700/80 flex-shrink-0 shadow-md"
-                        style={{ backgroundColor: `${col.color}15`, color: col.color }}
-                      >
-                        <Icon className="w-6 h-6" />
-                      </div>
-                      <div className="min-w-0">
-                        <h3 className="font-black text-white text-base md:text-lg tracking-tight truncate leading-tight">
-                          {col.title}
-                        </h3>
-                        <p className="text-[11px] text-slate-400 font-medium truncate">
-                          {col.subtitle}
-                        </p>
-                      </div>
+                  {/* Column Header */}
+                  <div className="flex items-center gap-3 pb-3 mb-3 border-b border-slate-800/80">
+                    <div className="w-10 h-10 rounded-xl bg-slate-800/80 text-slate-300 flex items-center justify-center border border-slate-700/50 flex-shrink-0">
+                      <Icon className="w-5 h-5" />
                     </div>
-
-                    <div className="flex flex-col items-end gap-1 flex-shrink-0 whitespace-nowrap ml-auto">
-                      <span
-                        className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border flex items-center gap-1 shadow-sm"
-                        style={{
-                          backgroundColor: isClimate ? `${col.color}20` : "rgba(30, 41, 59, 0.6)",
-                          borderColor: isClimate ? `${col.color}40` : "rgba(51, 65, 85, 0.6)",
-                          color: isClimate ? col.color : "#94a3b8",
-                        }}
-                      >
-                        {isClimate ? "2 Floors" : "0 Devices"}
-                      </span>
-                    </div>
+                    <h3 className="font-black text-white text-base md:text-lg tracking-tight truncate leading-tight">
+                      {col.title}
+                    </h3>
                   </div>
 
                   {/* Column Content */}
@@ -177,8 +104,9 @@ export function HouseSystemsWidget() {
                     <ClimateColumnContent devices={devices} />
                   ) : (
                     <div className="flex-1 flex flex-col items-center justify-center text-slate-500 py-12 text-center rounded-xl border border-dashed border-slate-800/80 bg-slate-950/30 p-4">
-                      <p className="text-xs font-semibold text-slate-400">Ready to Connect</p>
-                      <p className="text-[11px] text-slate-500 mt-1">No devices active</p>
+                      <p className="text-xs font-extrabold tracking-wider uppercase text-amber-400/80">
+                        Dad To Do
+                      </p>
                     </div>
                   )}
                 </div>
@@ -248,9 +176,6 @@ function ClimateColumnContent({ devices }: { devices: SmartDevice[] }) {
         <div className="flex items-center justify-between">
           <div>
             <h4 className="text-sm font-extrabold text-white tracking-tight">First Floor</h4>
-            <span className="text-[11px] text-slate-400 font-medium">
-              Set: <strong className="text-slate-200">{firstTarget}°F</strong>
-            </span>
           </div>
           <div className="text-right">
             <span className="text-2xl font-black text-white">{firstTemp}°F</span>
@@ -290,9 +215,6 @@ function ClimateColumnContent({ devices }: { devices: SmartDevice[] }) {
         <div className="flex items-center justify-between">
           <div>
             <h4 className="text-sm font-extrabold text-white tracking-tight">Second Floor</h4>
-            <span className="text-[11px] text-slate-400 font-medium">
-              Set: <strong className="text-slate-200">{secondTarget}°F</strong>
-            </span>
           </div>
           <div className="text-right">
             <span className="text-2xl font-black text-white">{secondTemp}°F</span>

@@ -55,7 +55,7 @@ export function CalendarWidget() {
           <div className="p-2 rounded-xl bg-blue-500/20 text-blue-400">
             <CalendarIcon className="w-5 h-5" />
           </div>
-          <h2 className="text-xl font-black text-white tracking-tight">Family Calendar</h2>
+          <h2 className="text-xl font-black text-white tracking-tight">Our Calendar</h2>
         </div>
 
         {/* Master Date Stepper */}

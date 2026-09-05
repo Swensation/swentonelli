@@ -34,69 +34,49 @@ flowchart TD
 
 ---
 
-## 🛠️ Contribution Pathways
+## 🛠️ How to Use
 
 ### ✨ The Beagle Chat
-* **From**: On the Planner screen.
-* **Capability**: Send feature requests directly from the dashboard. AI attempts automatic implementation or funnels the request to Dad.
-* **How to use**:
-  1. Click the **"✨ Suggest Idea / Request Change"** button on the screen.
-  2. Type or voice-record your request.
-  3. The system updates your preferences or queues the feature.
-
-> 💬 **Example:** *"Make the events list their duration"*.
+1. Click **"✨ Suggest Idea / Request Change"** on the planner screen.
+2. Type or voice-record your request (e.g. *"Make the events list their duration"*).
+3. The AI attempts to make the change automatically or sends it to Dad for review.
 
 ---
 
 ### 💬 Gemini in Browser
-* **From**: [gemini.google.com](https://gemini.google.com) (in any browser, logged into your family Google account).
-* **Capability**: Brainstorm ideas and have AI draft complete, structured feature blueprints and widget specs.
-* **How to use**:
-  1. Open [gemini.google.com](https://gemini.google.com).
-  2. Describe your feature idea:
-     > *"Design a Who Fed Scout widget for our family dashboard with checkmarks for breakfast, dinner, and walks."*
-  3. Gemini writes a complete blueprint spec for Dad and Bennett to build into the dashboard.
-
-> 💬 **Example:** *"Design a Who Fed Scout widget"*.
+1. Open **[gemini.google.com](https://gemini.google.com)** in any browser.
+2. Ask Gemini to design your feature:
+   > *"Design a Who Fed Scout widget for our family dashboard with checkmarks for breakfast, dinner, and walks."*
+3. Share the blueprint with Dad and Bennett to build it into the dashboard!
 
 ---
 
 ### 🤖 Antigravity Desktop App
-* **From**: Desktop App on your Mac or Windows PC.
-* **Capability**: Clean, conversational AI workspace connected directly to the repository — zero code clutter, zero terminal.
 
 #### 🍎 Mac Instructions (because Daddy's got you baby!)
 1. **Download**: **[👉 Download Antigravity for Mac (.dmg)](https://antigravity.google/download)**
-2. **Install**: Drag **Antigravity** into `Applications` and open it.
-3. **Sign In**: Click **Sign in with Google**.
-4. **Open Dashboard**: Click **Clone from GitHub / URL**, paste:
+2. **Install**: Drag into `Applications` and open. Sign in with Google.
+3. **Open Project**: Click **Clone from GitHub / URL** and paste:
    ```
    https://github.com/Swensation/swentonelli
    ```
-5. **Chat**: Ask Antigravity for any dashboard updates you want!
+4. **Chat**: Ask Antigravity for any updates (e.g. *"Implement driving directions for my sports"*).
 
 #### 🪟 Windows Instructions
 1. **Download**: **[👉 Download Antigravity for Windows (.exe)](https://antigravity.google/download)**
 2. **Install**: Run the installer and sign in with Google.
-3. **Open Dashboard**: Click **Open Project** and select `Swensation/swentonelli`.
-4. **Chat**: Type what you'd like changed and Antigravity handles the rest!
-
-> 💬 **Example:** *"Implement driving directions for my sports"*.
+3. **Open Project**: Click **Open Project** and select `Swensation/swentonelli`.
+4. **Chat**: Ask Antigravity for any updates you want!
 
 ---
 
 ### 💻 VS Code + Antigravity
-* **From**: Desktop Developer IDE on Windows PC.
-* **Capability**: Full developer toolchain for writing React components, adding APIs, running automated test suites, and pushing Git branches.
-* **How to use**:
-  1. **1-Click Setup**: Open PowerShell or Command Prompt and run:
-     ```powershell
-     irm https://raw.githubusercontent.com/Swensation/swentonelli/main/scripts/bootstrap-contributor.ps1 | iex
-     ```
-  2. **Antigravity Handoff**: Inside VS Code, open the **Antigravity** chat panel and paste:
-     > *"Please help Bennett sign up for GitHub and get able to contribute at the same level that Dad is. Configure my git identity, authenticate GitHub via gh auth login, verify my .env.local Gemini credentials, run npm test, and launch the server."*
-
-> 💬 **Example:** *"I want to be a nerd"* (coding React components, building widgets, running `npm test`, and submitting pull requests).
+1. **1-Click Setup**: Run in PowerShell or Command Prompt:
+   ```powershell
+   irm https://raw.githubusercontent.com/Swensation/swentonelli/main/scripts/bootstrap-contributor.ps1 | iex
+   ```
+2. **Handoff**: Inside VS Code Antigravity chat, paste:
+   > *"Please help Bennett sign up for GitHub and get able to contribute at the same level that Dad is. Configure my git identity, authenticate GitHub via gh auth login, verify my .env.local Gemini credentials, run npm test, and launch the server."*
 
 ---
 

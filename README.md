@@ -2,119 +2,105 @@
 
 Welcome to the **Swentonelli Family Engineering Dashboard**! 🚀
 
-A modern Next.js + Tailwind CSS unified family timeline, school schedule, custody coordination, sports hub, and kid-designed widgets powered by Google Gemini AI and autonomous agent CI/CD pipelines.
-
 ---
 
-## 🧭 Family Contributor Pathways (Choose Your Lane!)
+## 👨‍👩‍👧‍👦 Family Pathways (Who Uses What)
 
-We have tailored setup paths so everyone in the family can contribute comfortably without feeling overwhelmed:
-
-| Family Member | Best Path | Why It's Best |
+| Family Member | Best Match | Level |
 | :--- | :--- | :--- |
-| 🌸 **Mom / Wife (Mac)** | **[Lane 1: Antigravity Standalone](#-lane-1-mom--wife-mac--antigravity-standalone-app)** | Clean, pure chat canvas. **Zero code editor clutter, zero terminal.** |
-| 🎈 **Kids (Aria, Brighton, Benjamin)** | **[Lane 2: Pure Web Browser Chat](#-lane-2-the-kids-aria-brighton-benjamin--pure-web-browser-chat)** | **Zero downloads or installs.** Works on Chromebook, iPad, Mac, or PC. |
-| 💻 **Bennett & Dad (Windows PC)** | **[Lane 3: VS Code + Antigravity](#-lane-3-bennett--dad-windows-pc--vs-code--antigravity)** | Full developer toolchain with live code editor, automated tests, and terminal. |
+| 🎈 **Kids (Aria, Brighton, Benjamin)** | **Option 1 (The Beagle Chat)** or **Option 2 (Gemini Chat)** | Simplest |
+| 🌸 **Mom / Wife** | **Option 3 (Antigravity Standalone)** | Pure Chat |
+| 💻 **Bennett & Dad** | **Option 4 (VS Code + Antigravity)** | Full Developer |
 
 ---
 
-## 🌸 Lane 1: Mom / Wife (Mac — Antigravity Standalone App)
+## 🚀 We Have Many Options How to Contribute!
+*(Ranked from simplest to most complex)*
 
-> **No code editor, no debugger windows, and no terminal required.** Just an AI chat window where you can request features, calendar adjustments, or dashboard changes in plain English.
-
-### Step 1: Install Antigravity Standalone on Mac
-1. Download: **[👉 Download Antigravity for Mac (.dmg)](https://antigravity.google/download)**
-2. Drag **Antigravity** into your `Applications` folder and open it.
-3. In Antigravity, click **Open Project** and select `Swensation/swentonelli`.
-
-### Step 2: Chat with Antigravity!
-Simply type what you want changed:
-> *"Please show sports practices earlier on the timeline, add a reminder badge for school picture day on Tuesday, and make sure the therapy appointments are colored in purple."*
+| Option | From Where | Example Thing You Can Do | Get Started |
+| :--- | :--- | :--- | :--- |
+| **1. The Beagle Chat** | Directly on the dashboard webpage | *"Vote thumbs-up on Friday tacos"*, *"Scout ate breakfast"* | [Jump to Setup 1](#option-1-the-beagle-chat-on-webpage) |
+| **2. Gemini Chat in Browser** | Any web browser (`gemini.google.com`) | *"Design a summer countdown widget with confetti"* | [Jump to Setup 2](#option-2-gemini-chat-in-browser) |
+| **3. Antigravity Install** | Desktop app on your PC or Mac | *"Make sports events purple and add a picture day badge"* | [Jump to Setup 3](#option-3-antigravity-standalone-app) |
+| **4. VS Code** | Full IDE on computer | Write code, build widgets, run tests, push Git branches | [Jump to Setup 4](#option-4-vs-code--antigravity-full-developer) |
 
 ---
 
-## 🎈 Lane 2: The Kids (Aria, Brighton, Benjamin — Pure Web Browser Chat)
+## 🛠️ Detailed Setup Guides
 
-> **No downloads, no installations!** Works right inside Chrome, Safari, or an iPad browser.
-
-### Step 1: Open the Web Chat
-1. Open your browser on any tablet, laptop, or phone.
-2. Go to the family project web interface:
-   👉 **[Swentonelli Cloud Agent Web Chat](https://github.com/codespaces/new?repo=Swensation/swentonelli)**
-3. Sign in with your Google or GitHub account.
-
-### Step 2: Use the Kids Prompting Guide
-Kids can build widgets and customize the family screen by talking to the agent:
-- *"Change my avatar to my favorite character!"*
-- *"Build a Pet Care Widget so we can check off when Scout gets fed and walked."*
-- *"Add a countdown widget to our summer vacation!"*
-
-📘 *See the full [Kids Prompting Guide](docs/KIDS_PROMPTING_GUIDE.md) for fun idea starters!*
+### Option 1: The Beagle Chat (On Webpage)
+* **From Where**: Right on the live family dashboard (`http://localhost:3000` or deployed web app).
+* **Setup**: None!
+* **How to Use**:
+  1. Click the **"✨ Suggest Idea / Request Change"** button on the dashboard.
+  2. Type or speak what you want.
+  3. Gemini updates your preferences or logs your request instantly.
 
 ---
 
-## 💻 Lane 3: Bennett & Dad (Windows PC — VS Code + Antigravity)
+### Option 2: Gemini Chat in Browser
+* **From Where**: Any browser (Chromebook, iPad, laptop) at [gemini.google.com](https://gemini.google.com).
+* **Setup**: Just be logged into your family Google account.
+* **How to Use**:
+  1. Open [gemini.google.com](https://gemini.google.com).
+  2. Ask Gemini to design a feature:
+     > *"Design a Pet Care Tracker widget for Scout for our family dashboard with checkmarks for breakfast, dinner, and walks."*
+  3. Gemini writes the blueprint, and Dad or Bennett runs Antigravity to build it.
 
-> **Full developer setup with Git, Node.js, automated test suites, and VS Code.**
+---
 
-### Option A: 1-Click Install via PowerShell
-Open **PowerShell** (<kbd>Win</kbd> + <kbd>X</kbd> ➔ **Terminal** or **PowerShell**) and paste:
+### Option 3: Antigravity Standalone App
+
+> Clean desktop chat window. **No code editor, no terminal.**
+
+#### 🍎 Mac Instructions (because Daddy's got you baby!)
+1. **Download**: **[👉 Download Antigravity for Mac (.dmg)](https://antigravity.google/download)**
+2. **Install**: Drag **Antigravity** into your `Applications` folder and open it.
+3. **Sign In**: Click **Sign in with Google** (1 click).
+4. **Open Repo**: Click **Clone from GitHub / URL**, paste:
+   ```
+   https://github.com/Swensation/swentonelli
+   ```
+5. **Chat**: Ask Antigravity for anything you want updated!
+
+#### 🪟 Windows PC Instructions
+1. Download & run Antigravity for Windows.
+2. Sign in with Google.
+3. Click **Open Project** ➔ `Swensation/swentonelli`.
+
+---
+
+### Option 4: VS Code + Antigravity (Full Developer)
+
+> For Bennett & Dad: Full code editor, Git branches, and automated tests.
+
+#### 1-Click Windows Setup (PowerShell or Command Prompt)
+Open **PowerShell** or **Command Prompt** and paste:
 ```powershell
 irm https://raw.githubusercontent.com/Swensation/swentonelli/main/scripts/bootstrap-contributor.ps1 | iex
 ```
 
-### Option B: 1-Click Install via Command Prompt (`cmd.exe`)
-If PowerShell is not pinned, open **Command Prompt** and paste:
-```cmd
-powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/Swensation/swentonelli/main/scripts/bootstrap-contributor.ps1 | iex"
-```
-
-### Option C: Manual Install
-```cmd
-winget install Git.Git OpenJS.NodeJS.LTS GitHub.cli Microsoft.VisualStudioCode Python.Python.3.12
-mkdir %USERPROFILE%\personal
-cd %USERPROFILE%\personal
-git clone https://github.com/Swensation/swentonelli.git
-cd swentonelli
-npm install
-code .
-```
+#### The 1-Prompt Handoff
+Inside VS Code, open the **Antigravity** chat panel and paste:
+> *"Please help Bennett sign up for GitHub and get able to contribute at the same level that Dad is. Configure my git identity, authenticate GitHub via `gh auth login`, verify my `.env.local` Gemini credentials, run `npm test`, and launch the local server."*
 
 ---
 
-## 🤖 The 1-Prompt Hand-Off for Bennett
+## 👨‍💻 Dad's Checklist
 
-Once VS Code opens on Bennett's machine, open the **Antigravity** chat panel and paste:
-
-> *"Please help Bennett (my son) sign up for GitHub and get able to contribute at the same level that Dad is. Configure my git identity, authenticate GitHub via `gh auth login`, verify my `.env.local` Gemini credentials, run `npm test`, and launch the local server."*
-
----
-
-## 👨‍💻 Dad's Admin Checklist
-
-1. **GitHub Collaborators**: When family members get their GitHub account, add them with Write access at [Swensation/swentonelli Settings ➔ Collaborators](https://github.com/Swensation/swentonelli/settings/access).
-2. **Gemini API Key**: Add the family Gemini key to their local `.env.local`:
-   ```env
-   GEMINI_API_KEY=your_gemini_api_key_here
-   ```
+1. **GitHub Invites**: Add family collaborators at [Swensation/swentonelli Settings ➔ Collaborators](https://github.com/Swensation/swentonelli/settings/access).
+2. **Gemini Key**: Add `GEMINI_API_KEY` to local `.env.local`.
 
 ---
 
-## 🧪 Development & Verification Commands
+## 🧪 Verification Commands
 
-- **Run Automated Test Suite (156+ checks)**:
-  ```bash
-  npm test
-  ```
-- **Start Local Web Server**:
-  ```bash
-  npm run dev
-  ```
-  *(Opens on [http://localhost:3000](http://localhost:3000)).*
+- **Run Tests**: `npm test` *(156+ automated checks)*
+- **Start Local Server**: `npm run dev` *(http://localhost:3000)*
 
 ---
 
-## 📚 Family Documentation & Guides
+## 📚 Family Guides
 - [Kids Prompting & Feature Guide](docs/KIDS_PROMPTING_GUIDE.md)
 - [Architecture & Invariants](docs/ARCHITECTURE.md)
 - [Contributor Onboarding Guide](docs/ONBOARDING.md)

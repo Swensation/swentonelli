@@ -1,6 +1,8 @@
 # 🚀 Kids & Family Guide: Build Widgets with Spec-Driven Design!
 
 Welcome to the **Swentonelli Family Dashboard**! 🎉  
+You don't need to know any programming or open complicated tools. You can use the **[Pure Web Browser Chat](https://github.com/codespaces/new?repo=Swensation/swentonelli)** on your iPad, Chromebook, or laptop and just talk to Antigravity in plain English!
+
 In software engineering, the best way to build awesome things without bugs or confusion is called **Spec-Driven Design** (we call it **Blueprint First**).
 
 ---
@@ -9,7 +11,7 @@ In software engineering, the best way to build awesome things without bugs or co
 
 ```mermaid
 graph LR
-    A[1. Vibe Chat with AI] --> B[2. AI writes your Blueprint / Spec]
+    A[1. Chat your Idea in Browser] --> B[2. AI writes your Blueprint]
     B --> C[3. You check & approve the Blueprint]
     C --> D[4. AI builds your widget perfectly!]
 ```
